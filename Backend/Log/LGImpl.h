@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -8,8 +9,7 @@
 namespace Log {
     class LGImpl: public Layer::NonTemplateBase {
         private:
-            e_logLevel m_level;
-            e_logSink m_sink;
+            std::unordered_map <e_logLevel, e_logSink> m_logConfigs;
             std::string m_saveDirPath;
             std::string m_saveFileName;
             bool m_headerDisabled;
@@ -34,25 +34,24 @@ namespace Log {
             }
 
         public:
-            LGImpl (const e_logLevel level,
-                    const e_logSink sink,
-                    const std::string saveDirPath,
-                    const std::string saveFileName,
-                    const bool headerDisabled = false) {
+            LGImpl (const bool headerDisabled = false) {
+                /* Default log configs */
+                m_logConfigs[LOG_LEVEL_INFO]    = LOG_SINK_CONSOLE;
+                m_logConfigs[LOG_LEVEL_WARNING] = LOG_SINK_CONSOLE;
+                m_logConfigs[LOG_LEVEL_ERROR]   = LOG_SINK_CONSOLE;
 
-                m_level          = level;
-                m_sink           = sink;
-                m_saveDirPath    = saveDirPath;
-                m_saveFileName   = saveFileName;
-                m_headerDisabled = headerDisabled;
+                m_saveDirPath                   = ".";
+                m_saveFileName                  = "log.txt";
+                m_headerDisabled                = headerDisabled;
             }
 
-            void updateLevel (const e_logLevel level) {
-                m_level = level;
+            void updateLogConfig (const e_logLevel level, const e_logSink sink) {
+                m_logConfigs[level] = sink;
             }
 
-            void updateSink (const e_logSink sink) {
-                m_sink = sink;
+            void updateSaveLocation (const std::string saveDirPath, const std::string saveFileName) {
+                m_saveDirPath  = saveDirPath;
+                m_saveFileName = saveFileName;
             }
 
             void writeToSink (const e_logLevel level,
@@ -60,18 +59,18 @@ namespace Log {
                               const char* functionName,
                               const int32_t lineNumber) {
 
-                /* Level filtering */
-                if ((m_level & level) == 0)
+                /* Filtering */
+                if (m_logConfigs[level] == LOG_SINK_NONE)
                     return;
 
                 std::string header     = getHeader (level, functionName, lineNumber);
                 std::string logMessage = m_headerDisabled ? message : header + message;
+                auto sink              = m_logConfigs[level];
 
-                /* Sink filtering */
-                if (m_sink & LOG_SINK_CONSOLE)
+                if (sink & LOG_SINK_CONSOLE)
                     std::cout << logMessage << std::endl;
 
-                if (m_sink & LOG_SINK_FILE) {
+                if (sink & LOG_SINK_FILE) {
                     std::ofstream file;
                     file.open (m_saveDirPath + "/" + m_saveFileName, std::ios::app);
                     file << logMessage << std::endl;

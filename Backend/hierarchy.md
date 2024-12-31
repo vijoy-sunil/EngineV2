@@ -13,7 +13,7 @@
 <pre>
     |<----------------------|LYCommon [PUB]
     |<----------------------:LGEnum
-    |LGImpl                 {fstream}, {sstream}, {iostream}
+    |LGImpl                 {map}, {fstream}, {sstream}, {iostream}
 
     :LGMacro
 </pre>
