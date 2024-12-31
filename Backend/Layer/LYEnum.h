@@ -26,7 +26,7 @@ namespace Layer {
             case LAYER_INSTANCE_MISSING_BINDING:        return "LAYER_INSTANCE_MISSING_BINDING";
             case VALID_REQUEST:                         return "VALID_REQUEST";
             case PENDING_REQUEST:                       return "PENDING_REQUEST";
-            default:                                    return "UNKNOWN_LAYER_CODE";
+            default:                                    return "UNDEFINED_LAYER_CODE";
         }
     }
 }   // namespace Layer
