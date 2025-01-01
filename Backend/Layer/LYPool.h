@@ -28,16 +28,19 @@ namespace Layer {
 
         public:
             ~LYPool (void) {
-                e_layerCode code = PENDING_REQUEST;
-                /* Note that, we are destroying all the layers (and thus the destroy bindings) in the destructor. This
-                 * way, we are not leaking any memory when a pool is destroyed
+                auto code = PENDING_REQUEST;
+                /* Note that, we are destroying all the layers (and thus executing the destroy bindings) in the
+                 * destructor. This way, we are not leaking any memory when a pool is destroyed
                 */
-                for (auto const& [layerId, infos]: m_layerPool)
-                    destroyLayer (layerId, code);
+                for (auto it = m_layerPool.begin(); it != m_layerPool.end();) {
+                    auto itToErase = it;
+                    ++it;
+                    destroyLayer (itToErase->first, code);
+                }
             }
 
             void runPool (void) {
-                e_layerCode code = PENDING_REQUEST;
+                auto code = PENDING_REQUEST;
                 /* Note that, not having an unordered map for the pool is essential if you want to run the layers in
                  * the order they were created
                 */
