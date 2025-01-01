@@ -5,14 +5,30 @@
 #include <iostream>
 #include "../Layer/LYCommon.h"
 #include "LGEnum.h"
+/* Log macros */
+#define LOG_INFO(message)   writeToSink (Log::LOG_LEVEL_INFO,    message, __FUNCTION__, __LINE__)
+#define LOG_WARN(message)   writeToSink (Log::LOG_LEVEL_WARNING, message, __FUNCTION__, __LINE__)
+#define LOG_ERRO(message)   writeToSink (Log::LOG_LEVEL_ERROR,   message, __FUNCTION__, __LINE__)
 
 namespace Log {
     class LGImpl: public Layer::NonTemplateBase {
         private:
-            std::unordered_map <e_logLevel, e_logSink> m_logConfigs;
-            std::string m_saveDirPath;
-            std::string m_saveFileName;
-            bool m_headerDisabled;
+            struct LogInfo {
+                struct Meta {
+                    std::unordered_map <e_logLevel, e_logSink> logConfigs;
+                } meta;
+
+                struct State {
+                    bool headerDisabled;
+                } state;
+
+                struct Path {
+                    std::string saveDir;
+                    std::string saveFileName;
+                } path;
+            } m_logInfo;
+
+            LogInfo m_savedLogInfo;
 
             std::string getTimeStamp (void) {
                 std::stringstream stream;
@@ -36,22 +52,35 @@ namespace Log {
         public:
             LGImpl (const bool headerDisabled = false) {
                 /* Default log configs */
-                m_logConfigs[LOG_LEVEL_INFO]    = LOG_SINK_CONSOLE;
-                m_logConfigs[LOG_LEVEL_WARNING] = LOG_SINK_CONSOLE;
-                m_logConfigs[LOG_LEVEL_ERROR]   = LOG_SINK_CONSOLE;
+                m_logInfo.meta.logConfigs[LOG_LEVEL_INFO]    = LOG_SINK_CONSOLE;
+                m_logInfo.meta.logConfigs[LOG_LEVEL_WARNING] = LOG_SINK_CONSOLE;
+                m_logInfo.meta.logConfigs[LOG_LEVEL_ERROR]   = LOG_SINK_CONSOLE;
 
-                m_saveDirPath                   = ".";
-                m_saveFileName                  = "log.txt";
-                m_headerDisabled                = headerDisabled;
+                m_logInfo.state.headerDisabled               = headerDisabled;
+                m_logInfo.path.saveDir                       = ".";
+                m_logInfo.path.saveFileName                  = "log.txt";
+                m_savedLogInfo                               = m_logInfo;
             }
 
             void updateLogConfig (const e_logLevel level, const e_logSink sink) {
-                m_logConfigs[level] = sink;
+                m_logInfo.meta.logConfigs[level] = sink;
             }
 
             void updateSaveLocation (const std::string saveDirPath, const std::string saveFileName) {
-                m_saveDirPath  = saveDirPath;
-                m_saveFileName = saveFileName;
+                m_logInfo.path.saveDir      = saveDirPath;
+                m_logInfo.path.saveFileName = saveFileName;
+            }
+
+            /* The save and restore methods can be used to temporarily change for example, the log configs in a specific
+             * file or function by saving them first and then upon exiting the said file/function, restore the original
+             * config data
+            */
+            void saveLogInfo (void) {
+                m_savedLogInfo = m_logInfo;
+            }
+
+            void restoreLogInfo (void) {
+                m_logInfo = m_savedLogInfo;
             }
 
             void writeToSink (const e_logLevel level,
@@ -60,19 +89,19 @@ namespace Log {
                               const int32_t lineNumber) {
 
                 /* Filtering */
-                if (m_logConfigs[level] == LOG_SINK_NONE)
+                if (m_logInfo.meta.logConfigs[level] == LOG_SINK_NONE)
                     return;
 
                 std::string header     = getHeader (level, functionName, lineNumber);
-                std::string logMessage = m_headerDisabled ? message : header + message;
-                auto sink              = m_logConfigs[level];
+                std::string logMessage = m_logInfo.state.headerDisabled ? message : header + message;
+                auto sink              = m_logInfo.meta.logConfigs[level];
 
                 if (sink & LOG_SINK_CONSOLE)
                     std::cout << logMessage << std::endl;
 
                 if (sink & LOG_SINK_FILE) {
                     std::ofstream file;
-                    file.open (m_saveDirPath + "/" + m_saveFileName, std::ios::app);
+                    file.open (m_logInfo.path.saveDir + "/" + m_logInfo.path.saveFileName, std::ios::app);
                     file << logMessage << std::endl;
                     file.close();
                 }
