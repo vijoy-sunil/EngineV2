@@ -18,7 +18,7 @@ namespace Layer {
                 } state;
 
                 struct Resource {
-                    NonTemplateBase* instance;
+                    NonTemplateBase* instanceObj;
                     /* Bindings */
                     std::function <void (void)> run;
                     std::function <void (void)> destroy;
@@ -109,11 +109,11 @@ namespace Layer {
                     else {
                         code = VALID_REQUEST;
                         InstanceInfo info;
-                        info.meta.id           = instanceId;
-                        info.state.runDisabled = false;
-                        info.resource.instance = nullptr;
-                        info.resource.run      = nullptr;
-                        info.resource.destroy  = nullptr;
+                        info.meta.id              = instanceId;
+                        info.state.runDisabled    = false;
+                        info.resource.instanceObj = nullptr;
+                        info.resource.run         = nullptr;
+                        info.resource.destroy     = nullptr;
 
                         infos.push_back (info);
                     }

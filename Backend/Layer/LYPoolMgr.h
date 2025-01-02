@@ -15,8 +15,8 @@ namespace Layer {
 
             /* Static method to access the singleton instance */
             static LYPoolMgr& getLayerPoolMgr (void) {
-                static LYPoolMgr mgr;
-                return mgr;
+                static LYPoolMgr mgrObj;
+                return mgrObj;
             }
 
             LYPool* createLayerPool (const char* poolId, e_layerCode& code) {
