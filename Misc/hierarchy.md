@@ -14,3 +14,10 @@
     |<----------------------:LGEnum
     |LGImpl                 {map}, {fstream}, {sstream}, {iostream}
 </pre>
+
+## Core/
+<pre>
+    |<----------------------|LYCommon [PUB]
+    |<----------------------:LGImpl
+    |VKWindow               {glfw3}, {map}, {functional}
+</pre>
