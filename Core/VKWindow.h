@@ -1,13 +1,13 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <map>
+#include <unordered_map>
 #include <functional>
-#include "../Backend/Layer/LYCommon.h"
+#include "../Backend/Layer/LYInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 
 namespace Core {
-    class VKWindow: public Layer::NonTemplateBase {
+    class VKWindow: public Layer::LYInstanceBase {
         private:
             struct WindowInfo {
                 struct Meta {
@@ -44,9 +44,9 @@ namespace Core {
             std::unordered_map <int, KeyEventInfo> m_keyEventInfoPool;
 
             /* Callbacks */
-            static void resizeCallback (GLFWwindow* window,
-                                        int width,
-                                        int height) {
+            static void windowResizeCallback (GLFWwindow* window,
+                                              const int width,
+                                              const int height) {
 
                 /* Suppress unused parameter warning */
                 static_cast <void> (width);
@@ -57,11 +57,11 @@ namespace Core {
                  * resize, it is not guaranteed to happen. That's why we'll add some extra code to also handle resizes
                  * explicitly using this boolean
                 */
-                thisPtr->setResized (true);
+                thisPtr->setWindowResized (true);
             }
 
-            static void iconifyCallback (GLFWwindow* window,
-                                         int iconified) {
+            static void windowIconifyCallback (GLFWwindow* window,
+                                               const int iconified) {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
                 if (iconified)  thisPtr->m_windowInfo.state.iconified = true;
@@ -69,8 +69,8 @@ namespace Core {
             }
 
             static void cursorPositionCallback (GLFWwindow* window,
-                                                double xPos,
-                                                double yPos) {
+                                                const double xPos,
+                                                const double yPos) {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
                 if (thisPtr->m_windowInfo.resource.runCursorPosition != nullptr)
@@ -78,8 +78,8 @@ namespace Core {
             }
 
             static void scrollOffsetCallback (GLFWwindow* window,
-                                              double xOffset,
-                                              double yOffset) {
+                                              const double xOffset,
+                                              const double yOffset) {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
                 if (thisPtr->m_windowInfo.resource.runScrollOffset != nullptr)
@@ -87,10 +87,10 @@ namespace Core {
             }
 
             static void keyEventCallback (GLFWwindow* window,
-                                          int key,
-                                          int scanCode,
-                                          int action,
-                                          int mods) {
+                                          const int key,
+                                          const int scanCode,
+                                          const int action,
+                                          const int mods) {
 
                 static_cast <void>  (scanCode);
                 static_cast <void>  (mods);
@@ -116,21 +116,10 @@ namespace Core {
                       const std::function <void (double, double)> runCursorPosition = nullptr,
                       const std::function <void (double, double)> runScrollOffset   = nullptr) {
 
-                m_windowInfo.meta.width                 = width;
-                m_windowInfo.meta.height                = height;
-                m_windowInfo.meta.title                 = title;
-
-                m_windowInfo.state.resizeDisabled       = resizeDisabled;
-                m_windowInfo.state.resized              = false;
-                m_windowInfo.state.iconified            = false;
-
                 if (logObj == nullptr) {
                     m_windowInfo.resource.logObj        = new Log::LGImpl();
-                    m_windowInfo.resource.logObj->updateLogConfig    (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                    m_windowInfo.resource.logObj->updateLogConfig    (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_FILE);
-                    m_windowInfo.resource.logObj->updateLogConfig    (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_FILE);
-                    m_windowInfo.resource.logObj->updateSaveLocation ("Build/Log/Core", "VKWindow.txt");
-                    m_windowInfo.resource.logObj->LOG_WARN           ("logObj = nullptr, creating a new one");
+                    LOG_WARNING (m_windowInfo.resource.logObj) << NULL_LOGOBJ_MSG
+                                                               << std::endl;
                     /* Set boolean to free the allocated object later */
                     m_windowInfo.state.logObjCreated    = true;
                 }
@@ -139,20 +128,28 @@ namespace Core {
                     m_windowInfo.state.logObjCreated    = false;
                 }
 
+                m_windowInfo.meta.width                 = width;
+                m_windowInfo.meta.height                = height;
+                m_windowInfo.meta.title                 = title;
+
+                m_windowInfo.state.resizeDisabled       = resizeDisabled;
+                m_windowInfo.state.resized              = false;
+                m_windowInfo.state.iconified            = false;
+
                 m_windowInfo.resource.window            = nullptr;
                 m_windowInfo.resource.runCursorPosition = runCursorPosition;
                 m_windowInfo.resource.runScrollOffset   = runScrollOffset;
             }
 
-            bool isResized (void) {
+            bool isWindowResized (void) {
                 return m_windowInfo.state.resized;
             }
 
-            bool isIconified (void) {
+            bool isWindowIconified (void) {
                 return m_windowInfo.state.iconified;
             }
 
-            void setResized (const bool val) {
+            void setWindowResized (const bool val) {
                 m_windowInfo.state.resized = val;
             }
 
@@ -182,16 +179,16 @@ namespace Core {
                 }
             }
 
-            void setKeyEventBinding (const int key, const std::function <void (float)> binding) {
-                m_keyEventInfoPool[key].state.pressed = false;
-                m_keyEventInfoPool[key].resource.run  = binding;
-            }
-
             void toggleKeyEventCallback (const bool val) {
                 if (val)
                     glfwSetKeyCallback (m_windowInfo.resource.window, keyEventCallback);
                 else
                     glfwSetKeyCallback (m_windowInfo.resource.window, nullptr);
+            }
+
+            void setKeyEventBinding (const int key, const std::function <void (float)> binding) {
+                m_keyEventInfoPool[key].state.pressed = false;
+                m_keyEventInfoPool[key].resource.run  = binding;
             }
 
             void handleKeyEvents (const float frameDelta) {
@@ -214,10 +211,11 @@ namespace Core {
                                                                  nullptr);
 
                 glfwSetWindowUserPointer       (m_windowInfo.resource.window, this);
-                glfwSetFramebufferSizeCallback (m_windowInfo.resource.window, resizeCallback);
-                glfwSetWindowIconifyCallback   (m_windowInfo.resource.window, iconifyCallback);
+                glfwSetFramebufferSizeCallback (m_windowInfo.resource.window, windowResizeCallback);
+                glfwSetWindowIconifyCallback   (m_windowInfo.resource.window, windowIconifyCallback);
 
-                m_windowInfo.resource.logObj->LOG_INFO ("[O] Window");
+                LOG_INFO (m_windowInfo.resource.logObj) << "[O] Window"
+                                                        << std::endl;
             }
 
             void destroyWindow (void) {
@@ -229,7 +227,8 @@ namespace Core {
                 glfwDestroyWindow (m_windowInfo.resource.window);
                 glfwTerminate();
 
-                m_windowInfo.resource.logObj->LOG_INFO ("[X] Window");
+                LOG_INFO (m_windowInfo.resource.logObj) << "[X] Window"
+                                                        << std::endl;
                 if (m_windowInfo.state.logObjCreated)
                     delete m_windowInfo.resource.logObj;
             }
