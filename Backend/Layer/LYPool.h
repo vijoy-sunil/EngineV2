@@ -2,7 +2,7 @@
 #include <map>
 #include <iostream>
 #include <functional>
-#include "LYCommon.h"
+#include "LYInstanceBase.h"
 #include "LYEnum.h"
 
 namespace Layer {
@@ -18,7 +18,7 @@ namespace Layer {
                 } state;
 
                 struct Resource {
-                    NonTemplateBase* instanceObj;
+                    LYInstanceBase* obj;
                     /* Bindings */
                     std::function <void (void)> run;
                     std::function <void (void)> destroy;
@@ -27,25 +27,26 @@ namespace Layer {
             std::map <int32_t, std::vector <InstanceInfo>> m_layerPool;
 
         public:
-            ~LYPool (void) {
-                auto code = PENDING_REQUEST;
-                /* Note that, we are destroying all the layers (and thus executing the destroy bindings) in the
-                 * destructor. This way, we are not leaking any memory when a pool is destroyed
-                */
-                for (auto it = m_layerPool.begin(); it != m_layerPool.end();) {
-                    auto itToErase = it;
-                    ++it;
-                    destroyLayer (itToErase->first, code);
-                }
+            void runAllLayers (void) {
+                auto codes = std::vector <e_layerCode> {};
+                for (auto const& [layerId, infos]: m_layerPool)
+                    runLayer (layerId, codes);
             }
 
-            void runPool (void) {
-                auto code = PENDING_REQUEST;
-                /* Note that, not having an unordered map for the pool is essential if you want to run the layers in
-                 * the order they were created
+            /* 3-step destroy */
+            void destroyAllLayers (void) {
+                for (auto it = m_layerPool.rbegin(); it != m_layerPool.rend(); it++) {
+                    for (auto const& info: it->second) {
+                        if (info.resource.destroy != nullptr)
+                            info.resource.destroy();            /* (1) */
+
+                        delete info.resource.obj;               /* (2) */
+                    }
+                }
+                /* It is less complicated to clear the whole map at once, instead of individual layers since we do not
+                 * have to worry about invalidating the iterator after each erase call
                 */
-                for (auto const& [layerId, infos]: m_layerPool)
-                    runLayer (layerId, code);
+                m_layerPool.clear();                            /* (3) */
             }
 
             void createLayer (const int32_t layerId, e_layerCode& code) {
@@ -68,29 +69,38 @@ namespace Layer {
                 }
             }
 
-            void runLayer (const int32_t layerId, e_layerCode& code) {
+            void runLayer (const int32_t layerId, std::vector <e_layerCode>& codes) {
+                auto code = PENDING_REQUEST;
+
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
-                    code = VALID_REQUEST;
                     for (auto const& info: m_layerPool[layerId]) {
-                        if (!(info.state.runDisabled) && (info.resource.run != nullptr))
-                            info.resource.run();
+                        std::string instanceId = info.meta.id;
+                        runLayerInstance (layerId, instanceId, code);
+                        codes.push_back  (code);
                     }
                 }
-                else
+                else {
                     code = LAYER_DOES_NOT_EXIST;
+                    codes.push_back (code);
+                }
             }
 
-            void destroyLayer (const int32_t layerId, e_layerCode& code) {
+            /* 4-step destroy */
+            void destroyLayer (const int32_t layerId, std::vector <e_layerCode>& codes) {
+                auto code = PENDING_REQUEST;
+
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
-                    code = VALID_REQUEST;
                     for (auto const& info: m_layerPool[layerId]) {
-                        if (info.resource.destroy != nullptr)
-                            info.resource.destroy();
+                        std::string instanceId = info.meta.id;
+                        destroyLayerInstance (layerId, instanceId, code);   /* (1), (2), (3) */
+                        codes.push_back      (code);
                     }
-                    m_layerPool.erase (layerId);
+                    m_layerPool.erase (layerId);                            /* (4) */
                 }
-                else
+                else {
                     code = LAYER_DOES_NOT_EXIST;
+                    codes.push_back (code);
+                }
             }
 
             void createLayerInstance (const int32_t layerId,
@@ -109,11 +119,11 @@ namespace Layer {
                     else {
                         code = VALID_REQUEST;
                         InstanceInfo info;
-                        info.meta.id              = instanceId;
-                        info.state.runDisabled    = false;
-                        info.resource.instanceObj = nullptr;
-                        info.resource.run         = nullptr;
-                        info.resource.destroy     = nullptr;
+                        info.meta.id           = instanceId;
+                        info.state.runDisabled = false;
+                        info.resource.obj      = nullptr;
+                        info.resource.run      = nullptr;
+                        info.resource.destroy  = nullptr;
 
                         infos.push_back (info);
                     }
@@ -176,6 +186,7 @@ namespace Layer {
                     code = LAYER_DOES_NOT_EXIST;
             }
 
+            /* 3-step destroy */
             void destroyLayerInstance (const int32_t layerId,
                                        const std::string instanceId,
                                        e_layerCode& code) {
@@ -190,11 +201,13 @@ namespace Layer {
                     if (it != infos.end()) {
                         if (it->resource.destroy != nullptr) {
                             code = VALID_REQUEST;
-                            it->resource.destroy();
+                            it->resource.destroy();                 /* (1) */
                         }
                         else
                             code = LAYER_INSTANCE_MISSING_BINDING;
-                        infos.erase (it);
+
+                        delete it->resource.obj;                    /* (2) */
+                        infos.erase (it);                           /* (3) */
                     }
                     else
                         code = LAYER_INSTANCE_DOES_NOT_EXIST;

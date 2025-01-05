@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_map>
+#include <iostream>
 #include "LYPool.h"
 
 namespace Layer {
@@ -40,11 +42,13 @@ namespace Layer {
                 }
             }
 
+            /* 3-step destroy */
             void destroyLayerPool (const char* poolId, e_layerCode& code) {
                 if (m_layerPools.find (poolId) != m_layerPools.end()) {
                     code = VALID_REQUEST;
-                    delete m_layerPools[poolId];
-                    m_layerPools.erase (poolId);
+                    m_layerPools[poolId]->destroyAllLayers();   /* (1) */
+                    delete m_layerPools[poolId];                /* (2) */
+                    m_layerPools.erase (poolId);                /* (3) */
                 }
                 else
                     code = LAYER_POOL_DOES_NOT_EXIST;
