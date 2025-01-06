@@ -108,7 +108,7 @@ namespace Core {
             }
 
         public:
-            VKWindow (Log::LGImpl *logObj,
+            VKWindow (Log::LGImpl* logObj,
                       const int width,
                       const int height,
                       const char* title,
