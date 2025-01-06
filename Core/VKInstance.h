@@ -17,6 +17,7 @@ namespace Core {
                 } meta;
 
                 struct State {
+                    bool extensionsSupported;
                     bool validationLayersDisabled;
                     bool validationLayersSupported;
                     bool logObjCreated;
@@ -138,6 +139,7 @@ namespace Core {
                  * screen, we need to use the WSI (Window System Integration) extensions (ex: VK_KHR_surface) (included
                  * in glfw extensions)
                 */
+                glfwInit();
                 auto glfwExtensions          = glfwGetRequiredInstanceExtensions (&glfwExtensionsCount);
                 auto& extensions             = m_instanceInfo.meta.extensions;
 
@@ -155,7 +157,7 @@ namespace Core {
                     extensions.emplace_back (VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
             }
 
-            bool isInstanceExtensionsSupported (void) {
+            bool isInstanceExtensionsSupportedEXT (void) {
                 uint32_t extensionsCount = 0;
                 vkEnumerateInstanceExtensionProperties (nullptr, &extensionsCount, nullptr);
                 std::vector <VkExtensionProperties> availableExtensions (extensionsCount);
@@ -241,10 +243,15 @@ namespace Core {
 
                 populateInstanceExtensions();
                 m_instanceInfo.meta.validationLayers           = validationLayers;
+                m_instanceInfo.state.extensionsSupported       = isInstanceExtensionsSupportedEXT();
                 m_instanceInfo.state.validationLayersDisabled  = validationLayersDisabled;
                 m_instanceInfo.state.validationLayersSupported = isValidationLayersSupportedEXT();
                 m_instanceInfo.resource.instance               = nullptr;
                 m_instanceInfo.resource.debugUtilsMessenger    = nullptr;
+            }
+
+            bool isInstanceExtensionsSupported (void) {
+                return m_instanceInfo.state.extensionsSupported;
             }
 
             bool isValidationLayersDisabled (void) {
@@ -261,6 +268,10 @@ namespace Core {
 
             std::vector <const char*> getValidationLayers (void) {
                 return m_instanceInfo.meta.validationLayers;
+            }
+
+            VkInstance* getInstance (void) {
+                return &m_instanceInfo.resource.instance;
             }
 
             void createInstance (void) {
