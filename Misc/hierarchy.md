@@ -24,4 +24,10 @@
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
     |VKWindow               {glfw3}, {unordered_map}, {functional}
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKInstance
+    |<----------------------:VKWindow
+    |VKSurface              {glfw3}, {vk_enum_string_helper}
 </pre>
