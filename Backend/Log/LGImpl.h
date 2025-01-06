@@ -15,7 +15,7 @@
                                             << " "                                              \
                                             << "[" << getLogLevelString (level) << "]"          \
                                             << " "                                              \
-                                            << std::left << std::setw (30) << __FUNCTION__      \
+                                            << std::left << std::setw (35) << __FUNCTION__      \
                                             << " "                                              \
                                             << std::left << std::setw (4)  << __LINE__          \
                                             << " "
