@@ -1,0 +1,101 @@
+-------------------------------------------------------------------------------------------------------------------------
+FILES/FOLDERS
+-------------------------------------------------------------------------------------------------------------------------
+[ - ] use #pragma once as include guard
+[ - ] namespace comment at end
+[ - ] Class name match file name
+[ - ] File name has to be singular, not a plural
+[ - ] Parent folder/Sub folder names have to be singular
+[ - ] Make sure every header file is necessary
+[ - ] include <> paths before “” paths
+[ - ] include order match inheritance order
+[ - ] Global ordering {
+                            Layer,
+                            Log,
+                            VKInstance,
+                            VKWindow,
+                            VKSurface
+      }
+[ - ] Make sure we are not nesting "using namespace"
+[ - ] Trim trailing whitespaces
+[ - ] Check all comments
+-------------------------------------------------------------------------------------------------------------------------
+VARIABLES
+-------------------------------------------------------------------------------------------------------------------------
+[ - ] Use auto for vectors, structs, classes, enums (search =)
+[ - ] Class object name ends with 'Obj'
+[ - ] global member objects indicated by g_
+[ - ] enums indicated by e_
+[ - ] private member vars indicated by m_
+[ - ] function bindings start with 'run' or 'destroy', generic ones will be called 'binding'
+[ - ] Check if nullptr before running a binding
+[ - ] vector names end with s
+[ - ] count variables naming "name" + "sCount" (eg: instance'sCount')
+[ - ] All classes have private info struct to organize private vars
+[ - ] struct names begin with upper case
+[ - ] struct members should be named short (configs instead of logConfigs in LogInfo); self explanatory
+[ - ] Struct info ordering {meta,
+                            state,
+                            path,
+                            resource}
+[ - ] bool vars shouldn't start with 'is'
+[ - ] use nullptr for null pointers, instead of VK_NULL_HANDLE
+[ - ] For loops use matching types for iterator
+[ - ] use unordered map instead of map if you don't need inputs to be inherently sorted
+[ - ] make sure we are closing all open files
+[ - ] make sure we are deleteing all allocated memory (search new and delete)
+-------------------------------------------------------------------------------------------------------------------------
+METHODS
+-------------------------------------------------------------------------------------------------------------------------
+[ - ] All constant parameters passed as const
+[ - ] Constructor shoud handle log object first before anything
+[ - ] Constructor initializes all private vars
+[ - ] Dependency objs check for nullptr in constructor
+[ - ] No destructor, would normally be in destroy method
+[ - ] Common methods - create,   get,    run,    destroy, set,  is,      ready,  handle,
+                       generate, update, import, write,   save, restore, toggle, populate
+[ - ] Functions should be named long; even if it is self explanatory
+[ - ] Alias functions should be named with EXT suffix
+[ - ] Return objects/literals methods start with get
+[ - ] Return boolean methods start with is
+[ - ] Return structure/class by pointer
+[ - ] Return vector by value
+[ - ] private/public/protected methods are placed appropriately
+[ - ] create and destroy functions at the end of file (since they will be saved as layer instance bindings)
+-------------------------------------------------------------------------------------------------------------------------
+LOG
+-------------------------------------------------------------------------------------------------------------------------
+[ - ] Create [O], Destroy [X], Error [?]
+[ - ] Check log formatting
+[ - ] log_error followed by runtime error throwing same message
+-------------------------------------------------------------------------------------------------------------------------
+MISC
+-------------------------------------------------------------------------------------------------------------------------
+[ X ] [a-z]<                                    search all “no space before <”
+[ X ] ->[^ ]                                    search all “no space after ->”
+[ X ] [^ ] \(\)                                 search all “space before ()”
+[ X ] [^ ]\([a-z]                               search all “”no space before (a-z)”
+[ X ] [^ ] \[                                   search all “space before [”
+[ X ] [a-z>]&                                   use of references
+[ X ] [a-z]\*                                   use of pointers
+[ X ] \) [a-z]                                  no use of C-style casting
+[ X ] \) &                                      no use of C-style casting
+[ X ] [0-9]\.[0-9], [0-9]\.[0-9][0-9]           float values end with f -- search + [space, comma, ], ), ;]
+[ X ] () {                                      void parameter
+[ X ] auto                                      use of auto
+[ X ] auto&                                     use of auto&
+[ X ] static                                    is it necessary?
+[ X ] const                                     is it necessary?
+[ X ] const char*                               use const char* for string literals
+[ X ] std::string                               use only if you require std::string features like concat, size etc.
+[ X ] uint32_t                                  we usually use int32_t
+[ X ] .size()                                   make sure it is casted from size_t to required types
+[ X ] c_str()                                   when passing it to const char* parameter
+[ X ] size_t                                    only used for size of an object and in fns that accept size_t
+[ X ] #endif  //                                all endifs should have comment
+[ X ] " [", "[ ", " [ ", " ]", "] ", " ] "      spacing around log brackets
+[ X ] }   // namespace <name>                   every file has to have one
+[ X ] [ X ]                                     to do list
+[ X ] VK_NULL_HANDLE                            we are using nullptr instead
+[ X ] new, delete                               make sure there is a corresponding delete for every new
+-------------------------------------------------------------------------------------------------------------------------
