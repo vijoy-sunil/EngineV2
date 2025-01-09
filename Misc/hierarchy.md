@@ -30,4 +30,16 @@
     |<----------------------:VKInstance
     |<----------------------:VKWindow
     |VKSurface              {glfw3}, {vk_enum_string_helper}
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKInstance
+    |<----------------------:VKSurface
+    |VKPhyDevice            {glfw3}, {unordered_map}, {set}, {vector}, {optional}
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKInstance
+    |<----------------------:VKPhyDevice
+    |VKLogDevice            {glfw3}, {set}, {vector}, {vk_enum_string_helper}
 </pre>
