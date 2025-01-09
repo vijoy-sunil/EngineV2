@@ -235,7 +235,7 @@ namespace Core {
                     m_instanceInfo.state.logObjCreated         = false;
                 }
 
-                m_validationLogObj = new Log::LGImpl ("Build/Log/Core",       "validationLog.txt");
+                m_validationLogObj = new Log::LGImpl ("Build/Log/Core",       "ValidationLog.txt");
                 m_validationLogObj->updateLogConfig  (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
                 m_validationLogObj->updateLogConfig  (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
                                                                               Log::LOG_SINK_FILE);
@@ -288,9 +288,9 @@ namespace Core {
                 VkApplicationInfo appInfo;
                 appInfo.sType                      = VK_STRUCTURE_TYPE_APPLICATION_INFO;
                 appInfo.pNext                      = nullptr;
-                appInfo.pApplicationName           = "SANDBOX_ENGINE";
-                appInfo.applicationVersion         = VK_MAKE_VERSION(1, 0, 0);
-                appInfo.pEngineName                = "NO ENGINE";
+                appInfo.pApplicationName           = "ENGINE";
+                appInfo.applicationVersion         = VK_MAKE_VERSION(2, 0, 0);
+                appInfo.pEngineName                = "VULKAN";
                 appInfo.engineVersion              = VK_MAKE_VERSION(0, 0, 0);
                 appInfo.apiVersion                 = VK_API_VERSION_1_0;
 

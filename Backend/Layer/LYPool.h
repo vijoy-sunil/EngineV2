@@ -105,14 +105,14 @@ namespace Layer {
             }
 
             void createLayerInstance (const int32_t layerId,
-                                      const std::string instanceId,
+                                      const std::string layerInstanceId,
                                       e_layerCode& code) {
 
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
                     auto& infos = m_layerPool[layerId];
                     auto it     = std::find_if (infos.begin(), infos.end(),
-                                  [instanceId] (const InstanceInfo& info) {
-                                        return info.meta.id == instanceId;
+                                  [layerInstanceId] (const InstanceInfo& info) {
+                                        return info.meta.id == layerInstanceId;
                                   });
 
                     if (it != infos.end())
@@ -120,7 +120,7 @@ namespace Layer {
                     else {
                         code = VALID_REQUEST;
                         InstanceInfo info;
-                        info.meta.id           = instanceId;
+                        info.meta.id           = layerInstanceId;
                         info.state.runDisabled = false;
                         info.resource.obj      = nullptr;
                         info.resource.run      = nullptr;
@@ -134,14 +134,14 @@ namespace Layer {
             }
 
             InstanceInfo* getLayerInstance (const int32_t layerId,
-                                            const std::string instanceId,
+                                            const std::string layerInstanceId,
                                             e_layerCode& code) {
 
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
                     auto& infos = m_layerPool[layerId];
                     auto it     = std::find_if (infos.begin(), infos.end(),
-                                  [instanceId] (const InstanceInfo& info) {
-                                        return info.meta.id == instanceId;
+                                  [layerInstanceId] (const InstanceInfo& info) {
+                                        return info.meta.id == layerInstanceId;
                                   });
 
                     if (it != infos.end()) {
@@ -160,14 +160,14 @@ namespace Layer {
             }
 
             void runLayerInstance (const int32_t layerId,
-                                   const std::string instanceId,
+                                   const std::string layerInstanceId,
                                    e_layerCode& code) {
 
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
                     auto const& infos = m_layerPool[layerId];
                     auto it           = std::find_if (infos.begin(), infos.end(),
-                                        [instanceId] (const InstanceInfo& info) {
-                                            return info.meta.id == instanceId;
+                                        [layerInstanceId] (const InstanceInfo& info) {
+                                            return info.meta.id == layerInstanceId;
                                         });
 
                     if (it != infos.end()) {
@@ -189,14 +189,14 @@ namespace Layer {
 
             /* 3-step destroy */
             void destroyLayerInstance (const int32_t layerId,
-                                       const std::string instanceId,
+                                       const std::string layerInstanceId,
                                        e_layerCode& code) {
 
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
                     auto& infos = m_layerPool[layerId];
                     auto it     = std::find_if (infos.begin(), infos.end(),
-                                  [instanceId] (const InstanceInfo& info) {
-                                        return info.meta.id == instanceId;
+                                  [layerInstanceId] (const InstanceInfo& info) {
+                                        return info.meta.id == layerInstanceId;
                                   });
 
                     if (it != infos.end()) {

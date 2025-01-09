@@ -4,6 +4,7 @@ FILES/FOLDERS
 [ - ] use #pragma once as include guard
 [ - ] namespace comment at end
 [ - ] Class name match file name
+[ - ] Base class name ends with 'Base'
 [ - ] File name has to be singular, not a plural
 [ - ] Parent folder/Sub folder names have to be singular
 [ - ] Make sure every header file is necessary
@@ -14,7 +15,9 @@ FILES/FOLDERS
                             Log,
                             VKInstance,
                             VKWindow,
-                            VKSurface
+                            VKSurface,
+                            VKPhyDevice,
+                            VKLogDevice
       }
 [ - ] Make sure we are not nesting "using namespace"
 [ - ] Trim trailing whitespaces
@@ -55,6 +58,7 @@ METHODS
 [ - ] Common methods - create,   get,    run,    destroy, set,  is,      ready,  handle,
                        generate, update, import, write,   save, restore, toggle, populate
 [ - ] Functions should be named long; even if it is self explanatory
+[ - ] Parameter names should be named to not cause confusion (for eg: device could be phy or log)
 [ - ] Alias functions should be named with EXT suffix
 [ - ] Return objects/literals methods start with get
 [ - ] Return boolean methods start with is

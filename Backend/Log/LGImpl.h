@@ -29,6 +29,7 @@
 #define LOG_ERROR(obj)                  LOG      (obj, Log::LOG_LEVEL_ERROR)
 
 #define NULL_LOGOBJ_MSG                 "logObj = nullptr, creating a new one"
+#define NULL_DEPOBJ_MSG                 "Dependencies = nullptr"
 #define LINE_BREAK                      "|-----------------------------------------------------------------|"
 
 namespace Log {

@@ -40,9 +40,9 @@ namespace Core {
                 }
 
                 if (instanceObj == nullptr || windowObj == nullptr) {
-                    LOG_ERROR (m_surfaceInfo.resource.logObj) << "Dependencies = nullptr"
+                    LOG_ERROR (m_surfaceInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                               << std::endl;
-                    throw std::runtime_error ("Dependencies = nullptr");
+                    throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
 
                 m_surfaceInfo.resource.instanceObj    = instanceObj;
@@ -50,7 +50,14 @@ namespace Core {
                 m_surfaceInfo.resource.surface        = nullptr;
             }
 
+            VkSurfaceKHR* getSurface (void) {
+                return &m_surfaceInfo.resource.surface;
+            }
+
             void createSurface (void) {
+                /* VK_KHR_surface (instance level extension) exposes a VkSurfaceKHR object that represents an abstract
+                 * type of surface to present rendered images to
+                */
                 auto result = glfwCreateWindowSurface (*m_surfaceInfo.resource.instanceObj->getInstance(),
                                                         m_surfaceInfo.resource.windowObj->getWindow(),
                                                         nullptr,
