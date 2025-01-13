@@ -33,11 +33,15 @@ namespace Core {
                          VKInstance*  instanceObj,
                          VKPhyDevice* phyDeviceObj) {
 
+                m_logDeviceInfo = {};
+
                 if (logObj == nullptr) {
                     m_logDeviceInfo.resource.logObj     = new Log::LGImpl();
+                    m_logDeviceInfo.state.logObjCreated = true;
+
+                    m_logDeviceInfo.resource.logObj->initLogInfo();
                     LOG_WARNING (m_logDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
-                    m_logDeviceInfo.state.logObjCreated = true;
                 }
                 else {
                     m_logDeviceInfo.resource.logObj     = logObj;
@@ -49,13 +53,15 @@ namespace Core {
                                                                 << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
                 m_logDeviceInfo.resource.instanceObj    = instanceObj;
                 m_logDeviceInfo.resource.phyDeviceObj   = phyDeviceObj;
-                m_logDeviceInfo.resource.device         = nullptr;
-                m_logDeviceInfo.resource.graphicsQueue  = nullptr;
-                m_logDeviceInfo.resource.presentQueue   = nullptr;
-                m_logDeviceInfo.resource.transferQueue  = nullptr;
+            }
+
+            void initLogDeviceInfo (void) {
+                m_logDeviceInfo.resource.device        = nullptr;
+                m_logDeviceInfo.resource.graphicsQueue = nullptr;
+                m_logDeviceInfo.resource.presentQueue  = nullptr;
+                m_logDeviceInfo.resource.transferQueue = nullptr;
             }
 
             VkDevice* getLogDevice (void) {
@@ -75,10 +81,10 @@ namespace Core {
             }
 
             void createLogDevice (void) {
-                auto deviceExtensions          = m_logDeviceInfo.resource.phyDeviceObj->getDeviceExtensions();
                 auto validationLayers          = m_logDeviceInfo.resource.instanceObj->getValidationLayers();
                 bool validationLayersDisabled  = m_logDeviceInfo.resource.instanceObj->isValidationLayersDisabled();
-                bool validationLayersSupported = m_logDeviceInfo.resource.instanceObj->isInstanceExtensionsSupported();
+                bool validationLayersSupported = m_logDeviceInfo.resource.instanceObj->isValidationLayersSupported();
+                auto deviceExtensions          = m_logDeviceInfo.resource.phyDeviceObj->getDeviceExtensions();
                 auto queueCreateInfos          = std::vector <VkDeviceQueueCreateInfo> {};
 
                 std::set <uint32_t> queueFamilies = {
