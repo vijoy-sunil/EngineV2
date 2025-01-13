@@ -108,25 +108,29 @@ namespace Core {
             }
 
         public:
-            VKWindow (Log::LGImpl* logObj,
-                      const int width,
-                      const int height,
-                      const char* title,
-                      const bool resizeDisabled = false,
-                      const std::function <void (double, double)> runCursorPosition = nullptr,
-                      const std::function <void (double, double)> runScrollOffset   = nullptr) {
+            VKWindow (Log::LGImpl* logObj) {
+                m_windowInfo = {};
 
                 if (logObj == nullptr) {
-                    m_windowInfo.resource.logObj        = new Log::LGImpl();
+                    m_windowInfo.resource.logObj     = new Log::LGImpl();
+                    m_windowInfo.state.logObjCreated = true;
+
+                    m_windowInfo.resource.logObj->initLogInfo();
                     LOG_WARNING (m_windowInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                << std::endl;
-                    /* Set boolean to free the allocated object later */
-                    m_windowInfo.state.logObjCreated    = true;
                 }
                 else {
-                    m_windowInfo.resource.logObj        = logObj;
-                    m_windowInfo.state.logObjCreated    = false;
+                    m_windowInfo.resource.logObj     = logObj;
+                    m_windowInfo.state.logObjCreated = false;
                 }
+            }
+
+            void initWindowInfo (const int width,
+                                 const int height,
+                                 const char* title,
+                                 const bool resizeDisabled = false,
+                                 const std::function <void (double, double)> runCursorPosition = nullptr,
+                                 const std::function <void (double, double)> runScrollOffset   = nullptr) {
 
                 m_windowInfo.meta.width                 = width;
                 m_windowInfo.meta.height                = height;
