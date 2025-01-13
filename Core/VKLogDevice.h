@@ -186,7 +186,9 @@ namespace Core {
                 vkDestroyDevice (m_logDeviceInfo.resource.device, nullptr);
                 LOG_INFO (m_logDeviceInfo.resource.logObj) << "[X] Log device"
                                                            << std::endl;
+            }
 
+            ~VKLogDevice (void) {
                 if (m_logDeviceInfo.state.logObjCreated)
                     delete m_logDeviceInfo.resource.logObj;
             }

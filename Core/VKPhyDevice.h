@@ -290,6 +290,9 @@ namespace Core {
                 */
                 LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[X] Phy device"
                                                            << std::endl;
+            }
+
+            ~VKPhyDevice (void) {
                 if (m_phyDeviceInfo.state.logObjCreated)
                     delete m_phyDeviceInfo.resource.logObj;
             }

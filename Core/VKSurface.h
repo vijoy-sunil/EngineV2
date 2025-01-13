@@ -85,7 +85,9 @@ namespace Core {
                                       nullptr);
                 LOG_INFO (m_surfaceInfo.resource.logObj) << "[X] Surface"
                                                          << std::endl;
+            }
 
+            ~VKSurface (void) {
                 if (m_surfaceInfo.state.logObjCreated)
                     delete m_surfaceInfo.resource.logObj;
             }

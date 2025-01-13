@@ -233,6 +233,9 @@ namespace Core {
 
                 LOG_INFO (m_windowInfo.resource.logObj) << "[X] Window"
                                                         << std::endl;
+            }
+
+            ~VKWindow (void) {
                 if (m_windowInfo.state.logObjCreated)
                     delete m_windowInfo.resource.logObj;
             }
