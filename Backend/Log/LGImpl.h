@@ -29,7 +29,7 @@
 #define LOG_ERROR(obj)                  LOG      (obj, Log::LOG_LEVEL_ERROR)
 
 #define NULL_LOGOBJ_MSG                 "logObj = nullptr, creating a new one"
-#define NULL_DEPOBJ_MSG                 "Dependencies = nullptr"
+#define NULL_DEPOBJ_MSG                 "Invalid one or more dependency resources"
 #define LINE_BREAK                      "|-----------------------------------------------------------------|"
 
 namespace Log {
@@ -56,8 +56,12 @@ namespace Log {
             using endl_type = std::ostream& (std::ostream&);
 
         public:
-            LGImpl (const std::string saveDirPath  = ".",
-                    const std::string saveFileName = "log.txt") {
+            LGImpl (void) {
+                m_logInfo = {};
+            }
+
+            void initLogInfo (const std::string saveDirPath  = ".",
+                              const std::string saveFileName = "log.txt") {
 
                 /* Default log configs */
                 m_logInfo.meta.configs[LOG_LEVEL_INFO]    = LOG_SINK_CONSOLE;
