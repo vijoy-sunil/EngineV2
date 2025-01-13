@@ -28,11 +28,15 @@ namespace Core {
                        VKInstance*  instanceObj,
                        VKWindow*    windowObj) {
 
+                m_surfaceInfo = {};
+
                 if (logObj == nullptr) {
                     m_surfaceInfo.resource.logObj     = new Log::LGImpl();
+                    m_surfaceInfo.state.logObjCreated = true;
+
+                    m_surfaceInfo.resource.logObj->initLogInfo();
                     LOG_WARNING (m_surfaceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                 << std::endl;
-                    m_surfaceInfo.state.logObjCreated = true;
                 }
                 else {
                     m_surfaceInfo.resource.logObj     = logObj;
@@ -44,10 +48,12 @@ namespace Core {
                                                               << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
                 m_surfaceInfo.resource.instanceObj    = instanceObj;
                 m_surfaceInfo.resource.windowObj      = windowObj;
-                m_surfaceInfo.resource.surface        = nullptr;
+            }
+
+            void initSurfaceInfo (void) {
+                m_surfaceInfo.resource.surface = nullptr;
             }
 
             VkSurfaceKHR* getSurface (void) {
