@@ -193,14 +193,17 @@ namespace Core {
         public:
             VKPhyDevice (Log::LGImpl* logObj,
                          VKInstance*  instanceObj,
-                         VKSurface*   surfaceObj,
-                         const std::vector <const char*> deviceExtensions) {
+                         VKSurface*   surfaceObj) {
+
+                m_phyDeviceInfo = {};
 
                 if (logObj == nullptr) {
                     m_phyDeviceInfo.resource.logObj     = new Log::LGImpl();
+                    m_phyDeviceInfo.state.logObjCreated = true;
+
+                    m_phyDeviceInfo.resource.logObj->initLogInfo();
                     LOG_WARNING (m_phyDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
-                    m_phyDeviceInfo.state.logObjCreated = true;
                 }
                 else {
                     m_phyDeviceInfo.resource.logObj     = logObj;
@@ -212,17 +215,13 @@ namespace Core {
                                                                 << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                m_phyDeviceInfo.meta.extensions         = deviceExtensions;
                 m_phyDeviceInfo.resource.instanceObj    = instanceObj;
                 m_phyDeviceInfo.resource.surfaceObj     = surfaceObj;
-                m_phyDeviceInfo.resource.device         = nullptr;
             }
 
-            bool isQueueFamilyIndicesUnique (const std::vector <uint32_t> indices) {
-                std::set <uint32_t> setContainer (indices.begin(), indices.end());
-                /* If the input indices are all the same, then the set container would only contain 1-item */
-                return setContainer.size() != 1;
+            void initPhyDeviceInfo (const std::vector <const char*> deviceExtensions) {
+                m_phyDeviceInfo.meta.extensions = deviceExtensions;
+                m_phyDeviceInfo.resource.device = nullptr;
             }
 
             std::vector <const char*> getDeviceExtensions (void) {
