@@ -42,4 +42,20 @@
     |<----------------------:VKInstance
     |<----------------------:VKPhyDevice
     |VKLogDevice            {glfw3}, {set}, {vector}, {vk_enum_string_helper}
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKWindow
+    |<----------------------:VKSurface
+    |<----------------------:VKPhyDevice
+    |<----------------------:VKLogDevice
+    |<----------------------:VKHelper   {set}, {vector}
+    |VKSwapChain            {glfw3}, {vector}, {vk_enum_string_helper}
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKPhyDevice
+    |<----------------------:VKLogDevice
+    |<----------------------:VKHelper
+    |VKImage                {glfw3}, {vector}, {vk_enum_string_helper}
 </pre>
