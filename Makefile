@@ -20,7 +20,7 @@ APP_SRCS            := $(APP_DIR)/main.cpp
 # |-------------------------------------------------------------------------|
 # | Objects                                                                 |
 # |-------------------------------------------------------------------------|
-Objects             := $(addprefix $(OBJ_DIR)/,                             \
+OBJS                := $(addprefix $(OBJ_DIR)/,                             \
                        $(addsuffix .o, $(basename $(notdir $(APP_SRCS)))))
 DEPS                := $(OBJS:.o=.d)
 # |-------------------------------------------------------------------------|
@@ -44,12 +44,12 @@ INCLUDES            := -I$(VULKAN_SDK)/include                              \
 # | Rules                                                                   |
 # |-------------------------------------------------------------------------|
 $(OBJ_DIR)/%.o: $(APP_DIR)/%.cpp
-    @$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -MMD -o $@
-    @echo "[OK] compile" $<
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -MMD -o $@
+	@echo "[OK] compile" $<
 
 $(APP_TARGET): $(OBJS)
-    @$(LD) $(BIN_DIR)/$@ $(LDFLAGS) $^
-    @echo "[OK] link"
+	@$(LD) $(BIN_DIR)/$@ $(LDFLAGS) $^
+	@echo "[OK] link"
 
 -include $(DEPS)
 # |-------------------------------------------------------------------------|
@@ -60,20 +60,22 @@ $(APP_TARGET): $(OBJS)
 all: directories app
 
 directories:
-    @mkdir -p $(BIN_DIR)
-    @mkdir -p $(OBJ_DIR)
-    @mkdir -p $(LOG_DIR)/Core
-    @echo "[OK] directories"
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(LOG_DIR)/Layer
+	@mkdir -p $(LOG_DIR)/Core
+	@echo "[OK] directories"
 
 app: $(APP_TARGET)
 
 clean_logs:
-    @$(RM) $(LOG_DIR)/Core/*
-    @echo "[OK] clean logs"
+	@$(RM) $(LOG_DIR)/Layer/*
+	@$(RM) $(LOG_DIR)/Core/*
+	@echo "[OK] clean logs"
 
 clean:
-    @$(RMDIR) $(BUILD_DIR)/*
-    @echo "[OK] clean"
+	@$(RMDIR) $(BUILD_DIR)/*
+	@echo "[OK] clean"
 
 run:
-    $(BIN_DIR)/$(APP_TARGET)
+	$(BIN_DIR)/$(APP_TARGET)
