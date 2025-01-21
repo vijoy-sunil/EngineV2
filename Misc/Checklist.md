@@ -45,7 +45,7 @@
 - [ ] private member vars indicated by `m_`
 - [ ] function bindings start with `run` or `destroy`, generic ones will be called `binding`
 - [ ] Check if nullptr before running a binding
-- [ ] vector names end with s
+- [ ] vector names end with `s`
 - [ ] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [ ] Index naming should be `idx`
 - [ ] All classes have private info struct to organize private vars
@@ -70,6 +70,7 @@
 
 # METHODS
 
+- [ ] Is this function necessary?
 - [ ] All constant parameters passed as `const`
 - [ ] Struct/Vector as argument
 ```
@@ -141,8 +142,12 @@
 
 # LOG
 
-- [ ] Create [O], Destroy [X], Error [?]
 - [ ] Check log formatting
+```
+    Create [O]
+    Destroy [X]
+    Error [?]
+```
 - [ ] log_error followed by runtime error throwing same message
 - [ ] Log file name match file name
 
@@ -159,10 +164,8 @@
 - [ ] `\) &`                                    no use of C-style casting
 - [ ] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with f -- search + [space, comma, ], ), ;]
 - [ ] `() {`                                    void parameter
-- [ ] `auto`                                    use of auto
 - [ ] `auto&`                                   use of auto&
 - [ ] `static`                                  is it necessary?
-- [ ] `const`                                   is it necessary?
 - [ ] `const char*`                             use const char* for string literals
 - [ ] `std::string`                             use only if you require std::string features like concat, size etc.
 - [ ] `uint32_t`                                we usually use int32_t
@@ -171,8 +174,4 @@
 - [ ] `size_t`                                  only used for size of an object and in fns that accept size_t
 - [ ] `#endif  //`                              all endifs should have comment
 - [ ] `" [", "[ ", " [ ", " ]", "] ", " ] "`    spacing around log brackets
-- [ ] `}   // namespace <name>`                 every file has to have one
 - [ ] `[ X ]`                                   to do list
-- [ ] `VK_NULL_HANDLE`                          we are using nullptr instead
-- [ ] `new, delete`                             make sure there is a corresponding delete for every new
--------------------------------------------------------------------------------------------------------------------------
