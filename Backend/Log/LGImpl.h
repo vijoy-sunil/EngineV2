@@ -38,6 +38,7 @@ namespace Log {
             struct LogInfo {
                 struct Meta {
                     std::unordered_map <e_logLevel, e_logSink> configs;
+                    const char* fileExtension;
                 } meta;
 
                 struct Path {
@@ -51,7 +52,6 @@ namespace Log {
             } m_logInfo;
 
             e_logSink m_currentSinks;
-            LogInfo   m_savedLogInfo;
             /* std::endl is a template function, and this is the signature of that function */
             using endl_type = std::ostream& (std::ostream&);
 
@@ -60,51 +60,28 @@ namespace Log {
                 m_logInfo = {};
             }
 
-            void initLogInfo (const std::string saveDirPath  = ".",
-                              const std::string saveFileName = "log.txt") {
+            void initLogInfo (const std::string saveDirPath,
+                              std::string saveFileName,
+                              const char* saveFileExtension = ".log") {
+
+                /* If we are using __FILE__ as save file name, strip path and extension to get just its name */
+                size_t stripStart = saveFileName.find_last_of ("\\/") + 1;
+                size_t stripEnd   = saveFileName.find_last_of ('.');
+                saveFileName      = saveFileName.substr (stripStart, stripEnd - stripStart);
 
                 /* Default log configs */
                 m_logInfo.meta.configs[LOG_LEVEL_INFO]    = LOG_SINK_CONSOLE;
                 m_logInfo.meta.configs[LOG_LEVEL_WARNING] = LOG_SINK_CONSOLE;
                 m_logInfo.meta.configs[LOG_LEVEL_ERROR]   = LOG_SINK_CONSOLE;
 
+                m_logInfo.meta.fileExtension              = saveFileExtension;
                 m_logInfo.path.saveDir                    = saveDirPath;
                 m_logInfo.path.saveFileName               = saveFileName;
-
-                m_logInfo.resource.file.open (m_logInfo.path.saveDir + "/" +
-                                              m_logInfo.path.saveFileName, std::ios::app);
-
                 m_currentSinks                            = LOG_SINK_NONE;
-                saveLogInfo();
-            }
-
-            /* The save and restore methods can be used to temporarily change for example, the log configs in a specific
-             * file or function by saving them first, updating the configs and then upon exiting the said file/function,
-             * restore the original config data
-            */
-            void saveLogInfo (void) {
-                /* Copying of any stream in C++ is disabled by having made the copy constructor private. Any means any,
-                 * whether it is stringstream, istream, ostream, iostream or whatever. Copying of stream is disabled
-                 * because it doesn't make sense. A stream is not a container that you can make copy of. It doesn't
-                 * contain data. If a list/vector/map or any container is a bucket, then stream is a hose through which
-                 * data flows
-                */
-                m_savedLogInfo.meta = m_logInfo.meta;
-                m_savedLogInfo.path = m_logInfo.path;
             }
 
             void updateLogConfig (const e_logLevel level, const e_logSink sink) {
                 m_logInfo.meta.configs[level] = sink;
-            }
-
-            void updateSaveLocation (const std::string saveDirPath, const std::string saveFileName) {
-                m_logInfo.path.saveDir      = saveDirPath;
-                m_logInfo.path.saveFileName = saveFileName;
-            }
-
-            void restoreLogInfo (void) {
-                m_logInfo.meta = m_savedLogInfo.meta;
-                m_logInfo.path = m_savedLogInfo.path;
             }
 
             std::string getTimeStamp (void) {
@@ -133,8 +110,13 @@ namespace Log {
                 if (m_currentSinks & LOG_SINK_CONSOLE)
                     std::cout << data;
 
-                if (m_currentSinks & LOG_SINK_FILE)
+                if (m_currentSinks & LOG_SINK_FILE) {
+                    m_logInfo.resource.file.open (m_logInfo.path.saveDir + "/" +
+                                                  m_logInfo.path.saveFileName  +
+                                                  m_logInfo.meta.fileExtension, std::ios::app);
                     m_logInfo.resource.file << data;
+                    m_logInfo.resource.file.close();
+                }
                 return *this;
             }
 
@@ -142,24 +124,14 @@ namespace Log {
                 if (m_currentSinks & LOG_SINK_CONSOLE)
                     std::cout << endl;
 
-                if (m_currentSinks & LOG_SINK_FILE)
+                if (m_currentSinks & LOG_SINK_FILE) {
+                    m_logInfo.resource.file.open (m_logInfo.path.saveDir + "/" +
+                                                  m_logInfo.path.saveFileName  +
+                                                  m_logInfo.meta.fileExtension, std::ios::app);
                     m_logInfo.resource.file << endl;
+                    m_logInfo.resource.file.close();
+                }
                 return *this;
-            }
-
-            void destroyLog (void) {
-                std::string filePath = m_logInfo.path.saveDir + "/" +
-                                       m_logInfo.path.saveFileName;
-                /* Close and reopen file without any flags. Note that, if the flag is not set to any value, the initial
-                 * position is the beginning of the file
-                */
-                m_logInfo.resource.file.close();
-                m_logInfo.resource.file.open (filePath);
-                /* Check if file is empty */
-                if (m_logInfo.resource.file.peek() == std::ifstream::traits_type::eof())
-                    remove (filePath.c_str());
-
-                m_logInfo.resource.file.close();
             }
     };
 }   // namespace Log

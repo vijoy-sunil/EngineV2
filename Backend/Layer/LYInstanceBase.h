@@ -16,8 +16,8 @@ namespace Layer {
     /* Pure virtual destructors must be defined, which is against the pure virtual behaviour. The only difference between
      * virtual and pure virtual destructor is, that pure virtual destructor will make its base class abstract, hence you
      * cannot create object of that class (hence why we are doing it). We need an implementation here because if you
-     * derive anything from base (upcasting) and then try to delete or destroy it, base's destructor will eventually be
-     * called. Since it is pure and doesn't have an implementation, will cause compilation error
+     * derive anything from base and then try to delete or destroy it, base's destructor will eventually be called. Since
+     * it is pure and doesn't have an implementation, will cause compilation error
     */
     inline LYInstanceBase::~LYInstanceBase (void) {}
 }   // namespace Layer

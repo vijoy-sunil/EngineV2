@@ -1,9 +1,9 @@
 #pragma once
 #include <map>
 #include <vector>
-#include <iostream>
 #include <functional>
 #include "LYInstanceBase.h"
+#include "../Log/LGImpl.h"
 #include "LYEnum.h"
 
 namespace Layer {
@@ -50,7 +50,7 @@ namespace Layer {
                 m_layerPool.clear();                            /* (3) */
             }
 
-            void createLayer (const int32_t layerId, e_layerCode& code) {
+            void addLayer (const int32_t layerId, e_layerCode& code) {
                 if (m_layerPool.find (layerId) != m_layerPool.end())
                     code = LAYER_ALREADY_EXISTS;
                 else {
@@ -104,9 +104,9 @@ namespace Layer {
                 }
             }
 
-            void createLayerInstance (const int32_t layerId,
-                                      const std::string layerInstanceId,
-                                      e_layerCode& code) {
+            void addLayerInstance (const int32_t layerId,
+                                   const std::string layerInstanceId,
+                                   e_layerCode& code) {
 
                 if (m_layerPool.find (layerId) != m_layerPool.end()) {
                     auto& infos = m_layerPool[layerId];
@@ -217,25 +217,29 @@ namespace Layer {
                     code = LAYER_DOES_NOT_EXIST;
             }
 
-            void generateReport (void) {
-                std::cout << "Layer pool report"         << std::endl;
-                std::cout << "{"                         << std::endl;
+        protected:
+            void generateReport (Log::LGImpl* logObj) {
+                LOG_LITE_INFO (logObj) << "\t";
+                LOG_LITE_INFO (logObj) << "{"                         << std::endl;
+
                 for (auto const& [layerId, infos]: m_layerPool) {
-                    std::cout << "\t";
-                    std::cout << "Layer id: " << layerId << std::endl;
-                    std::cout << "\t";
-                    std::cout << "{"                     << std::endl;
+                    LOG_LITE_INFO (logObj) << "\t\t";
+                    LOG_LITE_INFO (logObj) << "Layer id: " << layerId << std::endl;
+                    LOG_LITE_INFO (logObj) << "\t\t";
+                    LOG_LITE_INFO (logObj) << "["                     << std::endl;
 
                     for (auto const& info: infos) {
-                        std::string checkBoxGraphic = info.state.runDisabled ? "[X]" : "[O]";
-                        std::cout << "\t\t";
-                        std::cout << checkBoxGraphic     << " "
-                                  << info.meta.id        << std::endl;
+                        std::string checkBoxGraphic = info.state.runDisabled       ? "[X]":
+                                                      info.resource.run == nullptr ? "[?]": "[O]";
+                        LOG_LITE_INFO (logObj) << "\t\t\t";
+                        LOG_LITE_INFO (logObj) << checkBoxGraphic     << " "
+                                               << info.meta.id        << std::endl;
                     }
-                    std::cout << "\t";
-                    std::cout << "}"                     << std::endl;
+                    LOG_LITE_INFO (logObj) << "\t\t";
+                    LOG_LITE_INFO (logObj) << "]"                     << std::endl;
                 }
-                std::cout << "}"                         << std::endl;
+                LOG_LITE_INFO (logObj) << "\t";
+                LOG_LITE_INFO (logObj) << "}"                         << std::endl;
             }
     };
 }   // namespace Layer

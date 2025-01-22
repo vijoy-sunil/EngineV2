@@ -1,14 +1,23 @@
 #pragma once
 #include <unordered_map>
-#include <iostream>
 #include "LYPool.h"
+#include "../Log/LGImpl.h"
+#include "LYEnum.h"
 
 namespace Layer {
     class LYPoolMgr: public LYPool {
         private:
             std::unordered_map <const char*, LYPool*> m_layerPools;
+            Log::LGImpl* m_logObj;
+
             /* Private default constructor */
-            LYPoolMgr (void) {}
+            LYPoolMgr (void) {
+                m_logObj = new Log::LGImpl();
+                m_logObj->initLogInfo     ("Build/Log/Layer",      __FILE__);
+                m_logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
+                m_logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_NONE);
+                m_logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_NONE);
+            }
 
         public:
             /* Delete copy constructor and assignment operator */
@@ -21,7 +30,7 @@ namespace Layer {
                 return mgrObj;
             }
 
-            LYPool* createLayerPool (const char* poolId, e_layerCode& code) {
+            LYPool* addLayerPool (const char* poolId, e_layerCode& code) {
                 if (m_layerPools.find (poolId) != m_layerPools.end())
                     code = LAYER_POOL_ALREADY_EXISTS;
                 else {
@@ -55,13 +64,18 @@ namespace Layer {
             }
 
             void generateReport (void) {
-                std::cout << "Layer pool mgr report" << std::endl;
-                std::cout << "{"                     << std::endl;
+                LOG_LITE_INFO (m_logObj) << "{"        << std::endl;
+
                 for (auto const& [poolId, pool]: m_layerPools) {
-                    std::cout << "\t";
-                    std::cout << poolId              << std::endl;
+                    LOG_LITE_INFO (m_logObj) << "\t";
+                    LOG_LITE_INFO (m_logObj) << poolId << std::endl;
+                    LYPool::generateReport (m_logObj);
                 }
-                std::cout << "}"                     << std::endl;
+                LOG_LITE_INFO (m_logObj) << "}"        << std::endl;
+            }
+
+            ~LYPoolMgr (void) {
+                delete m_logObj;
             }
     };
 }   // namespace Layer

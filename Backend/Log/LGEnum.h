@@ -7,10 +7,6 @@ namespace Log {
         LOG_LEVEL_ERROR     = 4,
     } e_logLevel;
 
-    inline e_logLevel operator | (const e_logLevel levelA, const e_logLevel levelB) {
-        return static_cast <e_logLevel> (static_cast <int> (levelA) | static_cast <int> (levelB));
-    }
-
     const char* getLogLevelString (const e_logLevel level) {
         switch (level) {
             case LOG_LEVEL_INFO:        return "INFO";
