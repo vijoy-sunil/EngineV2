@@ -217,8 +217,7 @@ namespace Layer {
                     code = LAYER_DOES_NOT_EXIST;
             }
 
-        protected:
-            void generateReport (Log::LGImpl* logObj) {
+            void generateReportEXT (Log::LGImpl* logObj) {
                 LOG_LITE_INFO (logObj) << "\t";
                 LOG_LITE_INFO (logObj) << "{"                         << std::endl;
 

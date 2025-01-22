@@ -69,7 +69,7 @@ namespace Layer {
                 for (auto const& [poolId, pool]: m_layerPools) {
                     LOG_LITE_INFO (m_logObj) << "\t";
                     LOG_LITE_INFO (m_logObj) << poolId << std::endl;
-                    LYPool::generateReport (m_logObj);
+                    pool->generateReportEXT (m_logObj);
                 }
                 LOG_LITE_INFO (m_logObj) << "}"        << std::endl;
             }
