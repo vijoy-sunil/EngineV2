@@ -5,7 +5,7 @@
 - [x] Class name match file name
 - [x] File name has to be singular, not a plural
 - [x] Parent folder/Sub folder names have to be singular
-- [x] Make sure every header file is necessary
+- [x] Make sure every header file is necessary (search `std::`)
 - [x] include <> paths before “” paths
 - [x] include order match inheritance order
 - [x] Global ordering
@@ -78,6 +78,7 @@
 
 - [x] Is this function necessary?
 - [x] All constant parameters passed as `const`
+- [x] Parameter names should be named to not cause confusion (for eg: device could be phy or log)
 - [x] Struct/Vector as argument
 ```
 {
@@ -86,12 +87,12 @@
     by reference (vector),  if storing its address
 }
 ```
-- [x] Constructor default initializes
+- [x] Constructor does
 ```
 {
-    info struct
+    default initializes info struct
     handle log object
-    dependency objs check for `nullptr`
+    dependency objs check for nullptr
     initializes all dep objs only
 }
 ```
@@ -129,16 +130,15 @@
 }
 ```
 - [x] Functions should be named long; even if it is self explanatory
-- [x] Parameter names should be named to not cause confusion (for eg: device could be phy or log)
 - [x] Alias functions should be named with `EXT` suffix
 - [x] Return objects/literals methods start with `get` or `create`
 - [x] Return boolean methods start with `is`
-- [x] Return structure/class by pointer
-- [x] Return vector
+- [x] Return struct/class/vector
 ```
 {
-    by value,       if local
-    by reference,   otherwise
+    by value,                   if local
+    by pointer (struct/class),  otherwise
+    by reference (vector),      otherwise
 }
 ```
 - [x] private/public/protected methods are placed appropriately
