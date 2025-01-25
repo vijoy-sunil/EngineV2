@@ -1,6 +1,6 @@
 # FILES/FOLDERS
 
-- [x] use `#pragma` once as include guard
+- [x] use `#pragma once` as include guard
 - [x] namespace comment at end
 - [x] Class name match file name
 - [x] File name has to be singular, not a plural
