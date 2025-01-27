@@ -55,7 +55,7 @@ namespace Core {
                     m_imageInfo.resource.logObj     = new Log::LGImpl();
                     m_imageInfo.state.logObjCreated = true;
 
-                    m_imageInfo.resource.logObj->initLogInfo();
+                    m_imageInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
                     LOG_WARNING (m_imageInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                               << std::endl;
                 }
@@ -121,6 +121,10 @@ namespace Core {
                 m_imageInfo.meta.viewType    = viewType;
                 m_imageInfo.resource.image   = image;
                 m_imageInfo.resource.view    = nullptr;
+            }
+
+            VkImageView* getImageView (void) {
+                return &m_imageInfo.resource.view;
             }
 
             void createImage (void) {
@@ -244,8 +248,8 @@ namespace Core {
                                                        << std::endl;
 
                 vkFreeMemory   (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
-                                m_imageInfo.resource.memory,
-                                nullptr);
+                                 m_imageInfo.resource.memory,
+                                 nullptr);
                 LOG_INFO (m_imageInfo.resource.logObj) << "[X] Image memory"
                                                        << std::endl;
             }
