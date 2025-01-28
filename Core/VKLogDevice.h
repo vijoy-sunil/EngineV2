@@ -13,6 +13,12 @@ namespace Core {
     class VKLogDevice: public Layer::LYInstanceBase {
         private:
             struct LogDeviceInfo {
+                struct Meta {
+                    VkQueue graphicsQueue;
+                    VkQueue  presentQueue;
+                    VkQueue transferQueue;
+                } meta;
+
                 struct State {
                     bool logObjCreated;
                 } state;
@@ -22,9 +28,6 @@ namespace Core {
                     VKInstance*  instanceObj;
                     VKPhyDevice* phyDeviceObj;
                     VkDevice device;
-                    VkQueue graphicsQueue;
-                    VkQueue  presentQueue;
-                    VkQueue transferQueue;
                 } resource;
             } m_logDeviceInfo;
 
@@ -39,7 +42,7 @@ namespace Core {
                     m_logDeviceInfo.resource.logObj     = new Log::LGImpl();
                     m_logDeviceInfo.state.logObjCreated = true;
 
-                    m_logDeviceInfo.resource.logObj->initLogInfo();
+                    m_logDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
                     LOG_WARNING (m_logDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -58,26 +61,26 @@ namespace Core {
             }
 
             void initLogDeviceInfo (void) {
-                m_logDeviceInfo.resource.device        = nullptr;
-                m_logDeviceInfo.resource.graphicsQueue = nullptr;
-                m_logDeviceInfo.resource.presentQueue  = nullptr;
-                m_logDeviceInfo.resource.transferQueue = nullptr;
+                m_logDeviceInfo.meta.graphicsQueue = nullptr;
+                m_logDeviceInfo.meta.presentQueue  = nullptr;
+                m_logDeviceInfo.meta.transferQueue = nullptr;
+                m_logDeviceInfo.resource.device    = nullptr;
+            }
+
+            VkQueue* getGraphicsQueue (void) {
+                return &m_logDeviceInfo.meta.graphicsQueue;
+            }
+
+            VkQueue* getPresentQueue (void) {
+                return &m_logDeviceInfo.meta.presentQueue;
+            }
+
+            VkQueue* getTransferQueue (void) {
+                return &m_logDeviceInfo.meta.transferQueue;
             }
 
             VkDevice* getLogDevice (void) {
                 return &m_logDeviceInfo.resource.device;
-            }
-
-            VkQueue* getGraphicsQueue (void) {
-                return &m_logDeviceInfo.resource.graphicsQueue;
-            }
-
-            VkQueue* getPresentQueue (void) {
-                return &m_logDeviceInfo.resource.presentQueue;
-            }
-
-            VkQueue* getTransferQueue (void) {
-                return &m_logDeviceInfo.resource.transferQueue;
             }
 
             void createLogDevice (void) {
@@ -86,8 +89,7 @@ namespace Core {
                 bool validationLayersSupported = m_logDeviceInfo.resource.instanceObj->isValidationLayersSupported();
                 auto deviceExtensions          = m_logDeviceInfo.resource.phyDeviceObj->getDeviceExtensions();
                 auto queueCreateInfos          = std::vector <VkDeviceQueueCreateInfo> {};
-
-                std::set <uint32_t> queueFamilies = {
+                auto queueFamilyIndices        = std::set <uint32_t> {
                     m_logDeviceInfo.resource.phyDeviceObj->getGraphicsQueueFamilyIdx(),
                     m_logDeviceInfo.resource.phyDeviceObj->getPresentQueueFamilyIdx(),
                     m_logDeviceInfo.resource.phyDeviceObj->getTransferQueueFamilyIdx()
@@ -96,12 +98,12 @@ namespace Core {
                  * point numbers between 0.0 and 1.0. This is required even if there is only a single queue
                 */
                 float queuePriority = 1.0f;
-                for (auto const& queueFamily: queueFamilies) {
+                for (auto const& queueFamilyIdx: queueFamilyIndices) {
                     VkDeviceQueueCreateInfo createInfo;
                     createInfo.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
                     createInfo.pNext            = nullptr;
                     createInfo.flags            = 0;
-                    createInfo.queueFamilyIndex = queueFamily;
+                    createInfo.queueFamilyIndex = queueFamilyIdx;
                     createInfo.queueCount       = 1;
                     createInfo.pQueuePriorities = &queuePriority;
 
@@ -110,9 +112,9 @@ namespace Core {
 
                 VkDeviceCreateInfo createInfo;
                 createInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+                createInfo.flags                   = 0;
                 createInfo.queueCreateInfoCount    = static_cast <uint32_t> (queueCreateInfos.size());
                 createInfo.pQueueCreateInfos       = queueCreateInfos.data();
-                createInfo.flags                   = 0;
                 /* If we are using pNext, then pEnabledFeatures will have to be null as required by the spec */
                 createInfo.pEnabledFeatures        = nullptr;
 
@@ -164,22 +166,22 @@ namespace Core {
                                                                 << std::endl;
                     throw std::runtime_error ("[?] Log device");
                 }
-                LOG_INFO (m_logDeviceInfo.resource.logObj) << "[O] Log device"
-                                                           << std::endl;
+                LOG_INFO (m_logDeviceInfo.resource.logObj)      << "[O] Log device"
+                                                                << std::endl;
 
                 /* Create queues */
                 vkGetDeviceQueue (m_logDeviceInfo.resource.device,
                                   m_logDeviceInfo.resource.phyDeviceObj->getGraphicsQueueFamilyIdx(),
                                   0,
-                                  &m_logDeviceInfo.resource.graphicsQueue);
+                                  &m_logDeviceInfo.meta.graphicsQueue);
                 vkGetDeviceQueue (m_logDeviceInfo.resource.device,
                                   m_logDeviceInfo.resource.phyDeviceObj->getPresentQueueFamilyIdx(),
                                   0,
-                                  &m_logDeviceInfo.resource.presentQueue);
+                                  &m_logDeviceInfo.meta.presentQueue);
                 vkGetDeviceQueue (m_logDeviceInfo.resource.device,
                                   m_logDeviceInfo.resource.phyDeviceObj->getTransferQueueFamilyIdx(),
                                   0,
-                                  &m_logDeviceInfo.resource.transferQueue);
+                                  &m_logDeviceInfo.meta.transferQueue);
             }
 
             void destroyLogDevice (void) {
