@@ -34,7 +34,7 @@ namespace Core {
             } m_phyDeviceInfo;
 
             bool isDeviceExtensionsSupported (const VkPhysicalDevice phyDevice) {
-                uint32_t extensionsCount;
+                uint32_t extensionsCount = 0;
                 vkEnumerateDeviceExtensionProperties (phyDevice, nullptr, &extensionsCount, nullptr);
                 std::vector <VkExtensionProperties> availableExtensions (extensionsCount);
                 vkEnumerateDeviceExtensionProperties (phyDevice, nullptr, &extensionsCount, availableExtensions.data());
@@ -114,9 +114,14 @@ namespace Core {
                                                                << std::endl;
                 /* Pick queue family indices */
                 for (auto const& [idx, info]: queueFamilyInfoPool) {
-                    if (info.graphicsQueueExists)   m_phyDeviceInfo.meta.graphicsQueueFamilyIdx = idx;
-                    if (info.transferQueueExists)   m_phyDeviceInfo.meta.presentQueueFamilyIdx  = idx;
-                    if (info.transferQueueExists)   m_phyDeviceInfo.meta.transferQueueFamilyIdx = idx;
+                    if (info.graphicsQueueExists && !m_phyDeviceInfo.meta.graphicsQueueFamilyIdx.has_value())
+                        m_phyDeviceInfo.meta.graphicsQueueFamilyIdx = idx;
+
+                    if (info.presentQueueExists  && !m_phyDeviceInfo.meta.presentQueueFamilyIdx.has_value())
+                        m_phyDeviceInfo.meta.presentQueueFamilyIdx  = idx;
+
+                    if (info.transferQueueExists && !m_phyDeviceInfo.meta.transferQueueFamilyIdx.has_value())
+                        m_phyDeviceInfo.meta.transferQueueFamilyIdx = idx;
                 }
 
                 auto meta                          = m_phyDeviceInfo.meta;
@@ -151,7 +156,7 @@ namespace Core {
             }
 
             void populatePhyDeviceExtensionFeatures (const VkPhysicalDevice phyDevice,
-                                                     const VkPhysicalDeviceFeatures* features,
+                                                     const VkPhysicalDeviceFeatures features,
                                                      void* pNext) {
 
                 /* If the VkPhysicalDevice[ExtensionName]Features structure is included in the pNext chain of the
@@ -159,10 +164,9 @@ namespace Core {
                  * indicate whether each corresponding feature is supported
                 */
                 VkPhysicalDeviceFeatures2 features2;
-                features2.sType        = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-                features2.pNext        = pNext;
-                if (features != nullptr)
-                    features2.features = *features;
+                features2.sType    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+                features2.pNext    = pNext;
+                features2.features = features;
 
                 vkGetPhysicalDeviceFeatures2 (phyDevice, &features2);
             }
@@ -181,7 +185,7 @@ namespace Core {
                 VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures;
                 descriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
                 descriptorIndexingFeatures.pNext = nullptr;
-                populatePhyDeviceExtensionFeatures (phyDevice, &features, &descriptorIndexingFeatures);
+                populatePhyDeviceExtensionFeatures (phyDevice, features, &descriptorIndexingFeatures);
 
                 return features.samplerAnisotropy                        &&
                        features.sampleRateShading                        &&
@@ -201,7 +205,7 @@ namespace Core {
                     m_phyDeviceInfo.resource.logObj     = new Log::LGImpl();
                     m_phyDeviceInfo.state.logObjCreated = true;
 
-                    m_phyDeviceInfo.resource.logObj->initLogInfo();
+                    m_phyDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
                     LOG_WARNING (m_phyDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -224,7 +228,7 @@ namespace Core {
                 m_phyDeviceInfo.resource.device = nullptr;
             }
 
-            std::vector <const char*> getDeviceExtensions (void) {
+            std::vector <const char*>& getDeviceExtensions (void) {
                 return m_phyDeviceInfo.meta.extensions;
             }
 
@@ -280,8 +284,8 @@ namespace Core {
                                                                 << std::endl;
                     throw std::runtime_error ("[?] Phy device");
                 }
-                LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[O] Phy device"
-                                                           << std::endl;
+                LOG_INFO (m_phyDeviceInfo.resource.logObj)      << "[O] Phy device"
+                                                                << std::endl;
             }
 
             void destroyPhyDevice (void) {
