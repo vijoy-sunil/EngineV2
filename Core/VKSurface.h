@@ -34,7 +34,7 @@ namespace Core {
                     m_surfaceInfo.resource.logObj     = new Log::LGImpl();
                     m_surfaceInfo.state.logObjCreated = true;
 
-                    m_surfaceInfo.resource.logObj->initLogInfo();
+                    m_surfaceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
                     LOG_WARNING (m_surfaceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                 << std::endl;
                 }
@@ -75,8 +75,8 @@ namespace Core {
                                                               << std::endl;
                     throw std::runtime_error ("[?] Surface");
                 }
-                LOG_INFO (m_surfaceInfo.resource.logObj) << "[O] Surface"
-                                                         << std::endl;
+                LOG_INFO (m_surfaceInfo.resource.logObj)      << "[O] Surface"
+                                                              << std::endl;
             }
 
             void destroySurface (void) {
