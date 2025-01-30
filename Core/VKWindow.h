@@ -54,10 +54,10 @@ namespace Core {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
                 /* Although many drivers and platforms trigger VK_ERROR_OUT_OF_DATE_KHR automatically after a window
-                 * resize, it is not guaranteed to happen. That's why we'll add some extra code to also handle resizes
+                 * resize, it is not guaranteed to happen. That's why we'll add some extra code to handle resizes
                  * explicitly using this boolean
                 */
-                thisPtr->setWindowResized (true);
+                thisPtr->toggleWindowResized (true);
             }
 
             static void windowIconifyCallback (GLFWwindow* window,
@@ -68,6 +68,10 @@ namespace Core {
                 else            thisPtr->m_windowInfo.state.iconified = false;
             }
 
+            /* Note that, as of now on Windows, the callback performs as expected where once the mouse leaves the window
+             * area the callback stops firing. For OSX, the window never loses focus and therefore the cursor callback
+             * is always being called
+            */
             static void cursorPositionCallback (GLFWwindow* window,
                                                 const double xPos,
                                                 const double yPos) {
@@ -115,7 +119,7 @@ namespace Core {
                     m_windowInfo.resource.logObj     = new Log::LGImpl();
                     m_windowInfo.state.logObjCreated = true;
 
-                    m_windowInfo.resource.logObj->initLogInfo();
+                    m_windowInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
                     LOG_WARNING (m_windowInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                << std::endl;
                 }
@@ -153,12 +157,8 @@ namespace Core {
                 return m_windowInfo.state.iconified;
             }
 
-            void setWindowResized (const bool val) {
+            void toggleWindowResized (const bool val) {
                 m_windowInfo.state.resized = val;
-            }
-
-            GLFWwindow* getWindow (void) {
-                return m_windowInfo.resource.window;
             }
 
             void toggleCursorPositionCallback (const bool val) {
@@ -200,6 +200,10 @@ namespace Core {
                     if ((info.state.pressed) && (info.resource.run != nullptr))
                         info.resource.run (frameDelta);
                 }
+            }
+
+            GLFWwindow* getWindow (void) {
+                return m_windowInfo.resource.window;
             }
 
             void createWindow (void) {
