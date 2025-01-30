@@ -2,6 +2,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <limits>
+#include <algorithm>
 #include <vulkan/vk_enum_string_helper.h>
 #include "../Backend/Layer/LYInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
@@ -54,7 +56,7 @@ namespace Core {
                  * complete internal operations before we can acquire another image to render to. Therefore it is
                  * recommended to request at least one more image than the minimum
                  *
-                 * Note that, we only specified a minimum number of images in the swap chain, so the implementation is
+                 * Note that, we only specified the minimum number of images in the swap chain, so the implementation is
                  * allowed to create a swap chain with more
                 */
                 uint32_t minImagesCount = capabilities.minImageCount + 1;
@@ -90,7 +92,7 @@ namespace Core {
                     */
                     glfwGetFramebufferSize (m_swapChainInfo.resource.windowObj->getWindow(), &width, &height);
 
-                    VkExtent2D actualExtent = {
+                    auto actualExtent = VkExtent2D {
                         static_cast <uint32_t> (width),
                         static_cast <uint32_t> (height)
                     };
@@ -101,7 +103,6 @@ namespace Core {
                     actualExtent.height = std::clamp (actualExtent.height,
                                                       capabilities.minImageExtent.height,
                                                       capabilities.maxImageExtent.height);
-
                     return actualExtent;
                 }
             }
@@ -211,7 +212,7 @@ namespace Core {
                     m_swapChainInfo.resource.logObj     = new Log::LGImpl();
                     m_swapChainInfo.state.logObjCreated = true;
 
-                    m_swapChainInfo.resource.logObj->initLogInfo();
+                    m_swapChainInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
                     LOG_WARNING (m_swapChainInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -220,19 +221,17 @@ namespace Core {
                     m_swapChainInfo.state.logObjCreated = false;
                 }
 
-                if (windowObj    == nullptr ||
-                    surfaceObj   == nullptr ||
-                    phyDeviceObj == nullptr ||
-                    logDeviceObj == nullptr) {
+                if (windowObj    == nullptr || surfaceObj   == nullptr ||
+                    phyDeviceObj == nullptr || logDeviceObj == nullptr) {
 
                     LOG_ERROR (m_swapChainInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                 << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_swapChainInfo.resource.windowObj    = windowObj;
-                m_swapChainInfo.resource.surfaceObj   = surfaceObj;
-                m_swapChainInfo.resource.phyDeviceObj = phyDeviceObj;
-                m_swapChainInfo.resource.logDeviceObj = logDeviceObj;
+                m_swapChainInfo.resource.windowObj      = windowObj;
+                m_swapChainInfo.resource.surfaceObj     = surfaceObj;
+                m_swapChainInfo.resource.phyDeviceObj   = phyDeviceObj;
+                m_swapChainInfo.resource.logDeviceObj   = logDeviceObj;
             }
 
             void initSwapChainInfo (const VkImageUsageFlags imageUsage,
@@ -284,7 +283,7 @@ namespace Core {
                 return &m_swapChainInfo.resource.swapChain;
             }
 
-            std::vector <VkImage> createSwapChainImages (void) {
+            std::vector <VkImage> getSwapChainImages (void) {
                 std::vector <VkImage> images (m_swapChainInfo.meta.imagesCount);
                 vkGetSwapchainImagesKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
                                           m_swapChainInfo.resource.swapChain,
