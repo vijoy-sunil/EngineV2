@@ -180,4 +180,4 @@
 - [ ] `size_t`                                  only used for size of an object and in fns that accept size_t
 - [ ] `#endif  //`                              all endifs should have comment
 - [ ] `" [", "[ ", " [ ", " ]", "] ", " ] "`    spacing around log brackets
-- [ ] `[ X ]`                                   to do list
+- [ ] `[ ]`                                     to do list
