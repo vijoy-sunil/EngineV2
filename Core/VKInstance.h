@@ -61,36 +61,35 @@ namespace Core {
                 return VK_FALSE;
             }
 
-            VkDebugUtilsMessengerCreateInfoEXT createDebugUtilsMessengerInfo (void) {
-                VkDebugUtilsMessengerCreateInfoEXT createInfo;
-                createInfo.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-                createInfo.pNext           = nullptr;
-                createInfo.flags           = 0;
-                createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT   |
-                                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT   |
-                                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-                createInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT       |
-                                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT    |
-                                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-                createInfo.pfnUserCallback = debugCallback;
-                createInfo.pUserData       = nullptr;
-
-                return createInfo;
+            void populateDebugUtilsMessengerInfo (VkDebugUtilsMessengerCreateInfoEXT* createInfo) {
+                createInfo->sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+                createInfo->pNext           = nullptr;
+                createInfo->flags           = 0;
+                createInfo->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT   |
+                                              VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT   |
+                                              VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+                createInfo->messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT       |
+                                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT    |
+                                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+                createInfo->pfnUserCallback = debugCallback;
+                createInfo->pUserData       = nullptr;
             }
 
             void createDebugUtilsMessenger (void) {
                 if (isValidationLayersDisabled())
                     return;
 
-                auto binding    = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
-                                                                       m_instanceInfo.resource.instance,
-                                                                       "vkCreateDebugUtilsMessengerEXT");
-                auto createInfo = createDebugUtilsMessengerInfo();
-                auto result     = binding != nullptr ? binding (m_instanceInfo.resource.instance,
-                                                                &createInfo,
-                                                                nullptr,
-                                                                &m_instanceInfo.resource.debugUtilsMessenger):
-                                                       VK_ERROR_EXTENSION_NOT_PRESENT;
+                VkDebugUtilsMessengerCreateInfoEXT createInfo;
+                populateDebugUtilsMessengerInfo (&createInfo);
+
+                auto binding = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
+                                                                    m_instanceInfo.resource.instance,
+                                                                    "vkCreateDebugUtilsMessengerEXT");
+                auto result  = binding != nullptr ? binding (m_instanceInfo.resource.instance,
+                                                             &createInfo,
+                                                             nullptr,
+                                                             &m_instanceInfo.resource.debugUtilsMessenger):
+                                                    VK_ERROR_EXTENSION_NOT_PRESENT;
                 if (result != VK_SUCCESS) {
                     LOG_ERROR (m_instanceInfo.resource.logObj) << "[?] Debug utils messenger"
                                                                << " "
@@ -275,7 +274,9 @@ namespace Core {
                  * calls. It requires you to simply pass a pointer to a VkDebugUtilsMessengerCreateInfoEXT struct in the
                  * pNext extension field of VkInstanceCreateInfo
                 */
-                auto debugUtilsCreateInfo          = createDebugUtilsMessengerInfo();
+                VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo;
+                populateDebugUtilsMessengerInfo (&debugUtilsCreateInfo);
+
                 auto validationLayers              = getValidationLayers();
 
                 VkApplicationInfo appInfo;
