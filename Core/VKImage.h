@@ -21,10 +21,10 @@ namespace Core {
                     VkImageCreateFlags createFlags;
                     VkImageLayout initialLayout;
                     VkFormat format;
-                    VkImageUsageFlags usage;
+                    VkImageUsageFlags usages;
                     VkSampleCountFlagBits samplesCount;
                     VkImageTiling tiling;
-                    VkMemoryPropertyFlags property;
+                    VkMemoryPropertyFlags memoryProperties;
                     std::vector <uint32_t> queueFamilyIndices;
                     VkImageAspectFlags aspectFlags;
                     VkImageViewType viewType;
@@ -80,10 +80,10 @@ namespace Core {
                                 const VkImageCreateFlags createFlags,
                                 const VkImageLayout initialLayout,
                                 const VkFormat format,
-                                const VkImageUsageFlags imageUsage,
+                                const VkImageUsageFlags imageUsages,
                                 const VkSampleCountFlagBits samplesCount,
                                 const VkImageTiling tiling,
-                                const VkMemoryPropertyFlags property,
+                                const VkMemoryPropertyFlags memoryProperties,
                                 const std::vector <uint32_t> queueFamilyIndices,
                                 const VkImageAspectFlags aspectFlags,
                                 const VkImageViewType viewType) {
@@ -95,10 +95,10 @@ namespace Core {
                 m_imageInfo.meta.createFlags        = createFlags;
                 m_imageInfo.meta.initialLayout      = initialLayout;
                 m_imageInfo.meta.format             = format;
-                m_imageInfo.meta.usage              = imageUsage;
+                m_imageInfo.meta.usages             = imageUsages;
                 m_imageInfo.meta.samplesCount       = samplesCount;
                 m_imageInfo.meta.tiling             = tiling;
-                m_imageInfo.meta.property           = property;
+                m_imageInfo.meta.memoryProperties   = memoryProperties;
                 m_imageInfo.meta.queueFamilyIndices = queueFamilyIndices;
                 m_imageInfo.meta.aspectFlags        = aspectFlags;
                 m_imageInfo.meta.viewType           = viewType;
@@ -140,7 +140,7 @@ namespace Core {
                 createInfo.arrayLayers               = m_imageInfo.meta.layersCount;
                 createInfo.initialLayout             = m_imageInfo.meta.initialLayout;
                 createInfo.format                    = m_imageInfo.meta.format;
-                createInfo.usage                     = m_imageInfo.meta.usage;
+                createInfo.usage                     = m_imageInfo.meta.usages;
                 createInfo.samples                   = m_imageInfo.meta.samplesCount;
                 createInfo.tiling                    = m_imageInfo.meta.tiling;
 
@@ -181,7 +181,7 @@ namespace Core {
                 allocInfo.allocationSize  = memoryRequirements.size;
                 allocInfo.memoryTypeIndex = getMemoryTypeIdx (*m_imageInfo.resource.phyDeviceObj->getPhyDevice(),
                                                                memoryRequirements.memoryTypeBits,
-                                                               m_imageInfo.meta.property);
+                                                               m_imageInfo.meta.memoryProperties);
 
                 result = vkAllocateMemory (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
                                             &allocInfo,

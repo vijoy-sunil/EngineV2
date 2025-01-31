@@ -33,7 +33,7 @@ namespace Core {
             static Log::LGImpl* m_validationLogObj;
             static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback (
                                                   const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                  const VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                  const VkDebugUtilsMessageTypeFlagsEXT messageTypes,
                                                   const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
                                                   void* userData) {
                 /* Suppress unused parameter warning */
@@ -45,7 +45,7 @@ namespace Core {
                                                  << std::endl;
                 LOG_WARNING (m_validationLogObj) << "Msg type "
                                                  << "["
-                                                 << string_VkDebugUtilsMessageTypeFlagsEXT (messageType)
+                                                 << string_VkDebugUtilsMessageTypeFlagsEXT (messageTypes)
                                                  << "]"
                                                  << std::endl;
                 LOG_WARNING (m_validationLogObj) << "Msg content "

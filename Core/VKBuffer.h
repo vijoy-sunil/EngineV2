@@ -15,8 +15,8 @@ namespace Core {
             struct BufferInfo {
                 struct Meta {
                     VkDeviceSize size;
-                    VkBufferUsageFlags usage;
-                    VkMemoryPropertyFlags property;
+                    VkBufferUsageFlags usages;
+                    VkMemoryPropertyFlags memoryProperties;
                     std::vector <uint32_t> queueFamilyIndices;
                     void* mappedMemory;
                 } meta;
@@ -65,14 +65,14 @@ namespace Core {
             }
 
             void initBufferInfo (const VkDeviceSize size,
-                                 const VkBufferUsageFlags bufferUsage,
-                                 const VkMemoryPropertyFlags property,
+                                 const VkBufferUsageFlags bufferUsages,
+                                 const VkMemoryPropertyFlags memoryProperties,
                                  const std::vector <uint32_t> queueFamilyIndices,
                                  const bool memoryMappingDisabled) {
 
                 m_bufferInfo.meta.size                   = size;
-                m_bufferInfo.meta.usage                  = bufferUsage;
-                m_bufferInfo.meta.property               = property;
+                m_bufferInfo.meta.usages                 = bufferUsages;
+                m_bufferInfo.meta.memoryProperties       = memoryProperties;
                 m_bufferInfo.meta.queueFamilyIndices     = queueFamilyIndices;
                 m_bufferInfo.meta.mappedMemory           = nullptr;
                 m_bufferInfo.state.memoryMappingDisabled = memoryMappingDisabled;
@@ -108,7 +108,7 @@ namespace Core {
                 createInfo.pNext                     = nullptr;
                 createInfo.flags                     = 0;
                 createInfo.size                      = m_bufferInfo.meta.size;
-                createInfo.usage                     = m_bufferInfo.meta.usage;
+                createInfo.usage                     = m_bufferInfo.meta.usages;
 
                 auto queueFamilyIndices              = m_bufferInfo.meta.queueFamilyIndices;
                 /* If the queue families differ, then we'll be using the concurrent mode (buffers can be used across
@@ -159,7 +159,7 @@ namespace Core {
                 allocInfo.allocationSize  = memoryRequirements.size;
                 allocInfo.memoryTypeIndex = getMemoryTypeIdx (*m_bufferInfo.resource.phyDeviceObj->getPhyDevice(),
                                                                memoryRequirements.memoryTypeBits,
-                                                               m_bufferInfo.meta.property);
+                                                               m_bufferInfo.meta.memoryProperties);
                 /* It should be noted that in a real world application, you're not supposed to actually call
                  * vkAllocateMemory for every individual buffer. The maximum number of simultaneous memory allocations
                  * is limited by the maxMemoryAllocationCount physical device limit, which may be as low as 4096 even

@@ -21,7 +21,7 @@ namespace Core {
                     uint32_t imagesCount;
                     uint32_t layersCount;
                     VkExtent2D extent;
-                    VkImageUsageFlags usage;
+                    VkImageUsageFlags usages;
                     VkSurfaceFormatKHR surfaceFormat;
                     VkPresentModeKHR presentMode;
                     std::vector <uint32_t> queueFamilyIndices;
@@ -234,7 +234,7 @@ namespace Core {
                 m_swapChainInfo.resource.logDeviceObj   = logDeviceObj;
             }
 
-            void initSwapChainInfo (const VkImageUsageFlags imageUsage,
+            void initSwapChainInfo (const VkImageUsageFlags imageUsages,
                                     const VkSurfaceFormatKHR surfaceFormat,
                                     const VkPresentModeKHR presentMode,
                                     const std::vector <uint32_t> queueFamilyIndices) {
@@ -242,7 +242,7 @@ namespace Core {
                 m_swapChainInfo.meta.imagesCount                  = 0;
                 m_swapChainInfo.meta.layersCount                  = 1;
                 m_swapChainInfo.meta.extent                       = getSwapChainExtentEXT();
-                m_swapChainInfo.meta.usage                        = imageUsage;
+                m_swapChainInfo.meta.usages                       = imageUsages;
 
                 if (!isSurfaceFormatSupported (surfaceFormat)) {
                     LOG_WARNING (m_swapChainInfo.resource.logObj) << "Surface format not supported, setting to default"
@@ -300,7 +300,7 @@ namespace Core {
                 createInfo.minImageCount             = getSwapChainMinImagesCount();
                 createInfo.imageArrayLayers          = m_swapChainInfo.meta.layersCount;
                 createInfo.imageExtent               = m_swapChainInfo.meta.extent;
-                createInfo.imageUsage                = m_swapChainInfo.meta.usage;
+                createInfo.imageUsage                = m_swapChainInfo.meta.usages;
                 createInfo.imageFormat               = m_swapChainInfo.meta.surfaceFormat.format;
                 createInfo.imageColorSpace           = m_swapChainInfo.meta.surfaceFormat.colorSpace;
                 createInfo.presentMode               = m_swapChainInfo.meta.presentMode;
