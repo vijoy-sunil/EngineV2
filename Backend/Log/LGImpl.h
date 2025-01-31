@@ -1,8 +1,11 @@
 #pragma once
+#include <string>
 #include <unordered_map>
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
+#include <chrono>
 #include "../Layer/LYInstanceBase.h"
 #include "LGEnum.h"
 

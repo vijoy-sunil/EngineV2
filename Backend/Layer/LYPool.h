@@ -1,7 +1,9 @@
 #pragma once
+#include <string>
 #include <map>
 #include <vector>
 #include <functional>
+#include <algorithm>
 #include "LYInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "LYEnum.h"

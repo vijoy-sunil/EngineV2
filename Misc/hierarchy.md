@@ -3,23 +3,28 @@
 ## Backend/Layer/
 <pre>
     |<----------------------:LYInstanceBase
+    |<----------------------:LGImpl
     |<----------------------:LYEnum
-    |LYPool [PUB]           {map}, {vector}, {iostream}, {functional}
-    |LYPoolMgr              {unordered_map}, {iostream}
+    |LYPool                 {string}, {map}, {vector}, {functional}, {algorithm}
+
+    |<----------------------|LYPool [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:LYEnum
+    |LYPoolMgr              {unordered_map}
 </pre>
 
 ## Backend/Log/
 <pre>
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGEnum
-    |LGImpl                 {unordered_map}, {fstream}, {sstream}, {iostream}
+    |LGImpl                 {string}, {unordered_map}, {fstream}, {sstream}, {iostream}, {iomanip}, {chrono}
 </pre>
 
 ## Core/
 <pre>
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
-    |VKInstance             {glfw3}, {set}, {vector}, {vk_enum_string_helper}
+    |VKInstance             {glfw3}, {string}, {set}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
@@ -35,7 +40,7 @@
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKSurface
-    |VKPhyDevice            {glfw3}, {unordered_map}, {set}, {vector}, {optional}
+    |VKPhyDevice            {glfw3}, {string}, {unordered_map}, {set}, {vector}, {optional}
 
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
@@ -49,13 +54,39 @@
     |<----------------------:VKSurface
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
-    |<----------------------:VKHelper   {set}, {vector}
-    |VKSwapChain            {glfw3}, {vector}, {vk_enum_string_helper}
+    |<----------------------:VKHelper
+    |VKSwapChain            {glfw3}, {vector}, {limits}, {algorithm}, {vk_enum_string_helper}
 
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
     |<----------------------:VKHelper
-    |VKImage                {glfw3}, {vector}, {vk_enum_string_helper}
+    |                       {glfw3}, {vector}, {vk_enum_string_helper}
+    \VKBuffer
+    \VKImage
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKLogDevice
+    |                       {glfw3}, {vk_enum_string_helper}
+    \VKSampler
+    \VKFence
+    \VKSemaphore
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKLogDevice
+    |                       {glfw3}, {vector}, {vk_enum_string_helper}
+    \VKRenderPass
+    \VKFrameBuffer
+    \VKDescriptorPool
+    \VKDescriptorSet
+
+    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKLogDevice
+    |VKPipeline             {glfw3}, {fstream}, {vector}, {vk_enum_string_helper}
+
+    |VKHelper               {glfw3}, {set}, {vector}
 </pre>
