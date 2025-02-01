@@ -4,7 +4,7 @@
 #include <set>
 #include <vector>
 
-namespace Core {
+namespace Renderer {
     bool isIndicesUnique (const std::vector <uint32_t> indices) {
         std::set <uint32_t> setContainer (indices.begin(), indices.end());
         /* If the input indices are all the same, then the set container would only contain 1-item */
@@ -122,4 +122,4 @@ namespace Core {
         }
         throw std::runtime_error ("Failed to find supported format");
     }
-}   // namespace Core
+}   // namespace Renderer

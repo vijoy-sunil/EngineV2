@@ -9,7 +9,7 @@
 #include "VKInstance.h"
 #include "VKPhyDevice.h"
 
-namespace Core {
+namespace Renderer {
     class VKLogDevice: public Layer::LYInstanceBase {
         private:
             struct LogDeviceInfo {
@@ -42,7 +42,7 @@ namespace Core {
                     m_logDeviceInfo.resource.logObj     = new Log::LGImpl();
                     m_logDeviceInfo.state.logObjCreated = true;
 
-                    m_logDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_logDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_logDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -195,4 +195,4 @@ namespace Core {
                     delete m_logDeviceInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

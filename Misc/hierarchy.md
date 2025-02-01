@@ -20,7 +20,7 @@
     |LGImpl                 {string}, {unordered_map}, {fstream}, {sstream}, {iostream}, {iomanip}, {chrono}
 </pre>
 
-## Core/
+## Renderer/
 <pre>
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl

@@ -13,7 +13,7 @@
 #include "VKLogDevice.h"
 #include "VKHelper.h"
 
-namespace Core {
+namespace Renderer {
     class VKSwapChain: public Layer::LYInstanceBase {
         private:
             struct SwapChainInfo {
@@ -212,7 +212,7 @@ namespace Core {
                     m_swapChainInfo.resource.logObj     = new Log::LGImpl();
                     m_swapChainInfo.state.logObjCreated = true;
 
-                    m_swapChainInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_swapChainInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_swapChainInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -357,4 +357,4 @@ namespace Core {
                     delete m_swapChainInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

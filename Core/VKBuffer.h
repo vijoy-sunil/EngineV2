@@ -9,7 +9,7 @@
 #include "VKLogDevice.h"
 #include "VKHelper.h"
 
-namespace Core {
+namespace Renderer {
     class VKBuffer: public Layer::LYInstanceBase {
         private:
             struct BufferInfo {
@@ -46,7 +46,7 @@ namespace Core {
                     m_bufferInfo.resource.logObj     = new Log::LGImpl();
                     m_bufferInfo.state.logObjCreated = true;
 
-                    m_bufferInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_bufferInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_bufferInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                << std::endl;
                 }
@@ -217,4 +217,4 @@ namespace Core {
                     delete m_bufferInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

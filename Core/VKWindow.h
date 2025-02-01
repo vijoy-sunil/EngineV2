@@ -6,7 +6,7 @@
 #include "../Backend/Layer/LYInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 
-namespace Core {
+namespace Renderer {
     class VKWindow: public Layer::LYInstanceBase {
         private:
             struct WindowInfo {
@@ -119,7 +119,7 @@ namespace Core {
                     m_windowInfo.resource.logObj     = new Log::LGImpl();
                     m_windowInfo.state.logObjCreated = true;
 
-                    m_windowInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_windowInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_windowInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                << std::endl;
                 }
@@ -244,4 +244,4 @@ namespace Core {
                     delete m_windowInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

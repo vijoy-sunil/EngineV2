@@ -9,7 +9,7 @@
 #include "VKLogDevice.h"
 #include "VKHelper.h"
 
-namespace Core {
+namespace Renderer {
     class VKImage: public Layer::LYInstanceBase {
         private:
             struct ImageInfo {
@@ -55,7 +55,7 @@ namespace Core {
                     m_imageInfo.resource.logObj     = new Log::LGImpl();
                     m_imageInfo.state.logObjCreated = true;
 
-                    m_imageInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_imageInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_imageInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                               << std::endl;
                 }
@@ -267,4 +267,4 @@ namespace Core {
                     delete m_imageInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

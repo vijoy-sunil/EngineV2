@@ -6,7 +6,7 @@
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
-namespace Core {
+namespace Renderer {
     class VKSemaphore: public Layer::LYInstanceBase {
         private:
             struct SemaphoreInfo {
@@ -35,7 +35,7 @@ namespace Core {
                     m_semaphoreInfo.resource.logObj     = new Log::LGImpl();
                     m_semaphoreInfo.state.logObjCreated = true;
 
-                    m_semaphoreInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_semaphoreInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_semaphoreInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -109,4 +109,4 @@ namespace Core {
                     delete m_semaphoreInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

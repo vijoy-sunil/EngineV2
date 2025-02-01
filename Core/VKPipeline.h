@@ -8,7 +8,7 @@
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
-namespace Core {
+namespace Renderer {
     class VKPipeline: public Layer::LYInstanceBase {
         private:
             struct PipelineInfo {
@@ -129,7 +129,7 @@ namespace Core {
                     m_pipelineInfo.resource.logObj     = new Log::LGImpl();
                     m_pipelineInfo.state.logObjCreated = true;
 
-                    m_pipelineInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_pipelineInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_pipelineInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                  << std::endl;
                 }
@@ -596,4 +596,4 @@ namespace Core {
                     delete m_pipelineInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

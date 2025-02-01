@@ -7,7 +7,7 @@
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
-namespace Core {
+namespace Renderer {
     class VKDescriptorSet: public Layer::LYInstanceBase {
         private:
             struct DescriptorSetInfo {
@@ -39,7 +39,7 @@ namespace Core {
                     m_descriptorSetInfo.resource.logObj     = new Log::LGImpl();
                     m_descriptorSetInfo.state.logObjCreated = true;
 
-                    m_descriptorSetInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_descriptorSetInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_descriptorSetInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                       << std::endl;
                 }
@@ -167,4 +167,4 @@ namespace Core {
                     delete m_descriptorSetInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

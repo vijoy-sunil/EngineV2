@@ -11,7 +11,7 @@
 #include "VKInstance.h"
 #include "VKSurface.h"
 
-namespace Core {
+namespace Renderer {
     class VKPhyDevice: public Layer::LYInstanceBase {
         private:
             struct PhyDeviceInfo {
@@ -206,7 +206,7 @@ namespace Core {
                     m_phyDeviceInfo.resource.logObj     = new Log::LGImpl();
                     m_phyDeviceInfo.state.logObjCreated = true;
 
-                    m_phyDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_phyDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_phyDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                   << std::endl;
                 }
@@ -302,4 +302,4 @@ namespace Core {
                     delete m_phyDeviceInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

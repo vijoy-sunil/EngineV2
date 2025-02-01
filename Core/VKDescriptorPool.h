@@ -7,7 +7,7 @@
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
-namespace Core {
+namespace Renderer {
     class VKDescriptorPool: public Layer::LYInstanceBase {
         private:
             struct DescriptorPoolInfo {
@@ -38,7 +38,7 @@ namespace Core {
                     m_descriptorPoolInfo.resource.logObj     = new Log::LGImpl();
                     m_descriptorPoolInfo.state.logObjCreated = true;
 
-                    m_descriptorPoolInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_descriptorPoolInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_descriptorPoolInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                        << std::endl;
                 }
@@ -115,4 +115,4 @@ namespace Core {
                     delete m_descriptorPoolInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

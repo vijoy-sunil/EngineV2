@@ -6,7 +6,7 @@
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
-namespace Core {
+namespace Renderer {
     class VKFence: public Layer::LYInstanceBase {
         private:
             struct FenceInfo {
@@ -35,7 +35,7 @@ namespace Core {
                     m_fenceInfo.resource.logObj     = new Log::LGImpl();
                     m_fenceInfo.state.logObjCreated = true;
 
-                    m_fenceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_fenceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_fenceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                               << std::endl;
                 }
@@ -113,4 +113,4 @@ namespace Core {
                     delete m_fenceInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

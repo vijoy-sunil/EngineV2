@@ -7,7 +7,7 @@
 #include "VKInstance.h"
 #include "VKWindow.h"
 
-namespace Core {
+namespace Renderer {
     class VKSurface: public Layer::LYInstanceBase {
         private:
             struct SurfaceInfo {
@@ -34,7 +34,7 @@ namespace Core {
                     m_surfaceInfo.resource.logObj     = new Log::LGImpl();
                     m_surfaceInfo.state.logObjCreated = true;
 
-                    m_surfaceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_surfaceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_surfaceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                 << std::endl;
                 }
@@ -92,4 +92,4 @@ namespace Core {
                     delete m_surfaceInfo.resource.logObj;
             }
     };
-}   // namespace Core
+}   // namespace Renderer

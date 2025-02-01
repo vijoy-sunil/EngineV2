@@ -8,7 +8,7 @@
 #include "../Backend/Layer/LYInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 
-namespace Core {
+namespace Renderer {
     class VKInstance: public Layer::LYInstanceBase {
         private:
             struct InstanceInfo {
@@ -218,7 +218,7 @@ namespace Core {
                     m_instanceInfo.resource.logObj     = new Log::LGImpl();
                     m_instanceInfo.state.logObjCreated = true;
 
-                    m_instanceInfo.resource.logObj->initLogInfo ("Build/Log/Core", __FILE__);
+                    m_instanceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
                     LOG_WARNING (m_instanceInfo.resource.logObj) << NULL_LOGOBJ_MSG
                                                                  << std::endl;
                 }
@@ -240,7 +240,7 @@ namespace Core {
                 m_instanceInfo.resource.debugUtilsMessenger    = nullptr;
 
                 m_validationLogObj                             = new Log::LGImpl();
-                m_validationLogObj->initLogInfo     ("Build/Log/Core",       "Validation");
+                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",   "Validation");
                 m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
                 m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
                                                                              Log::LOG_SINK_FILE);
@@ -352,4 +352,4 @@ namespace Core {
             }
     };
     Log::LGImpl* VKInstance::m_validationLogObj = nullptr;
-}   // namespace Core
+}   // namespace Renderer
