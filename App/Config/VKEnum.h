@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Core {
+namespace Renderer {
     typedef enum {
         LAYER_LOG                       = 0,
 
@@ -37,4 +37,4 @@ namespace Core {
 
         LAYER_SYNC_PRIMITIVE            = 26
     } e_layerType;
-}   // namespace Core
+}   // namespace Renderer
