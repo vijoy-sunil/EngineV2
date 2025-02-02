@@ -83,6 +83,7 @@
     \VKFrameBuffer
     \VKDescriptorPool
     \VKDescriptorSet
+    \VKCmdBuffer
 
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
