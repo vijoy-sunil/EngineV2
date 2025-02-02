@@ -78,7 +78,7 @@ namespace Renderer {
                                 const uint32_t mipLevels,
                                 const uint32_t layersCount,
                                 const VkImageCreateFlags createFlags,
-                                const VkImageLayout initialLayout,
+                                const VkImageLayout initialImageLayout,
                                 const VkFormat format,
                                 const VkImageUsageFlags imageUsages,
                                 const VkSampleCountFlagBits samplesCount,
@@ -93,7 +93,7 @@ namespace Renderer {
                 m_imageInfo.meta.mipLevels          = mipLevels;
                 m_imageInfo.meta.layersCount        = layersCount;
                 m_imageInfo.meta.createFlags        = createFlags;
-                m_imageInfo.meta.initialLayout      = initialLayout;
+                m_imageInfo.meta.initialLayout      = initialImageLayout;
                 m_imageInfo.meta.format             = format;
                 m_imageInfo.meta.usages             = imageUsages;
                 m_imageInfo.meta.samplesCount       = samplesCount;
