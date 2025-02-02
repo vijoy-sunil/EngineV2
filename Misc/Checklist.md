@@ -46,6 +46,8 @@
     VKDescriptorSet
     VKFence
     VKSemaphore
+    VKCmdPool
+    VKCmdBuffer
 }
 ```
 - [x] Make sure we are not nesting `using namespace`
@@ -162,6 +164,7 @@
 - [x] `create` and `destroy` functions at the end of file before destructor (since they are layer instance bindings)
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
+- [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
 
 # LOG
 
@@ -171,6 +174,7 @@
     Destroy [X]
     Error [?]
 ```
+- [x] vkcreate/vkalloc multiple objects at once will have plural msg `(s)`
 - [x] log_error followed by runtime error throwing same message
 - [x] Log file name match file name
 
