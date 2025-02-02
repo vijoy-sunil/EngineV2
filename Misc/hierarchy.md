@@ -73,6 +73,7 @@
     \VKSampler
     \VKFence
     \VKSemaphore
+    \VKCmdPool
 
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
