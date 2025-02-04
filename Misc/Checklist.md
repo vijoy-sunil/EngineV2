@@ -5,7 +5,7 @@
 - [x] Class name match file name
 - [x] File name has to be singular, not a plural
 - [x] Parent folder/Sub folder names have to be singular
-- [x] Make sure every header file is necessary (search `std::`)
+- [ ] Make sure every header file is necessary (search `std::`, respective enum headers)
 - [x] include <> paths before “” paths
 - [x] include order match inheritance order
 - [x] Global ordering
@@ -53,6 +53,7 @@
 - [x] Make sure we are not nesting `using namespace`
 - [x] Trim trailing whitespaces
 - [x] Check all comments
+- [x] Update hierarchy file
 
 # VARIABLES
 

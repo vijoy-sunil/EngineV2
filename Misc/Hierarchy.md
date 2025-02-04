@@ -90,5 +90,7 @@
     |<----------------------:VKLogDevice
     |VKPipeline             {glfw3}, {fstream}, {vector}, {vk_enum_string_helper}
 
+    |VKCmdList              {glfw3}, {vector}
+
     |VKHelper               {glfw3}, {set}, {vector}
 </pre>
