@@ -3,6 +3,7 @@
 #include "LYPool.h"
 #include "../Log/LGImpl.h"
 #include "LYEnum.h"
+#include "../Log/LGEnum.h"
 
 namespace Layer {
     class LYPoolMgr: public LYPool {

@@ -7,6 +7,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 #include "../Backend/Layer/LYInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
+#include "../Backend/Log/LGEnum.h"
 
 namespace Renderer {
     class VKInstance: public Layer::LYInstanceBase {

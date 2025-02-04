@@ -10,6 +10,7 @@
     |<----------------------|LYPool [PUB]
     |<----------------------:LGImpl
     |<----------------------:LYEnum
+    |<----------------------:LGEnum
     |LYPoolMgr              {unordered_map}
 </pre>
 
@@ -24,6 +25,7 @@
 <pre>
     |<----------------------|LYInstanceBase [PUB]
     |<----------------------:LGImpl
+    |<----------------------:LGEnum
     |VKInstance             {glfw3}, {string}, {set}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|LYInstanceBase [PUB]
