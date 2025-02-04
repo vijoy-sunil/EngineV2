@@ -35,6 +35,9 @@ namespace Renderer {
         LAYER_DESCRIPTOR_SET_DYNAMIC    = 24,
         LAYER_DESCRIPTOR_SET_STATIC     = 25,
 
-        LAYER_SYNC_PRIMITIVE            = 26
+        LAYER_SYNC_PRIMITIVE            = 26,
+
+        LAYER_CMD_POOL                  = 27,
+        LAYER_CMD_BUFFER                = 28
     } e_layerType;
 }   // namespace Renderer
