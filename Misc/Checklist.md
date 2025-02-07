@@ -4,6 +4,7 @@
 - [x] namespace comment at end
 - [x] Class name match file name
 - [x] File name has to be singular, not a plural
+- [ ] Singleton class name ends with `Mgr`
 - [x] Parent folder/Sub folder names have to be singular
 - [x] Make sure every header file is necessary (search `std::`, respective enum headers)
 - [x] include <> paths before “” paths
@@ -22,12 +23,16 @@
     chrono
     set
     vector
+    array
+    queue
     functional
     optional
     limits
     algorithm
+    bitset
     vk_enum_string_helper
 
+    Scene
     Layer
     Log
     VKInstance
@@ -70,6 +75,7 @@
 - [x] vector names end with `s`
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
+- [ ] `using` alias begins with upper case
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
 - [x] struct members should be named short (configs instead of logConfigs in LogInfo); self explanatory
@@ -102,6 +108,7 @@
 - [x] Is this function necessary?
 - [x] All constant parameters passed as `const`
 - [x] Parameter names should be named to not cause confusion (for eg: device could be phy or log)
+- [ ] virtual fns will start with `on` and have `override` keyword
 - [x] Struct/Vector as argument
 ```
 {
@@ -169,6 +176,7 @@
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
+- [ ] Make sure all fns (especially ones with destroy) are actually called
 
 # LOG
 
