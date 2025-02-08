@@ -76,6 +76,7 @@
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
 - [ ] `using` alias begins with upper case
+- [ ] When copying struct/vec for use as short hand, always use `auto&`
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
 - [x] struct members should be named short (configs instead of logConfigs in LogInfo); self explanatory
