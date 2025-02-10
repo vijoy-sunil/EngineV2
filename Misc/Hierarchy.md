@@ -1,5 +1,44 @@
 # Class/file hierarchy
 
+## Backend/Scene/
+<pre>
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |SNEnityMgr             {iomanip}, {array}, {queue}
+
+    |<----------------------:SNType
+    |SNComponentArrayBase
+
+    |<----------------------|SNComponentArrayBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |SNComponentArray       {unordered_map}, {array}
+
+    |<----------------------:SNComponentArrayBase
+    |<----------------------:SNComponentArray
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |SNComponentMgr         {unordered_map}, {iomanip}
+
+    |<----------------------:SNType
+    |SNSystemBase           {set}
+
+    |<----------------------:SNSystemBase
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |SNSystemMgr            {unordered_map}, {iomanip}
+
+    |<----------------------:SNEnityMgr
+    |<----------------------:SNComponentMgr
+    |<----------------------:SNSystemMgr
+    |<----------------------:LGImpl
+    |<----------------------:LGEnum
+    |<----------------------:SNType
+    |SNImpl
+
+    |SNType                 {bitset}
+</pre>
+
 ## Backend/Layer/
 <pre>
     |<----------------------:LYInstanceBase

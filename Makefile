@@ -8,7 +8,6 @@
 # |-------------------------------------------------------------------------|
 GLFW_DIR            := /opt/homebrew/Cellar/glfw/3.4
 GLM_DIR             := /opt/homebrew/Cellar/glm/1.0.1
-APP_DIR             := ./App
 BUILD_DIR           := ./Build
 BIN_DIR             := $(BUILD_DIR)/Bin
 OBJ_DIR             := $(BUILD_DIR)/Obj
@@ -16,7 +15,7 @@ LOG_DIR             := $(BUILD_DIR)/Log
 # |-------------------------------------------------------------------------|
 # | Sources                                                                 |
 # |-------------------------------------------------------------------------|
-APP_SRCS            := $(APP_DIR)/main.cpp
+APP_SRCS            := ./main.cpp
 # |-------------------------------------------------------------------------|
 # | Objects                                                                 |
 # |-------------------------------------------------------------------------|
@@ -43,7 +42,7 @@ INCLUDES            := -I$(VULKAN_SDK)/include                              \
 # |-------------------------------------------------------------------------|
 # | Rules                                                                   |
 # |-------------------------------------------------------------------------|
-$(OBJ_DIR)/%.o: $(APP_DIR)/%.cpp
+$(OBJ_DIR)/%.o: %.cpp
 	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -MMD -o $@
 	@echo "[OK] compile" $<
 
@@ -62,6 +61,7 @@ all: directories app
 directories:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(LOG_DIR)/Scene
 	@mkdir -p $(LOG_DIR)/Layer
 	@mkdir -p $(LOG_DIR)/Renderer
 	@echo "[OK] directories"
@@ -69,6 +69,7 @@ directories:
 app: $(APP_TARGET)
 
 clean_logs:
+	@$(RM) $(LOG_DIR)/Scene/*
 	@$(RM) $(LOG_DIR)/Layer/*
 	@$(RM) $(LOG_DIR)/Renderer/*
 	@echo "[OK] clean logs"
