@@ -12,7 +12,7 @@
     |<----------------------|SNComponentArrayBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNComponentArray       {unordered_map}, {array}
+    |SNComponentArray       {string}, {unordered_map}, {array}
 
     |<----------------------:SNComponentArrayBase
     |<----------------------:SNComponentArray
@@ -26,7 +26,7 @@
     |<----------------------:SNSystemBase
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNSystemMgr            {unordered_map}, {iomanip}
+    |SNSystemMgr            {string}, {unordered_map}, {iomanip}
 
     |<----------------------:SNEnityMgr
     |<----------------------:SNComponentMgr

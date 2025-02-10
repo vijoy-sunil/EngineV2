@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <unordered_map>
 #include <array>
 #include "SNComponentArrayBase.h"
