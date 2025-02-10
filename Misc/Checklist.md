@@ -140,6 +140,7 @@
     set
     is
     add
+    remove
     handle
     init
     generate
@@ -150,6 +151,7 @@
     restore
     toggle
     populate
+    on
 }
 ```
 - [x] Create vs get vs add naming
@@ -177,7 +179,7 @@
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
-- [ ] Make sure all fns (especially ones with destroy) are actually called
+- [ ] Make sure all fns (especially ones with `delete`) are actually called
 
 # LOG
 
