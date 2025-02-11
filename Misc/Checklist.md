@@ -4,7 +4,6 @@
 - [x] namespace comment at end
 - [x] Class name match file name
 - [x] File name has to be singular, not a plural
-- [ ] Singleton class name ends with `Mgr`
 - [x] Parent folder/Sub folder names have to be singular
 - [x] Make sure every header file is necessary (search `std::`, respective enum headers)
 - [x] include <> paths before “” paths
@@ -33,7 +32,7 @@
     vk_enum_string_helper
 
     Scene
-    Layer
+    Collection
     Log
     VKInstance
     VKWindow
@@ -152,6 +151,7 @@
     toggle
     populate
     on
+    register
 }
 ```
 - [x] Create vs get vs add naming
@@ -175,7 +175,7 @@
 }
 ```
 - [x] private/public/protected methods are placed appropriately
-- [x] `create` and `destroy` functions at the end of file before destructor (since they are layer instance bindings)
+- [x] `create` and `destroy` functions at the end of file before destructor
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
