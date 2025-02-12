@@ -62,7 +62,7 @@ directories:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(OBJ_DIR)
 	@mkdir -p $(LOG_DIR)/Scene
-	@mkdir -p $(LOG_DIR)/Layer
+	@mkdir -p $(LOG_DIR)/Collection
 	@mkdir -p $(LOG_DIR)/Renderer
 	@echo "[OK] directories"
 
@@ -70,7 +70,7 @@ app: $(APP_TARGET)
 
 clean_logs:
 	@$(RM) $(LOG_DIR)/Scene/*
-	@$(RM) $(LOG_DIR)/Layer/*
+	@$(RM) $(LOG_DIR)/Collection/*
 	@$(RM) $(LOG_DIR)/Renderer/*
 	@echo "[OK] clean logs"
 

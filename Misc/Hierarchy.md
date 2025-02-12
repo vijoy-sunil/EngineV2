@@ -39,57 +39,56 @@
     |SNType                 {bitset}
 </pre>
 
-## Backend/Layer/
+## Backend/Collection/
 <pre>
-    |<----------------------:LYInstanceBase
+    |<----------------------:CNTypeInstanceBase
     |<----------------------:LGImpl
-    |<----------------------:LYEnum
-    |LYPool                 {string}, {map}, {vector}, {functional}, {algorithm}
+    |CNTypeInstancePool     {string}, {unordered_map}, {iomanip}, {vector}
 
-    |<----------------------|LYPool [PUB]
+    |<----------------------:CNTypeInstanceBase
+    |<----------------------:CNTypeInstancePool
     |<----------------------:LGImpl
-    |<----------------------:LYEnum
     |<----------------------:LGEnum
-    |LYPoolMgr              {unordered_map}
+    |CNImpl                 {unordered_map}, {iomanip}
 </pre>
 
 ## Backend/Log/
 <pre>
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGEnum
     |LGImpl                 {string}, {unordered_map}, {fstream}, {sstream}, {iostream}, {iomanip}, {chrono}
 </pre>
 
 ## Renderer/
 <pre>
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:LGEnum
     |VKInstance             {glfw3}, {string}, {set}, {vector}, {vk_enum_string_helper}
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |VKWindow               {glfw3}, {unordered_map}, {functional}
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKWindow
     |VKSurface              {glfw3}, {vk_enum_string_helper}
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKSurface
     |VKPhyDevice            {glfw3}, {string}, {unordered_map}, {set}, {vector}, {optional}
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKPhyDevice
     |VKLogDevice            {glfw3}, {set}, {vector}, {vk_enum_string_helper}
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKWindow
     |<----------------------:VKSurface
@@ -98,7 +97,7 @@
     |<----------------------:VKHelper
     |VKSwapChain            {glfw3}, {vector}, {limits}, {algorithm}, {vk_enum_string_helper}
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
@@ -107,7 +106,7 @@
     \VKBuffer
     \VKImage
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
     |                       {glfw3}, {vk_enum_string_helper}
@@ -116,7 +115,7 @@
     \VKSemaphore
     \VKCmdPool
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
     |                       {glfw3}, {vector}, {vk_enum_string_helper}
@@ -126,7 +125,7 @@
     \VKDescriptorSet
     \VKCmdBuffer
 
-    |<----------------------|LYInstanceBase [PUB]
+    |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
     |VKPipeline             {glfw3}, {fstream}, {vector}, {vk_enum_string_helper}
