@@ -5,12 +5,12 @@
 #include <set>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "../Backend/Log/LGEnum.h"
 
 namespace Renderer {
-    class VKInstance: public Layer::LYInstanceBase {
+    class VKInstance: public Collection::CNTypeInstanceBase {
         private:
             struct InstanceInfo {
                 struct Meta {
@@ -345,6 +345,19 @@ namespace Renderer {
                 LOG_INFO (m_instanceInfo.resource.logObj) << "[X] Instance"
                                                           << std::endl;
                 delete m_validationLogObj;
+            }
+
+            void onAttach (void) override {
+                createInstance();
+            }
+
+            void onDetach (void) override {
+                destroyInstance();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKInstance (void) {

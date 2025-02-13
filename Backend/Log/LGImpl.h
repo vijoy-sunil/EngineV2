@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
-#include "../Layer/LYInstanceBase.h"
+#include "../Collection/CNTypeInstanceBase.h"
 #include "LGEnum.h"
 
 /* 1-line log macros */
@@ -36,7 +36,7 @@
 #define LINE_BREAK                      "|-----------------------------------------------------------------|"
 
 namespace Log {
-    class LGImpl: public Layer::LYInstanceBase {
+    class LGImpl: public Collection::CNTypeInstanceBase {
         private:
             struct LogInfo {
                 struct Meta {
@@ -56,7 +56,7 @@ namespace Log {
 
             e_logSink m_currentSinks;
             /* std::endl is a template function, and this is the signature of that function */
-            using endl_type = std::ostream& (std::ostream&);
+            using EndlType = std::ostream& (std::ostream&);
 
         public:
             LGImpl (void) {
@@ -123,7 +123,7 @@ namespace Log {
                 return *this;
             }
 
-            LGImpl& operator << (endl_type endl){
+            LGImpl& operator << (EndlType endl) {
                 if (m_currentSinks & LOG_SINK_CONSOLE)
                     std::cout << endl;
 
@@ -135,6 +135,19 @@ namespace Log {
                     m_logInfo.resource.file.close();
                 }
                 return *this;
+            }
+
+            void onAttach (void) override {
+                /* Do nothing */
+            }
+
+            void onDetach (void) override {
+                /* Do nothing */
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
     };
 }   // namespace Log

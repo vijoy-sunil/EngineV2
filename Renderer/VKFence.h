@@ -2,12 +2,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKFence: public Layer::LYInstanceBase {
+    class VKFence: public Collection::CNTypeInstanceBase {
         private:
             struct FenceInfo {
                 struct Meta {
@@ -106,6 +106,19 @@ namespace Renderer {
                                   nullptr);
                 LOG_INFO (m_fenceInfo.resource.logObj) << "[X] Fence"
                                                        << std::endl;
+            }
+
+            void onAttach (void) override {
+                createFence();
+            }
+
+            void onDetach (void) override {
+                destroyFence();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKFence (void) {

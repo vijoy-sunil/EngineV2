@@ -3,12 +3,12 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKDescriptorSet: public Layer::LYInstanceBase {
+    class VKDescriptorSet: public Collection::CNTypeInstanceBase {
         private:
             struct DescriptorSetInfo {
                 struct Meta {
@@ -160,6 +160,19 @@ namespace Renderer {
                 */
                 LOG_INFO (m_descriptorSetInfo.resource.logObj) << "[X] Descriptor set(s)"
                                                                << std::endl;
+            }
+
+            void onAttach (void) override {
+                createDescriptorSets();
+            }
+
+            void onDetach (void) override {
+                destroyDescriptorSets();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKDescriptorSet (void) {

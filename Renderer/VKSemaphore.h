@@ -2,12 +2,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKSemaphore: public Layer::LYInstanceBase {
+    class VKSemaphore: public Collection::CNTypeInstanceBase {
         private:
             struct SemaphoreInfo {
                 struct Meta {
@@ -102,6 +102,19 @@ namespace Renderer {
                                       nullptr);
                 LOG_INFO (m_semaphoreInfo.resource.logObj) << "[X] Semaphore"
                                                            << std::endl;
+            }
+
+            void onAttach (void) override {
+                createSemaphore();
+            }
+
+            void onDetach (void) override {
+                destroySemaphore();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKSemaphore (void) {

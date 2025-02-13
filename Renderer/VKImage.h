@@ -3,14 +3,14 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKPhyDevice.h"
 #include "VKLogDevice.h"
 #include "VKHelper.h"
 
 namespace Renderer {
-    class VKImage: public Layer::LYInstanceBase {
+    class VKImage: public Collection::CNTypeInstanceBase {
         private:
             struct ImageInfo {
                 struct Meta {
@@ -31,6 +31,7 @@ namespace Renderer {
                 } meta;
 
                 struct State {
+                    bool onlyViewCreated;
                     bool logObjCreated;
                 } state;
 
@@ -102,6 +103,7 @@ namespace Renderer {
                 m_imageInfo.meta.queueFamilyIndices = queueFamilyIndices;
                 m_imageInfo.meta.aspectFlags        = aspectFlags;
                 m_imageInfo.meta.viewType           = viewType;
+                m_imageInfo.state.onlyViewCreated   = false;
                 m_imageInfo.resource.image          = nullptr;
                 m_imageInfo.resource.memory         = nullptr;
                 m_imageInfo.resource.view           = nullptr;
@@ -114,13 +116,14 @@ namespace Renderer {
                                 const VkImageViewType viewType,
                                 const VkImage image) {
 
-                m_imageInfo.meta.mipLevels   = mipLevels;
-                m_imageInfo.meta.layersCount = layersCount;
-                m_imageInfo.meta.format      = format;
-                m_imageInfo.meta.aspectFlags = aspectFlags;
-                m_imageInfo.meta.viewType    = viewType;
-                m_imageInfo.resource.image   = image;
-                m_imageInfo.resource.view    = nullptr;
+                m_imageInfo.meta.mipLevels        = mipLevels;
+                m_imageInfo.meta.layersCount      = layersCount;
+                m_imageInfo.meta.format           = format;
+                m_imageInfo.meta.aspectFlags      = aspectFlags;
+                m_imageInfo.meta.viewType         = viewType;
+                m_imageInfo.state.onlyViewCreated = true;
+                m_imageInfo.resource.image        = image;
+                m_imageInfo.resource.view         = nullptr;
             }
 
             VkImageView* getImageView (void) {
@@ -144,7 +147,7 @@ namespace Renderer {
                 createInfo.samples                   = m_imageInfo.meta.samplesCount;
                 createInfo.tiling                    = m_imageInfo.meta.tiling;
 
-                auto queueFamilyIndices              = m_imageInfo.meta.queueFamilyIndices;
+                auto& queueFamilyIndices             = m_imageInfo.meta.queueFamilyIndices;
                 if (isIndicesUnique (queueFamilyIndices)) {
                     createInfo.sharingMode           = VK_SHARING_MODE_CONCURRENT;
                     createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
@@ -201,7 +204,6 @@ namespace Renderer {
                                     m_imageInfo.resource.image,
                                     m_imageInfo.resource.memory,
                                     0);
-                createImageView();
             }
 
             void createImageView (void) {
@@ -240,7 +242,6 @@ namespace Renderer {
             }
 
             void destroyImage (void) {
-                destroyImageView();
                 vkDestroyImage (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
                                  m_imageInfo.resource.image,
                                  nullptr);
@@ -260,6 +261,23 @@ namespace Renderer {
                                      nullptr);
                 LOG_INFO (m_imageInfo.resource.logObj) << "[X] Image view"
                                                        << std::endl;
+            }
+
+            void onAttach (void) override {
+                if (!m_imageInfo.state.onlyViewCreated)
+                    createImage();
+                createImageView();
+            }
+
+            void onDetach (void) override {
+                destroyImageView();
+                if (!m_imageInfo.state.onlyViewCreated)
+                    destroyImage();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKImage (void) {

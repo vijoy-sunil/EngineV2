@@ -4,13 +4,13 @@
 #include <set>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKInstance.h"
 #include "VKPhyDevice.h"
 
 namespace Renderer {
-    class VKLogDevice: public Layer::LYInstanceBase {
+    class VKLogDevice: public Collection::CNTypeInstanceBase {
         private:
             struct LogDeviceInfo {
                 struct Meta {
@@ -188,6 +188,19 @@ namespace Renderer {
                 vkDestroyDevice (m_logDeviceInfo.resource.device, nullptr);
                 LOG_INFO (m_logDeviceInfo.resource.logObj) << "[X] Log device"
                                                            << std::endl;
+            }
+
+            void onAttach (void) override {
+                createLogDevice();
+            }
+
+            void onDetach (void) override {
+                destroyLogDevice();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKLogDevice (void) {

@@ -3,14 +3,14 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKPhyDevice.h"
 #include "VKLogDevice.h"
 #include "VKHelper.h"
 
 namespace Renderer {
-    class VKBuffer: public Layer::LYInstanceBase {
+    class VKBuffer: public Collection::CNTypeInstanceBase {
         private:
             struct BufferInfo {
                 struct Meta {
@@ -110,7 +110,7 @@ namespace Renderer {
                 createInfo.size                      = m_bufferInfo.meta.size;
                 createInfo.usage                     = m_bufferInfo.meta.usages;
 
-                auto queueFamilyIndices              = m_bufferInfo.meta.queueFamilyIndices;
+                auto& queueFamilyIndices             = m_bufferInfo.meta.queueFamilyIndices;
                 /* If the queue families differ, then we'll be using the concurrent mode (buffers can be used across
                  * multiple queue families without explicit ownership transfers). Concurrent mode requires you to specify
                  * in advance between which queue families ownership will be shared using the queueFamilyIndexCount and
@@ -210,6 +210,19 @@ namespace Renderer {
                                   nullptr);
                 LOG_INFO (m_bufferInfo.resource.logObj) << "[X] Buffer memory"
                                                         << std::endl;
+            }
+
+            void onAttach (void) override {
+                createBuffer();
+            }
+
+            void onDetach (void) override {
+                destroyBuffer();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKBuffer (void) {

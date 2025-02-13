@@ -2,12 +2,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKSampler: public Layer::LYInstanceBase {
+    class VKSampler: public Collection::CNTypeInstanceBase {
         private:
             struct SamplerInfo {
                 struct Meta {
@@ -133,6 +133,19 @@ namespace Renderer {
                                    nullptr);
                 LOG_INFO (m_samplerInfo.resource.logObj) << "[X] Sampler"
                                                          << std::endl;
+            }
+
+            void onAttach (void) override {
+                createSampler();
+            }
+
+            void onDetach (void) override {
+                destroySampler();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKSampler (void) {

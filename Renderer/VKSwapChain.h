@@ -5,7 +5,7 @@
 #include <limits>
 #include <algorithm>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKWindow.h"
 #include "VKSurface.h"
@@ -14,7 +14,7 @@
 #include "VKHelper.h"
 
 namespace Renderer {
-    class VKSwapChain: public Layer::LYInstanceBase {
+    class VKSwapChain: public Collection::CNTypeInstanceBase {
         private:
             struct SwapChainInfo {
                 struct Meta {
@@ -305,7 +305,7 @@ namespace Renderer {
                 createInfo.imageColorSpace           = m_swapChainInfo.meta.surfaceFormat.colorSpace;
                 createInfo.presentMode               = m_swapChainInfo.meta.presentMode;
 
-                auto queueFamilyIndices              = m_swapChainInfo.meta.queueFamilyIndices;
+                auto& queueFamilyIndices             = m_swapChainInfo.meta.queueFamilyIndices;
                 if (isIndicesUnique (queueFamilyIndices)) {
                     createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
                     createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
@@ -350,6 +350,19 @@ namespace Renderer {
                                         nullptr);
                 LOG_INFO (m_swapChainInfo.resource.logObj) << "[X] Swap chain"
                                                            << std::endl;
+            }
+
+            void onAttach (void) override {
+                createSwapChain();
+            }
+
+            void onDetach (void) override {
+                destroySwapChain();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKSwapChain (void) {

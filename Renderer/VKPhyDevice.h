@@ -6,13 +6,13 @@
 #include <set>
 #include <vector>
 #include <optional>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKInstance.h"
 #include "VKSurface.h"
 
 namespace Renderer {
-    class VKPhyDevice: public Layer::LYInstanceBase {
+    class VKPhyDevice: public Collection::CNTypeInstanceBase {
         private:
             struct PhyDeviceInfo {
                 struct Meta {
@@ -125,7 +125,7 @@ namespace Renderer {
                         m_phyDeviceInfo.meta.transferQueueFamilyIdx = idx;
                 }
 
-                auto meta                          = m_phyDeviceInfo.meta;
+                auto& meta                         = m_phyDeviceInfo.meta;
                 std::string graphicsQueueFamilyIdx = meta.graphicsQueueFamilyIdx.has_value() ?
                                                      std::to_string (meta.graphicsQueueFamilyIdx.value()): "X";
                 std::string presentQueueFamilyIdx  = meta.presentQueueFamilyIdx. has_value() ?
@@ -295,6 +295,19 @@ namespace Renderer {
                 */
                 LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[X] Phy device"
                                                            << std::endl;
+            }
+
+            void onAttach (void) override {
+                createPhyDevice();
+            }
+
+            void onDetach (void) override {
+                destroyPhyDevice();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKPhyDevice (void) {

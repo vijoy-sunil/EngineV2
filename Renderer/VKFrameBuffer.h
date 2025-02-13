@@ -3,12 +3,12 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKFrameBuffer: public Layer::LYInstanceBase {
+    class VKFrameBuffer: public Collection::CNTypeInstanceBase {
         private:
             struct FrameBufferInfo {
                 struct Meta {
@@ -115,6 +115,19 @@ namespace Renderer {
                                        nullptr);
                 LOG_INFO (m_frameBufferInfo.resource.logObj) << "[X] Frame buffer"
                                                              << std::endl;
+            }
+
+            void onAttach (void) override {
+                createFrameBuffer();
+            }
+
+            void onDetach (void) override {
+                destroyFrameBuffer();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKFrameBuffer (void) {

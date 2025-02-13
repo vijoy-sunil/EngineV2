@@ -2,12 +2,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKCmdPool: public Layer::LYInstanceBase {
+    class VKCmdPool: public Collection::CNTypeInstanceBase {
         private:
             struct CmdPoolInfo {
                 struct Meta {
@@ -93,6 +93,19 @@ namespace Renderer {
                                        nullptr);
                 LOG_INFO (m_cmdPoolInfo.resource.logObj) << "[X] Cmd pool"
                                                          << std::endl;
+            }
+
+            void onAttach (void) override {
+                createCmdPool();
+            }
+
+            void onDetach (void) override {
+                destroyCmdPool();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKCmdPool (void) {

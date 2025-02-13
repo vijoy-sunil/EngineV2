@@ -3,11 +3,11 @@
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <functional>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 
 namespace Renderer {
-    class VKWindow: public Layer::LYInstanceBase {
+    class VKWindow: public Collection::CNTypeInstanceBase {
         private:
             struct WindowInfo {
                 struct Meta {
@@ -237,6 +237,18 @@ namespace Renderer {
 
                 LOG_INFO (m_windowInfo.resource.logObj) << "[X] Window"
                                                         << std::endl;
+            }
+
+            void onAttach (void) override {
+                createWindow();
+            }
+
+            void onDetach (void) override {
+                destroyWindow();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                handleKeyEvents (frameDelta);
             }
 
             ~VKWindow (void) {

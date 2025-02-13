@@ -3,12 +3,12 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKCmdBuffer: public Layer::LYInstanceBase {
+    class VKCmdBuffer: public Collection::CNTypeInstanceBase {
         private:
             struct CmdBufferInfo {
                 struct Meta {
@@ -95,6 +95,19 @@ namespace Renderer {
             void destroyCmdBuffers (void) {
                 LOG_INFO (m_cmdBufferInfo.resource.logObj) << "[X] Cmd buffer(s)"
                                                            << std::endl;
+            }
+
+            void onAttach (void) override {
+                createCmdBuffers();
+            }
+
+            void onDetach (void) override {
+                destroyCmdBuffers();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKCmdBuffer (void) {

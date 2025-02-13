@@ -2,13 +2,13 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKInstance.h"
 #include "VKWindow.h"
 
 namespace Renderer {
-    class VKSurface: public Layer::LYInstanceBase {
+    class VKSurface: public Collection::CNTypeInstanceBase {
         private:
             struct SurfaceInfo {
                 struct State {
@@ -85,6 +85,19 @@ namespace Renderer {
                                       nullptr);
                 LOG_INFO (m_surfaceInfo.resource.logObj) << "[X] Surface"
                                                          << std::endl;
+            }
+
+            void onAttach (void) override {
+                createSurface();
+            }
+
+            void onDetach (void) override {
+                destroySurface();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKSurface (void) {

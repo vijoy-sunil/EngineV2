@@ -4,12 +4,12 @@
 #include <fstream>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Layer/LYInstanceBase.h"
+#include "../Backend/Collection/CNTypeInstanceBase.h"
 #include "../Backend/Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
-    class VKPipeline: public Layer::LYInstanceBase {
+    class VKPipeline: public Collection::CNTypeInstanceBase {
         private:
             struct PipelineInfo {
                 struct Meta {
@@ -589,6 +589,19 @@ namespace Renderer {
                     LOG_INFO (m_pipelineInfo.resource.logObj)  << "[X] Shader module"
                                                                << std::endl;
                 }
+            }
+
+            void onAttach (void) override {
+                createPipeline();
+            }
+
+            void onDetach (void) override {
+                destroyPipeline();
+            }
+
+            void onUpdate (const float frameDelta) override {
+                static_cast <void> (frameDelta);
+                /* Do nothing */
             }
 
             ~VKPipeline (void) {

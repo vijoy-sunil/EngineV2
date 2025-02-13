@@ -74,8 +74,8 @@
 - [x] vector names end with `s`
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
-- [ ] `using` alias begins with upper case
-- [ ] When copying struct/vec for use as short hand, always use `auto&`
+- [x] `using` alias begins with upper case
+- [x] When copying struct/vec for use as short hand, always use `auto&`
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
 - [x] struct members should be named short (configs instead of logConfigs in LogInfo); self explanatory
@@ -108,7 +108,7 @@
 - [x] Is this function necessary?
 - [x] All constant parameters passed as `const`
 - [x] Parameter names should be named to not cause confusion (for eg: device could be phy or log)
-- [ ] virtual fns will start with `on` and have `override` keyword
+- [x] virtual fns will start with `on` and have `override` keyword
 - [x] Struct/Vector as argument
 ```
 {
@@ -175,7 +175,7 @@
 }
 ```
 - [x] private/public/protected methods are placed appropriately
-- [ ] `create` and `destroy` functions at the end of file before virtual overrides and destructor
+- [x] `create` and `destroy` functions at the end of file before virtual overrides and destructor
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
