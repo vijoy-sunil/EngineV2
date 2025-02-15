@@ -157,8 +157,16 @@ namespace Renderer {
                 return m_windowInfo.state.iconified;
             }
 
+            bool isWindowClosed (void) {
+                return glfwWindowShouldClose (m_windowInfo.resource.window);
+            }
+
             void toggleWindowResized (const bool val) {
                 m_windowInfo.state.resized = val;
+            }
+
+            void toggleWindowClosed (const bool val) {
+                glfwSetWindowShouldClose (m_windowInfo.resource.window, val);
             }
 
             void toggleCursorPositionCallback (const bool val) {
