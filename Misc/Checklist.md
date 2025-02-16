@@ -52,6 +52,7 @@
     VKSemaphore
     VKCmdPool
     VKCmdBuffer
+    App
 
     enum
     non-class files
@@ -174,8 +175,7 @@
     by reference (vector),      otherwise
 }
 ```
-- [x] private/public/protected methods are placed appropriately
-- [x] `create` and `destroy` functions at the end of file before virtual overrides and destructor
+- [ ] private/public/protected methods are placed appropriately
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
