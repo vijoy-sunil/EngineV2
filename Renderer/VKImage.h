@@ -45,91 +45,6 @@ namespace Renderer {
                 } resource;
             } m_imageInfo;
 
-        public:
-            VKImage (Log::LGImpl* logObj,
-                     VKPhyDevice* phyDeviceObj,
-                     VKLogDevice* logDeviceObj) {
-
-                m_imageInfo = {};
-
-                if (logObj == nullptr) {
-                    m_imageInfo.resource.logObj     = new Log::LGImpl();
-                    m_imageInfo.state.logObjCreated = true;
-
-                    m_imageInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
-                    LOG_WARNING (m_imageInfo.resource.logObj) << NULL_LOGOBJ_MSG
-                                                              << std::endl;
-                }
-                else {
-                    m_imageInfo.resource.logObj     = logObj;
-                    m_imageInfo.state.logObjCreated = false;
-                }
-
-                if (phyDeviceObj == nullptr || logDeviceObj == nullptr) {
-                    LOG_ERROR (m_imageInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                            << std::endl;
-                    throw std::runtime_error (NULL_DEPOBJ_MSG);
-                }
-                m_imageInfo.resource.phyDeviceObj   = phyDeviceObj;
-                m_imageInfo.resource.logDeviceObj   = logDeviceObj;
-            }
-
-            void initImageInfo (const uint32_t width,
-                                const uint32_t height,
-                                const uint32_t mipLevels,
-                                const uint32_t layersCount,
-                                const VkImageCreateFlags createFlags,
-                                const VkImageLayout initialImageLayout,
-                                const VkFormat format,
-                                const VkImageUsageFlags imageUsages,
-                                const VkSampleCountFlagBits samplesCount,
-                                const VkImageTiling tiling,
-                                const VkMemoryPropertyFlags memoryProperties,
-                                const std::vector <uint32_t> queueFamilyIndices,
-                                const VkImageAspectFlags aspectFlags,
-                                const VkImageViewType viewType) {
-
-                m_imageInfo.meta.width              = width;
-                m_imageInfo.meta.height             = height;
-                m_imageInfo.meta.mipLevels          = mipLevels;
-                m_imageInfo.meta.layersCount        = layersCount;
-                m_imageInfo.meta.createFlags        = createFlags;
-                m_imageInfo.meta.initialLayout      = initialImageLayout;
-                m_imageInfo.meta.format             = format;
-                m_imageInfo.meta.usages             = imageUsages;
-                m_imageInfo.meta.samplesCount       = samplesCount;
-                m_imageInfo.meta.tiling             = tiling;
-                m_imageInfo.meta.memoryProperties   = memoryProperties;
-                m_imageInfo.meta.queueFamilyIndices = queueFamilyIndices;
-                m_imageInfo.meta.aspectFlags        = aspectFlags;
-                m_imageInfo.meta.viewType           = viewType;
-                m_imageInfo.state.onlyViewCreated   = false;
-                m_imageInfo.resource.image          = nullptr;
-                m_imageInfo.resource.memory         = nullptr;
-                m_imageInfo.resource.view           = nullptr;
-            }
-
-            void initImageInfo (const uint32_t mipLevels,
-                                const uint32_t layersCount,
-                                const VkFormat format,
-                                const VkImageAspectFlags aspectFlags,
-                                const VkImageViewType viewType,
-                                const VkImage image) {
-
-                m_imageInfo.meta.mipLevels        = mipLevels;
-                m_imageInfo.meta.layersCount      = layersCount;
-                m_imageInfo.meta.format           = format;
-                m_imageInfo.meta.aspectFlags      = aspectFlags;
-                m_imageInfo.meta.viewType         = viewType;
-                m_imageInfo.state.onlyViewCreated = true;
-                m_imageInfo.resource.image        = image;
-                m_imageInfo.resource.view         = nullptr;
-            }
-
-            VkImageView* getImageView (void) {
-                return &m_imageInfo.resource.view;
-            }
-
             void createImage (void) {
                 VkImageCreateInfo createInfo;
                 createInfo.sType                     = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -261,6 +176,95 @@ namespace Renderer {
                                      nullptr);
                 LOG_INFO (m_imageInfo.resource.logObj) << "[X] Image view"
                                                        << std::endl;
+            }
+
+        public:
+            VKImage (Log::LGImpl* logObj,
+                     VKPhyDevice* phyDeviceObj,
+                     VKLogDevice* logDeviceObj) {
+
+                m_imageInfo = {};
+
+                if (logObj == nullptr) {
+                    m_imageInfo.resource.logObj     = new Log::LGImpl();
+                    m_imageInfo.state.logObjCreated = true;
+
+                    m_imageInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
+                    LOG_WARNING (m_imageInfo.resource.logObj) << NULL_LOGOBJ_MSG
+                                                              << std::endl;
+                }
+                else {
+                    m_imageInfo.resource.logObj     = logObj;
+                    m_imageInfo.state.logObjCreated = false;
+                }
+
+                if (phyDeviceObj == nullptr || logDeviceObj == nullptr) {
+                    LOG_ERROR (m_imageInfo.resource.logObj) << NULL_DEPOBJ_MSG
+                                                            << std::endl;
+                    throw std::runtime_error (NULL_DEPOBJ_MSG);
+                }
+                m_imageInfo.resource.phyDeviceObj   = phyDeviceObj;
+                m_imageInfo.resource.logDeviceObj   = logDeviceObj;
+            }
+
+            void initImageInfo (const uint32_t width,
+                                const uint32_t height,
+                                const uint32_t mipLevels,
+                                const uint32_t layersCount,
+                                const VkImageCreateFlags createFlags,
+                                const VkImageLayout initialImageLayout,
+                                const VkFormat format,
+                                const VkImageUsageFlags imageUsages,
+                                const VkSampleCountFlagBits samplesCount,
+                                const VkImageTiling tiling,
+                                const VkMemoryPropertyFlags memoryProperties,
+                                const std::vector <uint32_t> queueFamilyIndices,
+                                const VkImageAspectFlags aspectFlags,
+                                const VkImageViewType viewType) {
+
+                m_imageInfo.meta.width              = width;
+                m_imageInfo.meta.height             = height;
+                m_imageInfo.meta.mipLevels          = mipLevels;
+                m_imageInfo.meta.layersCount        = layersCount;
+                m_imageInfo.meta.createFlags        = createFlags;
+                m_imageInfo.meta.initialLayout      = initialImageLayout;
+                m_imageInfo.meta.format             = format;
+                m_imageInfo.meta.usages             = imageUsages;
+                m_imageInfo.meta.samplesCount       = samplesCount;
+                m_imageInfo.meta.tiling             = tiling;
+                m_imageInfo.meta.memoryProperties   = memoryProperties;
+                m_imageInfo.meta.queueFamilyIndices = queueFamilyIndices;
+                m_imageInfo.meta.aspectFlags        = aspectFlags;
+                m_imageInfo.meta.viewType           = viewType;
+                m_imageInfo.state.onlyViewCreated   = false;
+                m_imageInfo.resource.image          = nullptr;
+                m_imageInfo.resource.memory         = nullptr;
+                m_imageInfo.resource.view           = nullptr;
+            }
+
+            void initImageInfo (const uint32_t mipLevels,
+                                const uint32_t layersCount,
+                                const VkFormat format,
+                                const VkImageAspectFlags aspectFlags,
+                                const VkImageViewType viewType,
+                                const VkImage image) {
+
+                m_imageInfo.meta.mipLevels        = mipLevels;
+                m_imageInfo.meta.layersCount      = layersCount;
+                m_imageInfo.meta.format           = format;
+                m_imageInfo.meta.aspectFlags      = aspectFlags;
+                m_imageInfo.meta.viewType         = viewType;
+                m_imageInfo.state.onlyViewCreated = true;
+                m_imageInfo.resource.image        = image;
+                m_imageInfo.resource.view         = nullptr;
+            }
+
+            VkFormat getImageFormat (void) {
+                return m_imageInfo.meta.format;
+            }
+
+            VkImageView* getImageView (void) {
+                return &m_imageInfo.resource.view;
             }
 
             void onAttach (void) override {

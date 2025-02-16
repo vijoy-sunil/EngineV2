@@ -25,42 +25,6 @@ namespace Renderer {
                 } resource;
             } m_semaphoreInfo;
 
-        public:
-            VKSemaphore (Log::LGImpl* logObj,
-                         VKLogDevice* logDeviceObj) {
-
-                m_semaphoreInfo = {};
-
-                if (logObj == nullptr) {
-                    m_semaphoreInfo.resource.logObj     = new Log::LGImpl();
-                    m_semaphoreInfo.state.logObjCreated = true;
-
-                    m_semaphoreInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
-                    LOG_WARNING (m_semaphoreInfo.resource.logObj) << NULL_LOGOBJ_MSG
-                                                                  << std::endl;
-                }
-                else {
-                    m_semaphoreInfo.resource.logObj     = logObj;
-                    m_semaphoreInfo.state.logObjCreated = false;
-                }
-
-                if (logDeviceObj == nullptr) {
-                    LOG_ERROR (m_semaphoreInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                << std::endl;
-                    throw std::runtime_error (NULL_DEPOBJ_MSG);
-                }
-                m_semaphoreInfo.resource.logDeviceObj   = logDeviceObj;
-            }
-
-            void initSemaphoreInfo (const VkSemaphoreCreateFlags createFlags) {
-                m_semaphoreInfo.meta.createFlags   = createFlags;
-                m_semaphoreInfo.resource.semaphore = nullptr;
-            }
-
-            VkSemaphore* getSemaphore (void) {
-                return &m_semaphoreInfo.resource.semaphore;
-            }
-
             /* A semaphore is used to add order between queue operations. Queue operations refer to the work we submit
              * to a queue, either in a command buffer or from within a function. Semaphores are used both to order work
              * inside the same queue and between different queues
@@ -102,6 +66,42 @@ namespace Renderer {
                                       nullptr);
                 LOG_INFO (m_semaphoreInfo.resource.logObj) << "[X] Semaphore"
                                                            << std::endl;
+            }
+
+        public:
+            VKSemaphore (Log::LGImpl* logObj,
+                         VKLogDevice* logDeviceObj) {
+
+                m_semaphoreInfo = {};
+
+                if (logObj == nullptr) {
+                    m_semaphoreInfo.resource.logObj     = new Log::LGImpl();
+                    m_semaphoreInfo.state.logObjCreated = true;
+
+                    m_semaphoreInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
+                    LOG_WARNING (m_semaphoreInfo.resource.logObj) << NULL_LOGOBJ_MSG
+                                                                  << std::endl;
+                }
+                else {
+                    m_semaphoreInfo.resource.logObj     = logObj;
+                    m_semaphoreInfo.state.logObjCreated = false;
+                }
+
+                if (logDeviceObj == nullptr) {
+                    LOG_ERROR (m_semaphoreInfo.resource.logObj) << NULL_DEPOBJ_MSG
+                                                                << std::endl;
+                    throw std::runtime_error (NULL_DEPOBJ_MSG);
+                }
+                m_semaphoreInfo.resource.logDeviceObj   = logDeviceObj;
+            }
+
+            void initSemaphoreInfo (const VkSemaphoreCreateFlags createFlags) {
+                m_semaphoreInfo.meta.createFlags   = createFlags;
+                m_semaphoreInfo.resource.semaphore = nullptr;
+            }
+
+            VkSemaphore* getSemaphore (void) {
+                return &m_semaphoreInfo.resource.semaphore;
             }
 
             void onAttach (void) override {

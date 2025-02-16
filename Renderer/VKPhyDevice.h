@@ -195,6 +195,54 @@ namespace Renderer {
                        descriptorIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind;
             }
 
+            void createPhyDevice (void) {
+                uint32_t phyDevicesCount = 0;
+                vkEnumeratePhysicalDevices (*m_phyDeviceInfo.resource.instanceObj->getInstance(),
+                                             &phyDevicesCount,
+                                             nullptr);
+                if (phyDevicesCount == 0) {
+                    LOG_ERROR (m_phyDeviceInfo.resource.logObj) << "No phy devices found"
+                                                                << std::endl;
+                    throw std::runtime_error ("No phy devices found");
+                }
+                std::vector <VkPhysicalDevice> availablePhyDevices (phyDevicesCount);
+                vkEnumeratePhysicalDevices (*m_phyDeviceInfo.resource.instanceObj->getInstance(),
+                                             &phyDevicesCount,
+                                             availablePhyDevices.data());
+
+                /* Pick a phy device */
+                for (auto const& phyDevice: availablePhyDevices) {
+                    bool extensionsSupported        = isDeviceExtensionsSupported (phyDevice);
+                    bool queueFamilyIndicesComplete = populateQueueFamilyIndices  (phyDevice);
+                    bool requiredFeaturesSupported  = isRequiredFeaturesSupported (phyDevice);
+                    /* Note that we are not checking if swap chain extension is supported and or adequate (i.e if there
+                     * is at least one supported image format and one supported presentation mode given the window
+                     * surface). However, the availability of a presentation queue, implies that the extension must be
+                     * supported, hence why we will skip this step
+                    */
+                    if (extensionsSupported && queueFamilyIndicesComplete && requiredFeaturesSupported) {
+                        m_phyDeviceInfo.resource.device = phyDevice;
+                        break;
+                    }
+                }
+
+                if (m_phyDeviceInfo.resource.device == nullptr) {
+                    LOG_ERROR (m_phyDeviceInfo.resource.logObj) << "[?] Phy device"
+                                                                << std::endl;
+                    throw std::runtime_error ("[?] Phy device");
+                }
+                LOG_INFO (m_phyDeviceInfo.resource.logObj)      << "[O] Phy device"
+                                                                << std::endl;
+            }
+
+            void destroyPhyDevice (void) {
+                /* The phy device object will be implicitly destroyed when the instance is destroyed, so we won't need
+                 * to do anything in the destroy function
+                */
+                LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[X] Phy device"
+                                                           << std::endl;
+            }
+
         public:
             VKPhyDevice (Log::LGImpl* logObj,
                          VKInstance*  instanceObj,
@@ -247,54 +295,6 @@ namespace Renderer {
 
             VkPhysicalDevice* getPhyDevice (void) {
                 return &m_phyDeviceInfo.resource.device;
-            }
-
-            void createPhyDevice (void) {
-                uint32_t phyDevicesCount = 0;
-                vkEnumeratePhysicalDevices (*m_phyDeviceInfo.resource.instanceObj->getInstance(),
-                                             &phyDevicesCount,
-                                             nullptr);
-                if (phyDevicesCount == 0) {
-                    LOG_ERROR (m_phyDeviceInfo.resource.logObj) << "No phy devices found"
-                                                                << std::endl;
-                    throw std::runtime_error ("No phy devices found");
-                }
-                std::vector <VkPhysicalDevice> availablePhyDevices (phyDevicesCount);
-                vkEnumeratePhysicalDevices (*m_phyDeviceInfo.resource.instanceObj->getInstance(),
-                                             &phyDevicesCount,
-                                             availablePhyDevices.data());
-
-                /* Pick a phy device */
-                for (auto const& phyDevice: availablePhyDevices) {
-                    bool extensionsSupported        = isDeviceExtensionsSupported (phyDevice);
-                    bool queueFamilyIndicesComplete = populateQueueFamilyIndices  (phyDevice);
-                    bool requiredFeaturesSupported  = isRequiredFeaturesSupported (phyDevice);
-                    /* Note that we are not checking if swap chain extension is supported and or adequate (i.e if there
-                     * is at least one supported image format and one supported presentation mode given the window
-                     * surface). However, the availability of a presentation queue, implies that the extension must be
-                     * supported, hence why we will skip this step
-                    */
-                    if (extensionsSupported && queueFamilyIndicesComplete && requiredFeaturesSupported) {
-                        m_phyDeviceInfo.resource.device = phyDevice;
-                        break;
-                    }
-                }
-
-                if (m_phyDeviceInfo.resource.device == nullptr) {
-                    LOG_ERROR (m_phyDeviceInfo.resource.logObj) << "[?] Phy device"
-                                                                << std::endl;
-                    throw std::runtime_error ("[?] Phy device");
-                }
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)      << "[O] Phy device"
-                                                                << std::endl;
-            }
-
-            void destroyPhyDevice (void) {
-                /* The phy device object will be implicitly destroyed when the instance is destroyed, so we won't need
-                 * to do anything in the destroy function
-                */
-                LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[X] Phy device"
-                                                           << std::endl;
             }
 
             void onAttach (void) override {

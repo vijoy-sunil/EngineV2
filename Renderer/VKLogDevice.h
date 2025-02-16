@@ -31,58 +31,6 @@ namespace Renderer {
                 } resource;
             } m_logDeviceInfo;
 
-        public:
-            VKLogDevice (Log::LGImpl* logObj,
-                         VKInstance*  instanceObj,
-                         VKPhyDevice* phyDeviceObj) {
-
-                m_logDeviceInfo = {};
-
-                if (logObj == nullptr) {
-                    m_logDeviceInfo.resource.logObj     = new Log::LGImpl();
-                    m_logDeviceInfo.state.logObjCreated = true;
-
-                    m_logDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
-                    LOG_WARNING (m_logDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
-                                                                  << std::endl;
-                }
-                else {
-                    m_logDeviceInfo.resource.logObj     = logObj;
-                    m_logDeviceInfo.state.logObjCreated = false;
-                }
-
-                if (instanceObj == nullptr || phyDeviceObj == nullptr) {
-                    LOG_ERROR (m_logDeviceInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                << std::endl;
-                    throw std::runtime_error (NULL_DEPOBJ_MSG);
-                }
-                m_logDeviceInfo.resource.instanceObj    = instanceObj;
-                m_logDeviceInfo.resource.phyDeviceObj   = phyDeviceObj;
-            }
-
-            void initLogDeviceInfo (void) {
-                m_logDeviceInfo.meta.graphicsQueue = nullptr;
-                m_logDeviceInfo.meta.presentQueue  = nullptr;
-                m_logDeviceInfo.meta.transferQueue = nullptr;
-                m_logDeviceInfo.resource.device    = nullptr;
-            }
-
-            VkQueue* getGraphicsQueue (void) {
-                return &m_logDeviceInfo.meta.graphicsQueue;
-            }
-
-            VkQueue* getPresentQueue (void) {
-                return &m_logDeviceInfo.meta.presentQueue;
-            }
-
-            VkQueue* getTransferQueue (void) {
-                return &m_logDeviceInfo.meta.transferQueue;
-            }
-
-            VkDevice* getLogDevice (void) {
-                return &m_logDeviceInfo.resource.device;
-            }
-
             void createLogDevice (void) {
                 auto validationLayers          = m_logDeviceInfo.resource.instanceObj->getValidationLayers();
                 bool validationLayersDisabled  = m_logDeviceInfo.resource.instanceObj->isValidationLayersDisabled();
@@ -188,6 +136,58 @@ namespace Renderer {
                 vkDestroyDevice (m_logDeviceInfo.resource.device, nullptr);
                 LOG_INFO (m_logDeviceInfo.resource.logObj) << "[X] Log device"
                                                            << std::endl;
+            }
+
+        public:
+            VKLogDevice (Log::LGImpl* logObj,
+                         VKInstance*  instanceObj,
+                         VKPhyDevice* phyDeviceObj) {
+
+                m_logDeviceInfo = {};
+
+                if (logObj == nullptr) {
+                    m_logDeviceInfo.resource.logObj     = new Log::LGImpl();
+                    m_logDeviceInfo.state.logObjCreated = true;
+
+                    m_logDeviceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
+                    LOG_WARNING (m_logDeviceInfo.resource.logObj) << NULL_LOGOBJ_MSG
+                                                                  << std::endl;
+                }
+                else {
+                    m_logDeviceInfo.resource.logObj     = logObj;
+                    m_logDeviceInfo.state.logObjCreated = false;
+                }
+
+                if (instanceObj == nullptr || phyDeviceObj == nullptr) {
+                    LOG_ERROR (m_logDeviceInfo.resource.logObj) << NULL_DEPOBJ_MSG
+                                                                << std::endl;
+                    throw std::runtime_error (NULL_DEPOBJ_MSG);
+                }
+                m_logDeviceInfo.resource.instanceObj    = instanceObj;
+                m_logDeviceInfo.resource.phyDeviceObj   = phyDeviceObj;
+            }
+
+            void initLogDeviceInfo (void) {
+                m_logDeviceInfo.meta.graphicsQueue = nullptr;
+                m_logDeviceInfo.meta.presentQueue  = nullptr;
+                m_logDeviceInfo.meta.transferQueue = nullptr;
+                m_logDeviceInfo.resource.device    = nullptr;
+            }
+
+            VkQueue* getGraphicsQueue (void) {
+                return &m_logDeviceInfo.meta.graphicsQueue;
+            }
+
+            VkQueue* getPresentQueue (void) {
+                return &m_logDeviceInfo.meta.presentQueue;
+            }
+
+            VkQueue* getTransferQueue (void) {
+                return &m_logDeviceInfo.meta.transferQueue;
+            }
+
+            VkDevice* getLogDevice (void) {
+                return &m_logDeviceInfo.resource.device;
             }
 
             void onAttach (void) override {

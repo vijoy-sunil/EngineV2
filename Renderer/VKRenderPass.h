@@ -28,6 +28,41 @@ namespace Renderer {
                 } resource;
             } m_renderPassInfo;
 
+            void createRenderPass (void) {
+                VkRenderPassCreateInfo createInfo;
+                createInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+                createInfo.pNext           = nullptr;
+                createInfo.flags           = 0;
+                createInfo.attachmentCount = static_cast <uint32_t> (m_renderPassInfo.meta.attachments.size());
+                createInfo.pAttachments    = m_renderPassInfo.meta.attachments.data();
+                createInfo.subpassCount    = static_cast <uint32_t> (m_renderPassInfo.meta.subPasses.size());
+                createInfo.pSubpasses      = m_renderPassInfo.meta.subPasses.data();
+                createInfo.dependencyCount = static_cast <uint32_t> (m_renderPassInfo.meta.dependencies.size());
+                createInfo.pDependencies   = m_renderPassInfo.meta.dependencies.data();
+
+                auto result = vkCreateRenderPass (*m_renderPassInfo.resource.logDeviceObj->getLogDevice(),
+                                                   &createInfo,
+                                                   nullptr,
+                                                   &m_renderPassInfo.resource.renderPass);
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_renderPassInfo.resource.logObj) << "[?] Render pass"
+                                                                 << " "
+                                                                 << "[" << string_VkResult (result) << "]"
+                                                                 << std::endl;
+                    throw std::runtime_error ("[?] Render pass");
+                }
+                LOG_INFO (m_renderPassInfo.resource.logObj)      << "[O] Render pass"
+                                                                 << std::endl;
+            }
+
+            void destroyRenderPass (void) {
+                vkDestroyRenderPass  (*m_renderPassInfo.resource.logDeviceObj->getLogDevice(),
+                                       m_renderPassInfo.resource.renderPass,
+                                       nullptr);
+                LOG_INFO (m_renderPassInfo.resource.logObj) << "[X] Render pass"
+                                                            << std::endl;
+            }
+
         public:
             VKRenderPass (Log::LGImpl* logObj,
                           VKLogDevice* logDeviceObj) {
@@ -175,41 +210,6 @@ namespace Renderer {
 
             VkRenderPass* getRenderPass (void) {
                 return &m_renderPassInfo.resource.renderPass;
-            }
-
-            void createRenderPass (void) {
-                VkRenderPassCreateInfo createInfo;
-                createInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-                createInfo.pNext           = nullptr;
-                createInfo.flags           = 0;
-                createInfo.attachmentCount = static_cast <uint32_t> (m_renderPassInfo.meta.attachments.size());
-                createInfo.pAttachments    = m_renderPassInfo.meta.attachments.data();
-                createInfo.subpassCount    = static_cast <uint32_t> (m_renderPassInfo.meta.subPasses.size());
-                createInfo.pSubpasses      = m_renderPassInfo.meta.subPasses.data();
-                createInfo.dependencyCount = static_cast <uint32_t> (m_renderPassInfo.meta.dependencies.size());
-                createInfo.pDependencies   = m_renderPassInfo.meta.dependencies.data();
-
-                auto result = vkCreateRenderPass (*m_renderPassInfo.resource.logDeviceObj->getLogDevice(),
-                                                   &createInfo,
-                                                   nullptr,
-                                                   &m_renderPassInfo.resource.renderPass);
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_renderPassInfo.resource.logObj) << "[?] Render pass"
-                                                                 << " "
-                                                                 << "[" << string_VkResult (result) << "]"
-                                                                 << std::endl;
-                    throw std::runtime_error ("[?] Render pass");
-                }
-                LOG_INFO (m_renderPassInfo.resource.logObj)      << "[O] Render pass"
-                                                                 << std::endl;
-            }
-
-            void destroyRenderPass (void) {
-                vkDestroyRenderPass  (*m_renderPassInfo.resource.logDeviceObj->getLogDevice(),
-                                       m_renderPassInfo.resource.renderPass,
-                                       nullptr);
-                LOG_INFO (m_renderPassInfo.resource.logObj) << "[X] Render pass"
-                                                            << std::endl;
             }
 
             void onAttach (void) override {

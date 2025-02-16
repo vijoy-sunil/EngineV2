@@ -119,6 +119,69 @@ namespace Renderer {
                                                                << std::endl;
             }
 
+            void createPipeline (void) {
+                createPipelineLayout();
+                VkGraphicsPipelineCreateInfo createInfo;
+                createInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+                createInfo.pNext               = nullptr;
+                createInfo.flags               = m_pipelineInfo.meta.createFlags;
+                createInfo.subpass             = m_pipelineInfo.meta.subPassIdx;
+                createInfo.renderPass          = m_pipelineInfo.meta.renderPass;
+                createInfo.basePipelineIndex   = m_pipelineInfo.meta.basePipelineIdx;
+                createInfo.basePipelineHandle  = m_pipelineInfo.meta.basePipeline;
+
+                createInfo.pVertexInputState   = &m_pipelineInfo.meta.vertexInput;
+                createInfo.pInputAssemblyState = &m_pipelineInfo.meta.inputAssembly;
+                createInfo.pTessellationState  = nullptr;
+                createInfo.stageCount          = static_cast <uint32_t> (m_pipelineInfo.meta.shaderStages.size());
+                createInfo.pStages             = m_pipelineInfo.meta.shaderStages.data();
+                createInfo.pDepthStencilState  = &m_pipelineInfo.meta.depthStencil;
+                createInfo.pRasterizationState = &m_pipelineInfo.meta.rasterization;
+                createInfo.pMultisampleState   = &m_pipelineInfo.meta.multiSample;
+                createInfo.pColorBlendState    = &m_pipelineInfo.meta.colorBlend;
+                createInfo.pDynamicState       = &m_pipelineInfo.meta.dynamicState;
+                createInfo.pViewportState      = &m_pipelineInfo.meta.viewPort;
+                createInfo.layout              = m_pipelineInfo.resource.layout;
+
+                auto result = vkCreateGraphicsPipelines (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                                                          nullptr,
+                                                          1,
+                                                          &createInfo,
+                                                          nullptr,
+                                                          &m_pipelineInfo.resource.pipeline);
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_pipelineInfo.resource.logObj) << "[?] Pipeline"
+                                                               << " "
+                                                               << "[" << string_VkResult (result) << "]"
+                                                               << std::endl;
+                    throw std::runtime_error ("[?] Pipeline");
+                }
+                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[O] Pipeline"
+                                                               << std::endl;
+            }
+
+            void destroyPipeline (void) {
+                for (auto const& descriptorSetLayout: m_pipelineInfo.resource.descriptorSetLayouts) {
+                    vkDestroyDescriptorSetLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                                                   descriptorSetLayout,
+                                                   nullptr);
+                    LOG_INFO (m_pipelineInfo.resource.logObj)  << "[X] Descriptor set layout"
+                                                               << std::endl;
+                }
+
+                vkDestroyPipelineLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                                          m_pipelineInfo.resource.layout,
+                                          nullptr);
+                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[X] Pipeline layout"
+                                                               << std::endl;
+
+                vkDestroyPipeline       (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                                          m_pipelineInfo.resource.pipeline,
+                                          nullptr);
+                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[X] Pipeline"
+                                                               << std::endl;
+            }
+
         public:
             VKPipeline (Log::LGImpl* logObj,
                         VKLogDevice* logDeviceObj) {
@@ -515,70 +578,6 @@ namespace Renderer {
 
             VkPipeline* getPipeline (void) {
                 return &m_pipelineInfo.resource.pipeline;
-            }
-
-            void createPipeline (void) {
-                createPipelineLayout();
-                VkGraphicsPipelineCreateInfo createInfo;
-                createInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-                createInfo.pNext               = nullptr;
-                createInfo.flags               = m_pipelineInfo.meta.createFlags;
-                createInfo.subpass             = m_pipelineInfo.meta.subPassIdx;
-                createInfo.renderPass          = m_pipelineInfo.meta.renderPass;
-                createInfo.basePipelineIndex   = m_pipelineInfo.meta.basePipelineIdx;
-                createInfo.basePipelineHandle  = m_pipelineInfo.meta.basePipeline;
-
-                createInfo.pVertexInputState   = &m_pipelineInfo.meta.vertexInput;
-                createInfo.pInputAssemblyState = &m_pipelineInfo.meta.inputAssembly;
-                createInfo.pTessellationState  = nullptr;
-                createInfo.stageCount          = static_cast <uint32_t> (m_pipelineInfo.meta.shaderStages.size());
-                createInfo.pStages             = m_pipelineInfo.meta.shaderStages.data();
-                createInfo.pDepthStencilState  = &m_pipelineInfo.meta.depthStencil;
-                createInfo.pRasterizationState = &m_pipelineInfo.meta.rasterization;
-                createInfo.pMultisampleState   = &m_pipelineInfo.meta.multiSample;
-                createInfo.pColorBlendState    = &m_pipelineInfo.meta.colorBlend;
-                createInfo.pDynamicState       = &m_pipelineInfo.meta.dynamicState;
-                createInfo.pViewportState      = &m_pipelineInfo.meta.viewPort;
-                createInfo.layout              = m_pipelineInfo.resource.layout;
-
-                auto result = vkCreateGraphicsPipelines (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                                          nullptr,
-                                                          1,
-                                                          &createInfo,
-                                                          nullptr,
-                                                          &m_pipelineInfo.resource.pipeline);
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_pipelineInfo.resource.logObj) << "[?] Pipeline"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
-                    throw std::runtime_error ("[?] Pipeline");
-                }
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[O] Pipeline"
-                                                               << std::endl;
-            }
-
-            void destroyPipeline (void) {
-                for (auto const& descriptorSetLayout: m_pipelineInfo.resource.descriptorSetLayouts) {
-                    vkDestroyDescriptorSetLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                                   descriptorSetLayout,
-                                                   nullptr);
-                    LOG_INFO (m_pipelineInfo.resource.logObj)  << "[X] Descriptor set layout"
-                                                               << std::endl;
-                }
-
-                vkDestroyPipelineLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_pipelineInfo.resource.layout,
-                                          nullptr);
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[X] Pipeline layout"
-                                                               << std::endl;
-
-                vkDestroyPipeline       (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_pipelineInfo.resource.pipeline,
-                                          nullptr);
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[X] Pipeline"
-                                                               << std::endl;
-
             }
 
             void destroyShaderModules (void) {

@@ -29,6 +29,39 @@ namespace Renderer {
                 } resource;
             } m_descriptorSetInfo;
 
+            void createDescriptorSets (void) {
+                VkDescriptorSetAllocateInfo allocInfo;
+                allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                allocInfo.pNext              = nullptr;
+                allocInfo.descriptorSetCount = m_descriptorSetInfo.meta.setsCount;
+                auto layouts                 = std::vector <VkDescriptorSetLayout> (m_descriptorSetInfo.meta.setsCount,
+                                                                                    m_descriptorSetInfo.meta.layout);
+                allocInfo.pSetLayouts        = layouts.data();
+                allocInfo.descriptorPool     = m_descriptorSetInfo.meta.pool;
+
+                m_descriptorSetInfo.resource.sets.resize (m_descriptorSetInfo.meta.setsCount);
+                auto result = vkAllocateDescriptorSets   (*m_descriptorSetInfo.resource.logDeviceObj->getLogDevice(),
+                                                           &allocInfo,
+                                                           m_descriptorSetInfo.resource.sets.data());
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_descriptorSetInfo.resource.logObj) << "[?] Descriptor set(s)"
+                                                                    << " "
+                                                                    << "[" << string_VkResult (result) << "]"
+                                                                    << std::endl;
+                    throw std::runtime_error ("[?] Descriptor set(s)");
+                }
+                LOG_INFO (m_descriptorSetInfo.resource.logObj)      << "[O] Descriptor set(s)"
+                                                                    << std::endl;
+            }
+
+            void destroyDescriptorSets (void) {
+                /* We don't need to explicitly destroy descriptor sets, because they will be automatically freed when
+                 * the descriptor pool is destroyed
+                */
+                LOG_INFO (m_descriptorSetInfo.resource.logObj) << "[X] Descriptor set(s)"
+                                                               << std::endl;
+            }
+
         public:
             VKDescriptorSet (Log::LGImpl* logObj,
                              VKLogDevice* logDeviceObj) {
@@ -127,39 +160,6 @@ namespace Renderer {
 
             std::vector <VkDescriptorSet>& getDescriptorSets (void) {
                 return m_descriptorSetInfo.resource.sets;
-            }
-
-            void createDescriptorSets (void) {
-                VkDescriptorSetAllocateInfo allocInfo;
-                allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-                allocInfo.pNext              = nullptr;
-                allocInfo.descriptorSetCount = m_descriptorSetInfo.meta.setsCount;
-                auto layouts                 = std::vector <VkDescriptorSetLayout> (m_descriptorSetInfo.meta.setsCount,
-                                                                                    m_descriptorSetInfo.meta.layout);
-                allocInfo.pSetLayouts        = layouts.data();
-                allocInfo.descriptorPool     = m_descriptorSetInfo.meta.pool;
-
-                m_descriptorSetInfo.resource.sets.resize (m_descriptorSetInfo.meta.setsCount);
-                auto result = vkAllocateDescriptorSets   (*m_descriptorSetInfo.resource.logDeviceObj->getLogDevice(),
-                                                           &allocInfo,
-                                                           m_descriptorSetInfo.resource.sets.data());
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_descriptorSetInfo.resource.logObj) << "[?] Descriptor set(s)"
-                                                                    << " "
-                                                                    << "[" << string_VkResult (result) << "]"
-                                                                    << std::endl;
-                    throw std::runtime_error ("[?] Descriptor set(s)");
-                }
-                LOG_INFO (m_descriptorSetInfo.resource.logObj)      << "[O] Descriptor set(s)"
-                                                                    << std::endl;
-            }
-
-            void destroyDescriptorSets (void) {
-                /* We don't need to explicitly destroy descriptor sets, because they will be automatically freed when
-                 * the descriptor pool is destroyed
-                */
-                LOG_INFO (m_descriptorSetInfo.resource.logObj) << "[X] Descriptor set(s)"
-                                                               << std::endl;
             }
 
             void onAttach (void) override {

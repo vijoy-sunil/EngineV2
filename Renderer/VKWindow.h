@@ -111,6 +111,46 @@ namespace Renderer {
                     thisPtr->m_keyEventInfoPool[key].state.pressed = false;
             }
 
+            void handleKeyEvents (const float frameDelta) {
+                for (auto const& [key, info]: m_keyEventInfoPool) {
+                    if ((info.state.pressed) && (info.resource.run != nullptr))
+                        info.resource.run (frameDelta);
+                }
+            }
+
+            void createWindow (void) {
+                glfwInit();
+                glfwWindowHint (GLFW_CLIENT_API, GLFW_NO_API);
+                if (m_windowInfo.state.resizeDisabled)
+                    glfwWindowHint (GLFW_RESIZABLE, GLFW_FALSE);
+
+                m_windowInfo.resource.window = glfwCreateWindow (m_windowInfo.meta.width,
+                                                                 m_windowInfo.meta.height,
+                                                                 m_windowInfo.meta.title,
+                                                                 nullptr,
+                                                                 nullptr);
+
+                glfwSetWindowUserPointer       (m_windowInfo.resource.window, this);
+                glfwSetFramebufferSizeCallback (m_windowInfo.resource.window, windowResizeCallback);
+                glfwSetWindowIconifyCallback   (m_windowInfo.resource.window, windowIconifyCallback);
+
+                LOG_INFO (m_windowInfo.resource.logObj) << "[O] Window"
+                                                        << std::endl;
+            }
+
+            void destroyWindow (void) {
+                /* Disable all callbacks */
+                toggleCursorPositionCallback (false);
+                toggleScrollOffsetCallback   (false);
+                toggleKeyEventCallback       (false);
+
+                glfwDestroyWindow (m_windowInfo.resource.window);
+                glfwTerminate();
+
+                LOG_INFO (m_windowInfo.resource.logObj) << "[X] Window"
+                                                        << std::endl;
+            }
+
         public:
             VKWindow (Log::LGImpl* logObj) {
                 m_windowInfo = {};
@@ -203,48 +243,8 @@ namespace Renderer {
                 m_keyEventInfoPool[key].resource.run  = binding;
             }
 
-            void handleKeyEvents (const float frameDelta) {
-                for (auto const& [key, info]: m_keyEventInfoPool) {
-                    if ((info.state.pressed) && (info.resource.run != nullptr))
-                        info.resource.run (frameDelta);
-                }
-            }
-
             GLFWwindow* getWindow (void) {
                 return m_windowInfo.resource.window;
-            }
-
-            void createWindow (void) {
-                glfwInit();
-                glfwWindowHint (GLFW_CLIENT_API, GLFW_NO_API);
-                if (m_windowInfo.state.resizeDisabled)
-                    glfwWindowHint (GLFW_RESIZABLE, GLFW_FALSE);
-
-                m_windowInfo.resource.window = glfwCreateWindow (m_windowInfo.meta.width,
-                                                                 m_windowInfo.meta.height,
-                                                                 m_windowInfo.meta.title,
-                                                                 nullptr,
-                                                                 nullptr);
-
-                glfwSetWindowUserPointer       (m_windowInfo.resource.window, this);
-                glfwSetFramebufferSizeCallback (m_windowInfo.resource.window, windowResizeCallback);
-                glfwSetWindowIconifyCallback   (m_windowInfo.resource.window, windowIconifyCallback);
-
-                LOG_INFO (m_windowInfo.resource.logObj) << "[O] Window"
-                                                        << std::endl;
-            }
-
-            void destroyWindow (void) {
-                /* Disable all callbacks */
-                toggleCursorPositionCallback (false);
-                toggleScrollOffsetCallback   (false);
-                toggleKeyEventCallback       (false);
-
-                glfwDestroyWindow (m_windowInfo.resource.window);
-                glfwTerminate();
-
-                LOG_INFO (m_windowInfo.resource.logObj) << "[X] Window"
-                                                        << std::endl;
             }
 
             void onAttach (void) override {

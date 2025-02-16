@@ -35,73 +35,6 @@ namespace Renderer {
                 } resource;
             } m_bufferInfo;
 
-        public:
-            VKBuffer (Log::LGImpl* logObj,
-                      VKPhyDevice* phyDeviceObj,
-                      VKLogDevice* logDeviceObj) {
-
-                m_bufferInfo = {};
-
-                if (logObj == nullptr) {
-                    m_bufferInfo.resource.logObj     = new Log::LGImpl();
-                    m_bufferInfo.state.logObjCreated = true;
-
-                    m_bufferInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
-                    LOG_WARNING (m_bufferInfo.resource.logObj) << NULL_LOGOBJ_MSG
-                                                               << std::endl;
-                }
-                else {
-                    m_bufferInfo.resource.logObj     = logObj;
-                    m_bufferInfo.state.logObjCreated = false;
-                }
-
-                if (phyDeviceObj == nullptr || logDeviceObj == nullptr) {
-                    LOG_ERROR (m_bufferInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                             << std::endl;
-                    throw std::runtime_error (NULL_DEPOBJ_MSG);
-                }
-                m_bufferInfo.resource.phyDeviceObj   = phyDeviceObj;
-                m_bufferInfo.resource.logDeviceObj   = logDeviceObj;
-            }
-
-            void initBufferInfo (const VkDeviceSize size,
-                                 const VkBufferUsageFlags bufferUsages,
-                                 const VkMemoryPropertyFlags memoryProperties,
-                                 const std::vector <uint32_t> queueFamilyIndices,
-                                 const bool memoryMappingDisabled) {
-
-                m_bufferInfo.meta.size                   = size;
-                m_bufferInfo.meta.usages                 = bufferUsages;
-                m_bufferInfo.meta.memoryProperties       = memoryProperties;
-                m_bufferInfo.meta.queueFamilyIndices     = queueFamilyIndices;
-                m_bufferInfo.meta.mappedMemory           = nullptr;
-                m_bufferInfo.state.memoryMappingDisabled = memoryMappingDisabled;
-                m_bufferInfo.resource.buffer             = nullptr;
-                m_bufferInfo.resource.memory             = nullptr;
-            }
-
-            void updateBuffer (const void *data,
-                               const bool persistentMappingDisabled) {
-
-                memcpy (m_bufferInfo.meta.mappedMemory,
-                        data,
-                        static_cast <size_t> (m_bufferInfo.meta.size));
-                /* Under normal scenarios, we map the buffer memory into CPU accessible memory with vkMapMemory. This
-                 * allows us to access a region of the specified memory resource defined by an offset and size. We would
-                 * then simply memcpy the desired data to the mapped memory and unmap it again using vkUnmapMemory. But,
-                 * in some cases, the buffer stays mapped to this pointer for the application's whole lifetime. This
-                 * technique is called "persistent mapping" and works on all Vulkan implementations. Not having to map
-                 * the buffer every time we need to update it increases performances, as mapping is not free
-                */
-                if (persistentMappingDisabled)
-                    vkUnmapMemory (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                    m_bufferInfo.resource.memory);
-            }
-
-            VkBuffer* getBuffer (void) {
-                return &m_bufferInfo.resource.buffer;
-            }
-
             void createBuffer (void) {
                 VkBufferCreateInfo createInfo;
                 createInfo.sType                     = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -210,6 +143,73 @@ namespace Renderer {
                                   nullptr);
                 LOG_INFO (m_bufferInfo.resource.logObj) << "[X] Buffer memory"
                                                         << std::endl;
+            }
+
+        public:
+            VKBuffer (Log::LGImpl* logObj,
+                      VKPhyDevice* phyDeviceObj,
+                      VKLogDevice* logDeviceObj) {
+
+                m_bufferInfo = {};
+
+                if (logObj == nullptr) {
+                    m_bufferInfo.resource.logObj     = new Log::LGImpl();
+                    m_bufferInfo.state.logObjCreated = true;
+
+                    m_bufferInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
+                    LOG_WARNING (m_bufferInfo.resource.logObj) << NULL_LOGOBJ_MSG
+                                                               << std::endl;
+                }
+                else {
+                    m_bufferInfo.resource.logObj     = logObj;
+                    m_bufferInfo.state.logObjCreated = false;
+                }
+
+                if (phyDeviceObj == nullptr || logDeviceObj == nullptr) {
+                    LOG_ERROR (m_bufferInfo.resource.logObj) << NULL_DEPOBJ_MSG
+                                                             << std::endl;
+                    throw std::runtime_error (NULL_DEPOBJ_MSG);
+                }
+                m_bufferInfo.resource.phyDeviceObj   = phyDeviceObj;
+                m_bufferInfo.resource.logDeviceObj   = logDeviceObj;
+            }
+
+            void initBufferInfo (const VkDeviceSize size,
+                                 const VkBufferUsageFlags bufferUsages,
+                                 const VkMemoryPropertyFlags memoryProperties,
+                                 const std::vector <uint32_t> queueFamilyIndices,
+                                 const bool memoryMappingDisabled) {
+
+                m_bufferInfo.meta.size                   = size;
+                m_bufferInfo.meta.usages                 = bufferUsages;
+                m_bufferInfo.meta.memoryProperties       = memoryProperties;
+                m_bufferInfo.meta.queueFamilyIndices     = queueFamilyIndices;
+                m_bufferInfo.meta.mappedMemory           = nullptr;
+                m_bufferInfo.state.memoryMappingDisabled = memoryMappingDisabled;
+                m_bufferInfo.resource.buffer             = nullptr;
+                m_bufferInfo.resource.memory             = nullptr;
+            }
+
+            void updateBuffer (const void *data,
+                               const bool persistentMappingDisabled) {
+
+                memcpy (m_bufferInfo.meta.mappedMemory,
+                        data,
+                        static_cast <size_t> (m_bufferInfo.meta.size));
+                /* Under normal scenarios, we map the buffer memory into CPU accessible memory with vkMapMemory. This
+                 * allows us to access a region of the specified memory resource defined by an offset and size. We would
+                 * then simply memcpy the desired data to the mapped memory and unmap it again using vkUnmapMemory. But,
+                 * in some cases, the buffer stays mapped to this pointer for the application's whole lifetime. This
+                 * technique is called "persistent mapping" and works on all Vulkan implementations. Not having to map
+                 * the buffer every time we need to update it increases performances, as mapping is not free
+                */
+                if (persistentMappingDisabled)
+                    vkUnmapMemory (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
+                                    m_bufferInfo.resource.memory);
+            }
+
+            VkBuffer* getBuffer (void) {
+                return &m_bufferInfo.resource.buffer;
             }
 
             void onAttach (void) override {

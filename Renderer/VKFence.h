@@ -25,6 +25,35 @@ namespace Renderer {
                 } resource;
             } m_fenceInfo;
 
+            void createFence (void) {
+                VkFenceCreateInfo createInfo;
+                createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+                createInfo.pNext = nullptr;
+                createInfo.flags = m_fenceInfo.meta.createFlags;
+
+                auto result = vkCreateFence (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
+                                              &createInfo,
+                                              nullptr,
+                                              &m_fenceInfo.resource.fence);
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_fenceInfo.resource.logObj) << "[?] Fence"
+                                                            << " "
+                                                            << "[" << string_VkResult (result) << "]"
+                                                            << std::endl;
+                    throw std::runtime_error ("[?] Fence");
+                }
+                LOG_INFO (m_fenceInfo.resource.logObj)      << "[O] Fence"
+                                                            << std::endl;
+            }
+
+            void destroyFence (void) {
+                vkDestroyFence  (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
+                                  m_fenceInfo.resource.fence,
+                                  nullptr);
+                LOG_INFO (m_fenceInfo.resource.logObj) << "[X] Fence"
+                                                       << std::endl;
+            }
+
         public:
             VKFence (Log::LGImpl* logObj,
                      VKLogDevice* logDeviceObj) {
@@ -77,35 +106,6 @@ namespace Renderer {
 
             VkFence* getFence (void) {
                 return &m_fenceInfo.resource.fence;
-            }
-
-            void createFence (void) {
-                VkFenceCreateInfo createInfo;
-                createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-                createInfo.pNext = nullptr;
-                createInfo.flags = m_fenceInfo.meta.createFlags;
-
-                auto result = vkCreateFence (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
-                                              &createInfo,
-                                              nullptr,
-                                              &m_fenceInfo.resource.fence);
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_fenceInfo.resource.logObj) << "[?] Fence"
-                                                            << " "
-                                                            << "[" << string_VkResult (result) << "]"
-                                                            << std::endl;
-                    throw std::runtime_error ("[?] Fence");
-                }
-                LOG_INFO (m_fenceInfo.resource.logObj)      << "[O] Fence"
-                                                            << std::endl;
-            }
-
-            void destroyFence (void) {
-                vkDestroyFence  (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
-                                  m_fenceInfo.resource.fence,
-                                  nullptr);
-                LOG_INFO (m_fenceInfo.resource.logObj) << "[X] Fence"
-                                                       << std::endl;
             }
 
             void onAttach (void) override {

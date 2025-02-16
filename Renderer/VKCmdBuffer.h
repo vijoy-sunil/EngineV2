@@ -28,6 +28,34 @@ namespace Renderer {
                 } resource;
             } m_cmdBufferInfo;
 
+            void createCmdBuffers (void) {
+                VkCommandBufferAllocateInfo allocInfo;
+                allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                allocInfo.pNext              = nullptr;
+                allocInfo.commandBufferCount = m_cmdBufferInfo.meta.buffersCount;
+                allocInfo.commandPool        = m_cmdBufferInfo.meta.pool;
+                allocInfo.level              = m_cmdBufferInfo.meta.bufferLevel;
+
+                m_cmdBufferInfo.resource.buffers.resize (m_cmdBufferInfo.meta.buffersCount);
+                auto result = vkAllocateCommandBuffers  (*m_cmdBufferInfo.resource.logDeviceObj->getLogDevice(),
+                                                          &allocInfo,
+                                                          m_cmdBufferInfo.resource.buffers.data());
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_cmdBufferInfo.resource.logObj) << "[?] Cmd buffer(s)"
+                                                                << " "
+                                                                << "[" << string_VkResult (result) << "]"
+                                                                << std::endl;
+                    throw std::runtime_error ("[?] Cmd buffer(s)");
+                }
+                LOG_INFO (m_cmdBufferInfo.resource.logObj)      << "[O] Cmd buffer(s)"
+                                                                << std::endl;
+            }
+
+            void destroyCmdBuffers (void) {
+                LOG_INFO (m_cmdBufferInfo.resource.logObj) << "[X] Cmd buffer(s)"
+                                                           << std::endl;
+            }
+
         public:
             VKCmdBuffer (Log::LGImpl* logObj,
                          VKLogDevice* logDeviceObj) {
@@ -67,34 +95,6 @@ namespace Renderer {
 
             std::vector <VkCommandBuffer>& getCmdBuffers (void) {
                 return m_cmdBufferInfo.resource.buffers;
-            }
-
-            void createCmdBuffers (void) {
-                VkCommandBufferAllocateInfo allocInfo;
-                allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                allocInfo.pNext              = nullptr;
-                allocInfo.commandBufferCount = m_cmdBufferInfo.meta.buffersCount;
-                allocInfo.commandPool        = m_cmdBufferInfo.meta.pool;
-                allocInfo.level              = m_cmdBufferInfo.meta.bufferLevel;
-
-                m_cmdBufferInfo.resource.buffers.resize (m_cmdBufferInfo.meta.buffersCount);
-                auto result = vkAllocateCommandBuffers  (*m_cmdBufferInfo.resource.logDeviceObj->getLogDevice(),
-                                                          &allocInfo,
-                                                          m_cmdBufferInfo.resource.buffers.data());
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_cmdBufferInfo.resource.logObj) << "[?] Cmd buffer(s)"
-                                                                << " "
-                                                                << "[" << string_VkResult (result) << "]"
-                                                                << std::endl;
-                    throw std::runtime_error ("[?] Cmd buffer(s)");
-                }
-                LOG_INFO (m_cmdBufferInfo.resource.logObj)      << "[O] Cmd buffer(s)"
-                                                                << std::endl;
-            }
-
-            void destroyCmdBuffers (void) {
-                LOG_INFO (m_cmdBufferInfo.resource.logObj) << "[X] Cmd buffer(s)"
-                                                           << std::endl;
             }
 
             void onAttach (void) override {

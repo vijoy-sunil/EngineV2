@@ -199,6 +199,66 @@ namespace Renderer {
                 return false;
             }
 
+            void createSwapChain (void) {
+                VkSwapchainCreateInfoKHR createInfo;
+                createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+                createInfo.pNext                     = nullptr;
+                createInfo.flags                     = 0;
+                createInfo.minImageCount             = getSwapChainMinImagesCount();
+                createInfo.imageArrayLayers          = m_swapChainInfo.meta.layersCount;
+                createInfo.imageExtent               = m_swapChainInfo.meta.extent;
+                createInfo.imageUsage                = m_swapChainInfo.meta.usages;
+                createInfo.imageFormat               = m_swapChainInfo.meta.surfaceFormat.format;
+                createInfo.imageColorSpace           = m_swapChainInfo.meta.surfaceFormat.colorSpace;
+                createInfo.presentMode               = m_swapChainInfo.meta.presentMode;
+
+                auto& queueFamilyIndices             = m_swapChainInfo.meta.queueFamilyIndices;
+                if (isIndicesUnique (queueFamilyIndices)) {
+                    createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
+                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
+                    createInfo.pQueueFamilyIndices   = queueFamilyIndices.data();
+                }
+                else {
+                    createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+                    createInfo.queueFamilyIndexCount = 0;
+                    createInfo.pQueueFamilyIndices   = nullptr;
+                }
+
+                createInfo.surface                   = *m_swapChainInfo.resource.surfaceObj->getSurface();
+                createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+                createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+                createInfo.clipped                   = VK_TRUE;
+                createInfo.oldSwapchain              = nullptr;
+
+                auto result = vkCreateSwapchainKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
+                                                     &createInfo,
+                                                     nullptr,
+                                                     &m_swapChainInfo.resource.swapChain);
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_swapChainInfo.resource.logObj) << "[?] Swap chain"
+                                                                << " "
+                                                                << "[" << string_VkResult (result) << "]"
+                                                                << std::endl;
+                    throw std::runtime_error ("[?] Swap chain");
+                }
+                LOG_INFO (m_swapChainInfo.resource.logObj)      << "[O] Swap chain"
+                                                                << std::endl;
+
+                /* Save swap chain size */
+                vkGetSwapchainImagesKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
+                                          m_swapChainInfo.resource.swapChain,
+                                          &m_swapChainInfo.meta.imagesCount,
+                                          nullptr);
+            }
+
+            void destroySwapChain (void) {
+                vkDestroySwapchainKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
+                                        m_swapChainInfo.resource.swapChain,
+                                        nullptr);
+                LOG_INFO (m_swapChainInfo.resource.logObj) << "[X] Swap chain"
+                                                           << std::endl;
+            }
+
         public:
             VKSwapChain (Log::LGImpl* logObj,
                          VKWindow*    windowObj,
@@ -290,66 +350,6 @@ namespace Renderer {
                                           &m_swapChainInfo.meta.imagesCount,
                                           images.data());
                 return images;
-            }
-
-            void createSwapChain (void) {
-                VkSwapchainCreateInfoKHR createInfo;
-                createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-                createInfo.pNext                     = nullptr;
-                createInfo.flags                     = 0;
-                createInfo.minImageCount             = getSwapChainMinImagesCount();
-                createInfo.imageArrayLayers          = m_swapChainInfo.meta.layersCount;
-                createInfo.imageExtent               = m_swapChainInfo.meta.extent;
-                createInfo.imageUsage                = m_swapChainInfo.meta.usages;
-                createInfo.imageFormat               = m_swapChainInfo.meta.surfaceFormat.format;
-                createInfo.imageColorSpace           = m_swapChainInfo.meta.surfaceFormat.colorSpace;
-                createInfo.presentMode               = m_swapChainInfo.meta.presentMode;
-
-                auto& queueFamilyIndices             = m_swapChainInfo.meta.queueFamilyIndices;
-                if (isIndicesUnique (queueFamilyIndices)) {
-                    createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
-                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
-                    createInfo.pQueueFamilyIndices   = queueFamilyIndices.data();
-                }
-                else {
-                    createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-                    createInfo.queueFamilyIndexCount = 0;
-                    createInfo.pQueueFamilyIndices   = nullptr;
-                }
-
-                createInfo.surface                   = *m_swapChainInfo.resource.surfaceObj->getSurface();
-                createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-                createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-                createInfo.clipped                   = VK_TRUE;
-                createInfo.oldSwapchain              = nullptr;
-
-                auto result = vkCreateSwapchainKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
-                                                     &createInfo,
-                                                     nullptr,
-                                                     &m_swapChainInfo.resource.swapChain);
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_swapChainInfo.resource.logObj) << "[?] Swap chain"
-                                                                << " "
-                                                                << "[" << string_VkResult (result) << "]"
-                                                                << std::endl;
-                    throw std::runtime_error ("[?] Swap chain");
-                }
-                LOG_INFO (m_swapChainInfo.resource.logObj)      << "[O] Swap chain"
-                                                                << std::endl;
-
-                /* Save swap chain size */
-                vkGetSwapchainImagesKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_swapChainInfo.resource.swapChain,
-                                          &m_swapChainInfo.meta.imagesCount,
-                                          nullptr);
-            }
-
-            void destroySwapChain (void) {
-                vkDestroySwapchainKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
-                                        m_swapChainInfo.resource.swapChain,
-                                        nullptr);
-                LOG_INFO (m_swapChainInfo.resource.logObj) << "[X] Swap chain"
-                                                           << std::endl;
             }
 
             void onAttach (void) override {

@@ -175,7 +175,7 @@
     by reference (vector),      otherwise
 }
 ```
-- [ ] private/public/protected methods are placed appropriately
+- [x] private/public/protected methods are placed appropriately
 - [x] `create` and `destroy` methods will not take any params (`init` will do it instead)
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)

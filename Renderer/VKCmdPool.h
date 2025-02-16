@@ -26,6 +26,36 @@ namespace Renderer {
                 } resource;
             } m_cmdPoolInfo;
 
+            void createCmdPool (void) {
+                VkCommandPoolCreateInfo createInfo;
+                createInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+                createInfo.pNext            = nullptr;
+                createInfo.flags            = m_cmdPoolInfo.meta.createFlags;
+                createInfo.queueFamilyIndex = m_cmdPoolInfo.meta.queueFamilyIdx;
+
+                auto result = vkCreateCommandPool (*m_cmdPoolInfo.resource.logDeviceObj->getLogDevice(),
+                                                    &createInfo,
+                                                    nullptr,
+                                                    &m_cmdPoolInfo.resource.pool);
+                if (result != VK_SUCCESS) {
+                    LOG_ERROR (m_cmdPoolInfo.resource.logObj) << "[?] Cmd pool"
+                                                              << " "
+                                                              << "[" << string_VkResult (result) << "]"
+                                                              << std::endl;
+                    throw std::runtime_error ("[?] Cmd pool");
+                }
+                LOG_INFO (m_cmdPoolInfo.resource.logObj)      << "[O] Cmd pool"
+                                                              << std::endl;
+            }
+
+            void destroyCmdPool (void) {
+                vkDestroyCommandPool (*m_cmdPoolInfo.resource.logDeviceObj->getLogDevice(),
+                                       m_cmdPoolInfo.resource.pool,
+                                       nullptr);
+                LOG_INFO (m_cmdPoolInfo.resource.logObj) << "[X] Cmd pool"
+                                                         << std::endl;
+            }
+
         public:
             VKCmdPool (Log::LGImpl* logObj,
                        VKLogDevice* logDeviceObj) {
@@ -63,36 +93,6 @@ namespace Renderer {
 
             VkCommandPool* getCmdPool (void) {
                 return &m_cmdPoolInfo.resource.pool;
-            }
-
-            void createCmdPool (void) {
-                VkCommandPoolCreateInfo createInfo;
-                createInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-                createInfo.pNext            = nullptr;
-                createInfo.flags            = m_cmdPoolInfo.meta.createFlags;
-                createInfo.queueFamilyIndex = m_cmdPoolInfo.meta.queueFamilyIdx;
-
-                auto result = vkCreateCommandPool (*m_cmdPoolInfo.resource.logDeviceObj->getLogDevice(),
-                                                    &createInfo,
-                                                    nullptr,
-                                                    &m_cmdPoolInfo.resource.pool);
-                if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_cmdPoolInfo.resource.logObj) << "[?] Cmd pool"
-                                                              << " "
-                                                              << "[" << string_VkResult (result) << "]"
-                                                              << std::endl;
-                    throw std::runtime_error ("[?] Cmd pool");
-                }
-                LOG_INFO (m_cmdPoolInfo.resource.logObj)      << "[O] Cmd pool"
-                                                              << std::endl;
-            }
-
-            void destroyCmdPool (void) {
-                vkDestroyCommandPool (*m_cmdPoolInfo.resource.logDeviceObj->getLogDevice(),
-                                       m_cmdPoolInfo.resource.pool,
-                                       nullptr);
-                LOG_INFO (m_cmdPoolInfo.resource.logObj) << "[X] Cmd pool"
-                                                         << std::endl;
             }
 
             void onAttach (void) override {

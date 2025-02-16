@@ -211,63 +211,6 @@ namespace Renderer {
                 return requiredLayers.empty();
             }
 
-        public:
-            VKInstance (Log::LGImpl* logObj) {
-                m_instanceInfo = {};
-
-                if (logObj == nullptr) {
-                    m_instanceInfo.resource.logObj     = new Log::LGImpl();
-                    m_instanceInfo.state.logObjCreated = true;
-
-                    m_instanceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
-                    LOG_WARNING (m_instanceInfo.resource.logObj) << NULL_LOGOBJ_MSG
-                                                                 << std::endl;
-                }
-                else {
-                    m_instanceInfo.resource.logObj     = logObj;
-                    m_instanceInfo.state.logObjCreated = false;
-                }
-            }
-
-            void initInstanceInfo (const std::vector <const char*> validationLayers,
-                                   const bool validationLayersDisabled = false) {
-
-                m_instanceInfo.meta.extensions                 = getInstanceExtensions();
-                m_instanceInfo.meta.validationLayers           = validationLayers;
-                m_instanceInfo.state.extensionsSupported       = isInstanceExtensionsSupportedEXT();
-                m_instanceInfo.state.validationLayersDisabled  = validationLayersDisabled;
-                m_instanceInfo.state.validationLayersSupported = isValidationLayersSupportedEXT();
-                m_instanceInfo.resource.instance               = nullptr;
-                m_instanceInfo.resource.debugUtilsMessenger    = nullptr;
-
-                m_validationLogObj                             = new Log::LGImpl();
-                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",   "Validation");
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
-                                                                             Log::LOG_SINK_FILE);
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_NONE);
-            }
-
-            bool isValidationLayersDisabled (void) {
-                return m_instanceInfo.state.validationLayersDisabled;
-            }
-
-            bool isValidationLayersSupported (void) {
-                return m_instanceInfo.state.validationLayersSupported;
-            }
-
-            void toggleValidationLayers (const bool val) {
-                m_instanceInfo.state.validationLayersDisabled = !val;
-            }
-
-            std::vector <const char*>& getValidationLayers (void) {
-                return m_instanceInfo.meta.validationLayers;
-            }
-
-            VkInstance* getInstance (void) {
-                return &m_instanceInfo.resource.instance;
-            }
-
             void createInstance (void) {
                 /* The vkCreateDebugUtilsMessengerEXT call requires a valid instance to have been created and
                  * vkDestroyDebugUtilsMessengerEXT must be called before the instance is destroyed. This currently leaves
@@ -345,6 +288,63 @@ namespace Renderer {
                 LOG_INFO (m_instanceInfo.resource.logObj) << "[X] Instance"
                                                           << std::endl;
                 delete m_validationLogObj;
+            }
+
+        public:
+            VKInstance (Log::LGImpl* logObj) {
+                m_instanceInfo = {};
+
+                if (logObj == nullptr) {
+                    m_instanceInfo.resource.logObj     = new Log::LGImpl();
+                    m_instanceInfo.state.logObjCreated = true;
+
+                    m_instanceInfo.resource.logObj->initLogInfo ("Build/Log/Renderer", __FILE__);
+                    LOG_WARNING (m_instanceInfo.resource.logObj) << NULL_LOGOBJ_MSG
+                                                                 << std::endl;
+                }
+                else {
+                    m_instanceInfo.resource.logObj     = logObj;
+                    m_instanceInfo.state.logObjCreated = false;
+                }
+            }
+
+            void initInstanceInfo (const std::vector <const char*> validationLayers,
+                                   const bool validationLayersDisabled = false) {
+
+                m_instanceInfo.meta.extensions                 = getInstanceExtensions();
+                m_instanceInfo.meta.validationLayers           = validationLayers;
+                m_instanceInfo.state.extensionsSupported       = isInstanceExtensionsSupportedEXT();
+                m_instanceInfo.state.validationLayersDisabled  = validationLayersDisabled;
+                m_instanceInfo.state.validationLayersSupported = isValidationLayersSupportedEXT();
+                m_instanceInfo.resource.instance               = nullptr;
+                m_instanceInfo.resource.debugUtilsMessenger    = nullptr;
+
+                m_validationLogObj                             = new Log::LGImpl();
+                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",   "Validation");
+                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
+                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
+                                                                             Log::LOG_SINK_FILE);
+                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_NONE);
+            }
+
+            bool isValidationLayersDisabled (void) {
+                return m_instanceInfo.state.validationLayersDisabled;
+            }
+
+            bool isValidationLayersSupported (void) {
+                return m_instanceInfo.state.validationLayersSupported;
+            }
+
+            void toggleValidationLayers (const bool val) {
+                m_instanceInfo.state.validationLayersDisabled = !val;
+            }
+
+            std::vector <const char*>& getValidationLayers (void) {
+                return m_instanceInfo.meta.validationLayers;
+            }
+
+            VkInstance* getInstance (void) {
+                return &m_instanceInfo.resource.instance;
             }
 
             void onAttach (void) override {
