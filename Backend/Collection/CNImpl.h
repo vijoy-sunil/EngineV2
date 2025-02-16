@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <iomanip>
 #include "CNTypeInstanceBase.h"
-#include "CNTypeInstancePool.h"
+#include "CNTypeInstanceArray.h"
 #include "../Log/LGImpl.h"
 #include "../Log/LGEnum.h"
 
@@ -11,7 +11,7 @@ namespace Collection {
         private:
             struct CollectionInfo {
                 struct Meta {
-                    std::unordered_map <const char*, CNTypeInstancePool*> types;
+                    std::unordered_map <const char*, CNTypeInstanceArray*> types;
                 } meta;
 
                 struct Resource {
@@ -47,10 +47,10 @@ namespace Collection {
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type already registered");
                 }
-                auto instancePoolObj = new CNTypeInstancePool (m_collectionInfo.resource.logObj);
-                instancePoolObj->initTypeInstancePoolInfo();
+                auto instanceArrayObj = new CNTypeInstanceArray (m_collectionInfo.resource.logObj);
+                instanceArrayObj->initTypeInstanceArrayInfo();
 
-                meta.types.insert ({typeName, instancePoolObj});
+                meta.types.insert ({typeName, instanceArrayObj});
             }
 
             template <typename T>
@@ -64,8 +64,8 @@ namespace Collection {
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                auto instancePoolObj = meta.types[typeName];
-                instancePoolObj->addCollectionTypeInstance (instanceId, instanceBaseObj);
+                auto instanceArrayObj = meta.types[typeName];
+                instanceArrayObj->addCollectionTypeInstance (instanceId, instanceBaseObj);
                 /* Run on attach */
                 instanceBaseObj->onAttach();
             }
@@ -81,8 +81,8 @@ namespace Collection {
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                auto instancePoolObj = meta.types[typeName];
-                auto instanceBaseObj = instancePoolObj->removeCollectionTypeInstance (instanceId);
+                auto instanceArrayObj = meta.types[typeName];
+                auto instanceBaseObj  = instanceArrayObj->removeCollectionTypeInstance (instanceId);
                 /* Run on detach */
                 instanceBaseObj->onDetach();
                 /* Note that, even though the instance object is allocated by the application, its memory is freed upon
@@ -102,8 +102,8 @@ namespace Collection {
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                auto instancePoolObj = meta.types[typeName];
-                auto instanceBaseObj = instancePoolObj->getCollectionTypeInstance (instanceId);
+                auto instanceArrayObj = meta.types[typeName];
+                auto instanceBaseObj  = instanceArrayObj->getCollectionTypeInstance (instanceId);
 
                 return static_cast <T*> (instanceBaseObj);
             }
@@ -120,9 +120,9 @@ namespace Collection {
                     throw std::runtime_error ("Collection type not registered before use");
                 }
                 /* Run on update */
-                auto instancePoolObj = meta.types[typeName];
-                auto instancePool    = instancePoolObj->getCollectionTypeInstancePool();
-                for (auto const& instanceBaseObj: instancePool)
+                auto instanceArrayObj = meta.types[typeName];
+                auto instanceArray    = instanceArrayObj->getCollectionTypeInstanceArray();
+                for (auto const& instanceBaseObj: instanceArray)
                     instanceBaseObj->onUpdate (frameDelta);
             }
 
@@ -130,10 +130,10 @@ namespace Collection {
                 auto& logObj = m_collectionInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "{" << std::endl;
-                for (auto const& [typeName, instancePoolObj]: m_collectionInfo.meta.types) {
+                for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.types) {
                     LOG_LITE_INFO (logObj) << "\t";
-                    LOG_LITE_INFO (logObj) << std::left << std::setw (15) << typeName << ", ";
-                    instancePoolObj->generateReport();
+                    LOG_LITE_INFO (logObj) << std::left << std::setw (50) << typeName << ", ";
+                    instanceArrayObj->generateReport();
                     LOG_LITE_INFO (logObj) << std::endl;
                 }
                 LOG_LITE_INFO (logObj) << "}" << std::endl;
@@ -142,8 +142,8 @@ namespace Collection {
             ~CNImpl (void) {
                 delete m_collectionInfo.resource.logObj;
 
-                for (auto const& [typeName, instancePoolObj]: m_collectionInfo.meta.types)
-                    delete instancePoolObj;
+                for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.types)
+                    delete instanceArrayObj;
             }
     };
 }   // namespace Collection

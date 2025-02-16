@@ -43,10 +43,10 @@
 <pre>
     |<----------------------:CNTypeInstanceBase
     |<----------------------:LGImpl
-    |CNTypeInstancePool     {string}, {unordered_map}, {iomanip}, {vector}
+    |CNTypeInstanceArray    {string}, {unordered_map}, {iomanip}, {array}
 
     |<----------------------:CNTypeInstanceBase
-    |<----------------------:CNTypeInstancePool
+    |<----------------------:CNTypeInstanceArray
     |<----------------------:LGImpl
     |<----------------------:LGEnum
     |CNImpl                 {unordered_map}, {iomanip}
