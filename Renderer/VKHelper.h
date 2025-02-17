@@ -122,4 +122,59 @@ namespace Renderer {
         }
         throw std::runtime_error ("Failed to find supported format");
     }
+
+    void beginCmdBufferRecording (const VkCommandBuffer cmdBuffer,
+                                  const VkCommandBufferUsageFlags bufferUsages) {
+
+        VkCommandBufferBeginInfo beginInfo;
+        beginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.pNext            = nullptr;
+        beginInfo.flags            = bufferUsages;
+        beginInfo.pInheritanceInfo = nullptr;
+        /* Note that, if the command buffer was already recorded once, then a call to vkBeginCommandBuffer will implicitly
+         * reset it. It's not possible to append commands to a buffer at a later time
+        */
+        auto result = vkBeginCommandBuffer (cmdBuffer, &beginInfo);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error ("Failed to begin cmd buffer recording");
+    }
+
+    void endCmdBufferRecording (const VkCommandBuffer cmdBuffer) {
+        auto result = vkEndCommandBuffer (cmdBuffer);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error ("Failed to end cmd buffer recording");
+    }
+
+    void submitCmdBuffers (const VkQueue queue,
+                           const VkFence signalFence,
+                           const std::vector <VkCommandBuffer>& cmdBuffers,
+                           const std::vector <VkSemaphore>& waitSemaphores,
+                           const std::vector <VkPipelineStageFlags>& waitStageMasks,
+                           const std::vector <VkSemaphore>& signalSemaphores,
+                           std::vector <VkSubmitInfo>& submitInfos) {
+
+        VkSubmitInfo submitInfo;
+        submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.pNext                = nullptr;
+        submitInfo.commandBufferCount   = static_cast <uint32_t> (cmdBuffers.size());
+        submitInfo.pCommandBuffers      = cmdBuffers.data();
+        /* Note that, each entry in the wait stages array corresponds to the semaphore with the same index in the wait
+         * semaphores array
+        */
+        submitInfo.waitSemaphoreCount   = static_cast <uint32_t> (waitSemaphores.size());
+        submitInfo.pWaitSemaphores      = waitSemaphores.data();
+        submitInfo.pWaitDstStageMask    = waitStageMasks.data();
+        submitInfo.signalSemaphoreCount = static_cast <uint32_t> (signalSemaphores.size());
+        submitInfo.pSignalSemaphores    = signalSemaphores.data();
+        /* The fence passed in will be signaled when the command buffers finish execution. This allows us to know when it
+         * is safe for the command buffers to be reused
+        */
+        submitInfos.push_back       (submitInfo);
+        auto result = vkQueueSubmit (queue,
+                                     static_cast <uint32_t> (submitInfos.size()),
+                                     submitInfos.data(),
+                                     signalFence);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error ("Failed to submit cmd buffer(s)");
+    }
 }   // namespace Renderer
