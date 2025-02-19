@@ -123,6 +123,14 @@ namespace Renderer {
         throw std::runtime_error ("Failed to find supported format");
     }
 
+    void resetCmdBufferRecording (const VkCommandBuffer cmdBuffer,
+                                  const VkCommandBufferResetFlags flags) {
+
+        auto result = vkResetCommandBuffer (cmdBuffer, flags);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error ("Failed to reset cmd buffer recording");
+    }
+
     void beginCmdBufferRecording (const VkCommandBuffer cmdBuffer,
                                   const VkCommandBufferUsageFlags bufferUsages) {
 
