@@ -8,6 +8,7 @@
 # |-------------------------------------------------------------------------|
 GLFW_DIR            := /opt/homebrew/Cellar/glfw/3.4
 GLM_DIR             := /opt/homebrew/Cellar/glm/1.0.1
+SHADER_DIR          := ./App/Shader
 BUILD_DIR           := ./Build
 BIN_DIR             := $(BUILD_DIR)/Bin
 OBJ_DIR             := $(BUILD_DIR)/Obj
@@ -16,6 +17,8 @@ LOG_DIR             := $(BUILD_DIR)/Log
 # | Sources                                                                 |
 # |-------------------------------------------------------------------------|
 APP_SRCS            := ./main.cpp
+VERT_SHADER_SRCS    := $(wildcard $(SHADER_DIR)/*.vert)
+FRAG_SHADER_SRCS    := $(wildcard $(SHADER_DIR)/*.frag)
 # |-------------------------------------------------------------------------|
 # | Objects                                                                 |
 # |-------------------------------------------------------------------------|
@@ -26,9 +29,14 @@ DEPS                := $(OBJS:.o=.d)
 # | Naming                                                                  |
 # |-------------------------------------------------------------------------|
 APP_TARGET          := EngineV2_EXE
+VERT_SHADER_TARGET  := $(foreach file,$(notdir $(VERT_SHADER_SRCS)),        \
+                       $(patsubst %.vert,%Vert.spv,$(file)))
+FRAG_SHADER_TARGET	:= $(foreach file,$(notdir $(FRAG_SHADER_SRCS)),        \
+                       $(patsubst %.frag,%Frag.spv,$(file)))
 # |-------------------------------------------------------------------------|
 # | Flags                                                                   |
 # |-------------------------------------------------------------------------|
+GLSLC               := $(VULKAN_SDK)/bin/glslc
 CXX                 := clang++
 CXXFLAGS            := -std=c++23 -Wall -Wextra -O3
 LD                  := clang++ -o
@@ -51,12 +59,20 @@ $(APP_TARGET): $(OBJS)
 	@echo "[OK] link"
 
 -include $(DEPS)
+
+%Vert.spv: $(SHADER_DIR)/%.vert
+	@$(GLSLC) $< -o $(BIN_DIR)/$@
+	@echo "[OK] compile" $<
+
+%Frag.spv: $(SHADER_DIR)/%.frag
+	@$(GLSLC) $< -o $(BIN_DIR)/$@
+	@echo "[OK] compile" $<
 # |-------------------------------------------------------------------------|
 # | Targets                                                                 |
 # |-------------------------------------------------------------------------|
-.PHONY: all directories app clean_logs clean run
+.PHONY: all directories shaders app clean_logs clean run
 
-all: directories app
+all: directories shaders app
 
 directories:
 	@mkdir -p $(BIN_DIR)
@@ -66,7 +82,11 @@ directories:
 	@mkdir -p $(LOG_DIR)/Renderer
 	@echo "[OK] directories"
 
-app: $(APP_TARGET)
+shaders:
+	$(VERT_SHADER_TARGET) $(FRAG_SHADER_TARGET)
+
+app:
+	$(APP_TARGET)
 
 clean_logs:
 	@$(RM) $(LOG_DIR)/Scene/*
