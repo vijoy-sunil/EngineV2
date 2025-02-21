@@ -49,7 +49,7 @@
     |<----------------------:CNTypeInstanceArray
     |<----------------------:LGImpl
     |<----------------------:LGEnum
-    |CNImpl                 {unordered_map}, {iomanip}
+    |CNImpl                 {string}, {unordered_map}, {iomanip}
 </pre>
 
 ## Backend/Log/

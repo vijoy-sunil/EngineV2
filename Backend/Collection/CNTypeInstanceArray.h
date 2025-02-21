@@ -14,8 +14,8 @@ namespace Collection {
             struct TypeInstanceArrayInfo {
                 struct Meta {
                     std::array <CNTypeInstanceBase*, g_maxTypeInstances> array;
-                    std::unordered_map <const char*, size_t> instanceIdToIdxMap;
-                    std::unordered_map <size_t, const char*> idxToInstanceIdMap;
+                    std::unordered_map <std::string, size_t> instanceIdToIdxMap;
+                    std::unordered_map <size_t, std::string> idxToInstanceIdMap;
                     size_t nextAvailableIdx;
                 } meta;
 
@@ -57,7 +57,7 @@ namespace Collection {
                 return m_typeInstanceArrayInfo.meta.array;
             }
 
-            void addCollectionTypeInstance (const char* instanceId, CNTypeInstanceBase* instanceBaseObj) {
+            void addCollectionTypeInstance (const std::string instanceId, CNTypeInstanceBase* instanceBaseObj) {
                 auto& meta = m_typeInstanceArrayInfo.meta;
                 if (meta.instanceIdToIdxMap.find (instanceId) != meta.instanceIdToIdxMap.end()) {
                     LOG_ERROR (m_typeInstanceArrayInfo.resource.logObj) << "Collection type instance already exists"
@@ -74,7 +74,7 @@ namespace Collection {
                 ++meta.nextAvailableIdx;
             }
 
-            CNTypeInstanceBase* removeCollectionTypeInstance (const char* instanceId) {
+            CNTypeInstanceBase* removeCollectionTypeInstance (const std::string instanceId) {
                 auto& meta = m_typeInstanceArrayInfo.meta;
                 if (meta.instanceIdToIdxMap.find (instanceId) == meta.instanceIdToIdxMap.end()) {
                     LOG_ERROR (m_typeInstanceArrayInfo.resource.logObj) << "Collection type instance does not exist"
@@ -100,7 +100,7 @@ namespace Collection {
                 return instanceBaseObj;
             }
 
-            CNTypeInstanceBase* getCollectionTypeInstance (const char* instanceId) {
+            CNTypeInstanceBase* getCollectionTypeInstance (const std::string instanceId) {
                 auto& meta = m_typeInstanceArrayInfo.meta;
                 if (meta.instanceIdToIdxMap.find (instanceId) == meta.instanceIdToIdxMap.end()) {
                     LOG_ERROR (m_typeInstanceArrayInfo.resource.logObj) << "Collection type instance does not exist"

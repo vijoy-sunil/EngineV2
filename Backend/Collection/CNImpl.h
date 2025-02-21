@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <unordered_map>
 #include <iomanip>
 #include "CNTypeInstanceBase.h"
@@ -54,7 +55,7 @@ namespace Collection {
             }
 
             template <typename T>
-            void addCollectionTypeInstance (const char* instanceId, CNTypeInstanceBase* instanceBaseObj) {
+            void addCollectionTypeInstance (const std::string instanceId, CNTypeInstanceBase* instanceBaseObj) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_collectionInfo.meta;
                 if (meta.types.find (typeName) == meta.types.end()) {
@@ -71,7 +72,7 @@ namespace Collection {
             }
 
             template <typename T>
-            void removeCollectionTypeInstance (const char* instanceId) {
+            void removeCollectionTypeInstance (const std::string instanceId) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_collectionInfo.meta;
                 if (meta.types.find (typeName) == meta.types.end()) {
@@ -92,7 +93,7 @@ namespace Collection {
             }
 
             template <typename T>
-            T* getCollectionTypeInstance (const char* instanceId) {
+            T* getCollectionTypeInstance (const std::string instanceId) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_collectionInfo.meta;
                 if (meta.types.find (typeName) == meta.types.end()) {
