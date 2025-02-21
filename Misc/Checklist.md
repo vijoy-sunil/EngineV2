@@ -52,6 +52,7 @@
     VKSemaphore
     VKCmdPool
     VKCmdBuffer
+    VKRenderer
     App
 
     enum

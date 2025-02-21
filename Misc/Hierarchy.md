@@ -130,6 +130,16 @@
     |<----------------------:VKLogDevice
     |VKPipeline             {glfw3}, {fstream}, {vector}, {vk_enum_string_helper}
 
+    |<----------------------|CNTypeInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKWindow
+    |<----------------------:VKLogDevice
+    |<----------------------:VKSwapChain
+    |<----------------------:VKFence
+    |<----------------------:VKSemaphore
+    |<----------------------:VKHelper
+    |VKRenderer             {glfw3}, {unordered_map}, {vector}, {functional}, {vk_enum_string_helper}
+
     |VKCmdList              {glfw3}, {vector}
 
     |VKHelper               {glfw3}, {set}, {vector}
