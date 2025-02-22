@@ -137,8 +137,9 @@
     |<----------------------:VKSwapChain
     |<----------------------:VKFence
     |<----------------------:VKSemaphore
+    |<----------------------:VKCmdBuffer
     |<----------------------:VKHelper
-    |VKRenderer             {glfw3}, {unordered_map}, {vector}, {functional}, {vk_enum_string_helper}
+    |VKRenderer             {glfw3}, {vector}, {functional}, {vk_enum_string_helper}
 
     |VKCmdList              {glfw3}, {vector}
 

@@ -1,7 +1,6 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <unordered_map>
 #include <vector>
 #include <functional>
 #include <vulkan/vk_enum_string_helper.h>
@@ -12,6 +11,7 @@
 #include "../Renderer/VKSwapChain.h"
 #include "../Renderer/VKFence.h"
 #include "../Renderer/VKSemaphore.h"
+#include "../Renderer/VKCmdBuffer.h"
 #include "VKHelper.h"
 
 namespace Renderer {
@@ -22,7 +22,6 @@ namespace Renderer {
                     uint32_t swapChainImageIdx;
                     uint32_t frameInFlightIdx;
                     uint32_t maxFramesInFlight;
-                    std::vector <VkCommandBuffer> cmdBuffers;
                 } meta;
 
                 struct State {
@@ -34,17 +33,18 @@ namespace Renderer {
                     VKWindow*    windowObj;
                     VKLogDevice* logDeviceObj;
                     VKSwapChain* swapChainObj;
-                    /* Sync objects per frame in flight */
+                    /* Objects per frame in flight */
                     std::vector <VKFence*>     inFlightFenObjs;
                     std::vector <VKSemaphore*> imageAvailableSemObjs;
                     std::vector <VKSemaphore*> renderDoneSemObjs;
+                    VKCmdBuffer* cmdBufferObj;
                     /* Bindings */
-                    std::vector <std::function <void (void)>> viewPortResizeBindings;
-                    std::unordered_map <VkCommandBuffer, std::vector <std::function <void (void)>>> layerBindingsPool;
+                    std::vector <std::function <void (void)>>               viewPortResizeBindings;
+                    std::vector <std::function <void (uint32_t, uint32_t)>> layerBindings;
                 } resource;
             } m_rendererInfo;
 
-            bool getSwapChainImageIdxEXT (void) {
+            bool getSwapChainImageIdx (void) {
                 auto& frameIdx = m_rendererInfo.meta.frameInFlightIdx;
                 auto& resource = m_rendererInfo.resource;
                 /* The semaphore is signaled when the presentation engine is finished using the image. That's the point
@@ -163,7 +163,8 @@ namespace Renderer {
                         VKSwapChain* swapChainObj,
                         const std::vector <VKFence*>     inFlightFenObjs,
                         const std::vector <VKSemaphore*> imageAvailableSemObjs,
-                        const std::vector <VKSemaphore*> renderDoneSemObjs) {
+                        const std::vector <VKSemaphore*> renderDoneSemObjs,
+                        VKCmdBuffer* cmdBufferObj) {
 
                 m_rendererInfo = {};
 
@@ -180,8 +181,10 @@ namespace Renderer {
                     m_rendererInfo.state.logObjCreated         = false;
                 }
 
-                if (windowObj == nullptr    || logDeviceObj == nullptr       || swapChainObj == nullptr ||
+                if (windowObj == nullptr    || logDeviceObj == nullptr       ||
+                    swapChainObj == nullptr || cmdBufferObj == nullptr       ||
                     inFlightFenObjs.empty() || imageAvailableSemObjs.empty() || renderDoneSemObjs.empty()) {
+
                     LOG_ERROR (m_rendererInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
@@ -192,15 +195,15 @@ namespace Renderer {
                 m_rendererInfo.resource.inFlightFenObjs        = inFlightFenObjs;
                 m_rendererInfo.resource.imageAvailableSemObjs  = imageAvailableSemObjs;
                 m_rendererInfo.resource.renderDoneSemObjs      = renderDoneSemObjs;
+                m_rendererInfo.resource.cmdBufferObj           = cmdBufferObj;
                 m_rendererInfo.resource.viewPortResizeBindings = {};
-                m_rendererInfo.resource.layerBindingsPool      = {};
+                m_rendererInfo.resource.layerBindings          = {};
             }
 
             void initRendererInfo (const uint32_t maxFramesInFlight) {
                 m_rendererInfo.meta.swapChainImageIdx = 0;
                 m_rendererInfo.meta.frameInFlightIdx  = 0;
                 m_rendererInfo.meta.maxFramesInFlight = maxFramesInFlight;
-                m_rendererInfo.meta.cmdBuffers        = {};
 
                 /* Make sure we have sync objects for every frame in flight */
                 if (m_rendererInfo.resource.inFlightFenObjs.size()       != maxFramesInFlight ||
@@ -213,21 +216,13 @@ namespace Renderer {
                 }
             }
 
-            uint32_t getSwapChainImageIdx (void) {
-                return m_rendererInfo.meta.swapChainImageIdx;
-            }
-
-            uint32_t getFrameInFlightIdx (void) {
-                return m_rendererInfo.meta.frameInFlightIdx;
-            }
-
             void addViewPortResizeBinding (const std::function <void (void)> runViewPortResize) {
                 m_rendererInfo.resource.viewPortResizeBindings.push_back (runViewPortResize);
             }
 
-            void addLayerBinding (const VkCommandBuffer cmdBuffer, const std::function <void (void)> runLayer) {
+            void addLayerBinding (const std::function <void (uint32_t, uint32_t)> runLayer) {
                 /* Note that, ordering of layers determines the draw order */
-                m_rendererInfo.resource.layerBindingsPool[cmdBuffer].push_back (runLayer);
+                m_rendererInfo.resource.layerBindings.push_back (runLayer);
             }
 
             void onAttach (void) override {
@@ -240,16 +235,18 @@ namespace Renderer {
 
             void onUpdate (const float frameDelta) override {
                 static_cast <void> (frameDelta);
+                auto& imageIdx            = m_rendererInfo.meta.swapChainImageIdx;
                 auto& frameIdx            = m_rendererInfo.meta.frameInFlightIdx;
                 auto& resource            = m_rendererInfo.resource;
                 auto inFlightFenObj       = resource.inFlightFenObjs[frameIdx];
                 auto imageAvailableSemObj = resource.imageAvailableSemObjs[frameIdx];
                 auto renderDoneSemObj     = resource.renderDoneSemObjs[frameIdx];
+                auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameIdx];
                 /* At the start of the frame, we want to wait until the previous frame has finished, so that the command
                  * buffer and semaphores are available to use
                 */
                 inFlightFenObj->waitForFence();
-                if (!getSwapChainImageIdxEXT())
+                if (!getSwapChainImageIdx())
                     return;
                 /* After waiting for fence, we need to manually reset the fence to the unsignaled state immediately after.
                  * But we delay it to upto this point to avoid deadlock on the in flight fence
@@ -279,17 +276,13 @@ namespace Renderer {
                  * (3) Frame buffer operations inside a render pass happen in API-order, of course. This is a special
                  *     exception which the spec calls out
                 */
-                for (auto const& [cmdBuffer, layerBindings]: m_rendererInfo.resource.layerBindingsPool) {
-                    resetCmdBufferRecording (cmdBuffer, 0);
-                    beginCmdBufferRecording (cmdBuffer, 0);
-
-                    for (auto const& binding: layerBindings) {
-                        if (binding != nullptr)
-                            binding();
-                    }
-                    endCmdBufferRecording                    (cmdBuffer);
-                    m_rendererInfo.meta.cmdBuffers.push_back (cmdBuffer);
+                resetCmdBufferRecording (cmdBuffer, 0);
+                beginCmdBufferRecording (cmdBuffer, 0);
+                for (auto const& binding: resource.layerBindings) {
+                    if (binding != nullptr)
+                        binding (imageIdx, frameIdx);
                 }
+                endCmdBufferRecording (cmdBuffer);
 
                 /* We want to wait with writing colors to the image until it's available, so we're specifying the stage
                  * of the graphics pipeline that writes to the color attachment. Note that, this means theoretically the
@@ -305,10 +298,13 @@ namespace Renderer {
                 auto signalSemaphores = std::vector {
                     *renderDoneSemObj->getSemaphore()
                 };
+                auto cmdBuffers       = std::vector {
+                    cmdBuffer
+                };
                 auto submitInfos      = std::vector <VkSubmitInfo> {};
                 submitCmdBuffers (*resource.logDeviceObj->getGraphicsQueue(),
                                   *inFlightFenObj->getFence(),
-                                  m_rendererInfo.meta.cmdBuffers,
+                                  cmdBuffers,
                                   waitSemaphores, waitStageMasks, signalSemaphores,
                                   submitInfos);
 
