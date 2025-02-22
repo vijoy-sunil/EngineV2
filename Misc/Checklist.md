@@ -53,7 +53,7 @@
     VKCmdPool
     VKCmdBuffer
     VKRenderer
-    App
+    SandBox
 
     enum
     non-class files
@@ -104,6 +104,12 @@
 - [x] use unordered map instead of map if you don't need inputs to be inherently sorted
 - [x] make sure we are closing all open files
 - [x] make sure we are deleteing all allocated memory (search new and delete)
+
+# SHADERS
+
+- [ ] input vars begin with `i_`
+- [ ] output vars begin with `o_`
+- [ ] constants are capitalized
 
 # METHODS
 
