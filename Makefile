@@ -8,7 +8,7 @@
 # |-------------------------------------------------------------------------|
 GLFW_DIR            := /opt/homebrew/Cellar/glfw/3.4
 GLM_DIR             := /opt/homebrew/Cellar/glm/1.0.1
-SHADER_DIR          := ./App/Shader
+SHADER_DIR          := ./SandBox/Shader
 BUILD_DIR           := ./Build
 BIN_DIR             := $(BUILD_DIR)/Bin
 OBJ_DIR             := $(BUILD_DIR)/Obj
@@ -30,9 +30,9 @@ DEPS                := $(OBJS:.o=.d)
 # |-------------------------------------------------------------------------|
 APP_TARGET          := EngineV2_EXE
 VERT_SHADER_TARGET  := $(foreach file,$(notdir $(VERT_SHADER_SRCS)),        \
-                       $(patsubst %.vert,%Vert.spv,$(file)))
+                       $(patsubst %.vert,%[VERT].spv,$(file)))
 FRAG_SHADER_TARGET	:= $(foreach file,$(notdir $(FRAG_SHADER_SRCS)),        \
-                       $(patsubst %.frag,%Frag.spv,$(file)))
+                       $(patsubst %.frag,%[FRAG].spv,$(file)))
 # |-------------------------------------------------------------------------|
 # | Flags                                                                   |
 # |-------------------------------------------------------------------------|
@@ -60,11 +60,11 @@ $(APP_TARGET): $(OBJS)
 
 -include $(DEPS)
 
-%Vert.spv: $(SHADER_DIR)/%.vert
+%[VERT].spv: $(SHADER_DIR)/%.vert
 	@$(GLSLC) $< -o $(BIN_DIR)/$@
 	@echo "[OK] compile" $<
 
-%Frag.spv: $(SHADER_DIR)/%.frag
+%[FRAG].spv: $(SHADER_DIR)/%.frag
 	@$(GLSLC) $< -o $(BIN_DIR)/$@
 	@echo "[OK] compile" $<
 # |-------------------------------------------------------------------------|
@@ -82,11 +82,9 @@ directories:
 	@mkdir -p $(LOG_DIR)/Renderer
 	@echo "[OK] directories"
 
-shaders:
-	$(VERT_SHADER_TARGET) $(FRAG_SHADER_TARGET)
+shaders: $(VERT_SHADER_TARGET) $(FRAG_SHADER_TARGET)
 
-app:
-	$(APP_TARGET)
+app: $(APP_TARGET)
 
 clean_logs:
 	@$(RM) $(LOG_DIR)/Scene/*
