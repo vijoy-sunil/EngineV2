@@ -208,6 +208,10 @@ namespace Renderer {
                                     m_bufferInfo.resource.memory);
             }
 
+            VkDeviceSize getBufferSize (void) {
+                return m_bufferInfo.meta.size;
+            }
+
             VkBuffer* getBuffer (void) {
                 return &m_bufferInfo.resource.buffer;
             }
