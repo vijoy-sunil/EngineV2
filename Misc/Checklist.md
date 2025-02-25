@@ -8,9 +8,10 @@
 - [x] Make sure every header file is necessary (search `std::`, respective enum headers)
 - [x] include <> paths before “” paths
 - [x] include order match inheritance order
-- [x] Global ordering
+- [ ] Global ordering
 ```
 {
+    stdexcept
     glfw3
     string
     map
@@ -53,6 +54,8 @@
     VKCmdPool
     VKCmdBuffer
     VKRenderer
+    Dependency
+    Utility
     SandBox
 
     enum
@@ -76,6 +79,7 @@
 - [x] vector names end with `s`
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
+- [ ] Chaeck if uint32_t, int32_t etc. can be replaced with `using ?Type`
 - [x] `using` alias begins with upper case
 - [x] When copying struct/vec for use as short hand, always use `auto&`
 - [x] All classes have private info struct to organize private vars
@@ -104,6 +108,14 @@
 - [x] use unordered map instead of map if you don't need inputs to be inherently sorted
 - [x] make sure we are closing all open files
 - [x] make sure we are deleteing all allocated memory (search new and delete)
+- [ ] image vs texture naming
+```
+{
+    image,              when using as a collection type, or, when loading
+    texture,            when prefixed with diffuse/speculat/emission, OR suffixed with idx, pool etc.
+    texture image,      do not use
+}
+```
 
 # SHADERS
 
@@ -187,6 +199,15 @@
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
 - [ ] Make sure all fns (especially ones with `delete`) are actually called
+- [ ] Use the correct exception throw
+```
+{
+    invalid_argument
+    runtime_error
+    overflow_error
+    underflow_error
+}
+```
 
 # LOG
 
