@@ -4,7 +4,7 @@
 <pre>
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNEnityMgr             {iomanip}, {array}, {queue}
+    |SNEnityMgr             {stdexcept}, {iomanip}, {array}, {queue}
 
     |<----------------------:SNType
     |SNComponentArrayBase
@@ -12,13 +12,13 @@
     |<----------------------|SNComponentArrayBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNComponentArray       {string}, {unordered_map}, {array}
+    |SNComponentArray       {stdexcept}, {string}, {unordered_map}, {array}
 
     |<----------------------:SNComponentArrayBase
     |<----------------------:SNComponentArray
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNComponentMgr         {unordered_map}, {iomanip}
+    |SNComponentMgr         {stdexcept}, {unordered_map}, {iomanip}
 
     |<----------------------:SNType
     |SNSystemBase           {set}
@@ -26,7 +26,7 @@
     |<----------------------:SNSystemBase
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNSystemMgr            {string}, {unordered_map}, {iomanip}
+    |SNSystemMgr            {stdexcept}, {string}, {unordered_map}, {iomanip}
 
     |<----------------------:SNEnityMgr
     |<----------------------:SNComponentMgr
@@ -43,13 +43,13 @@
 <pre>
     |<----------------------:CNTypeInstanceBase
     |<----------------------:LGImpl
-    |CNTypeInstanceArray    {string}, {unordered_map}, {iomanip}, {array}
+    |CNTypeInstanceArray    {stdexcept}, {string}, {unordered_map}, {iomanip}, {array}
 
     |<----------------------:CNTypeInstanceBase
     |<----------------------:CNTypeInstanceArray
     |<----------------------:LGImpl
     |<----------------------:LGEnum
-    |CNImpl                 {string}, {unordered_map}, {iomanip}
+    |CNImpl                 {stdexcept}, {string}, {unordered_map}, {iomanip}
 </pre>
 
 ## Backend/Log/

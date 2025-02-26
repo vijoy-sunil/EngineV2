@@ -1,4 +1,5 @@
 #pragma once
+#include <stdexcept>
 #include <iomanip>
 #include <array>
 #include <queue>
