@@ -79,8 +79,9 @@
 - [x] vector names end with `s`
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
-- [ ] Chaeck if uint32_t, int32_t etc. can be replaced with `using ?Type`
+- [ ] Check if uint32_t, int32_t etc. can be replaced with `using ?Type`
 - [x] `using` alias begins with upper case
+- [ ] Paths as arguments should be named `?FilePath` or `?DirPath` (imageFilePath, modelFilePath etc.)
 - [x] When copying struct/vec for use as short hand, always use `auto&`
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
@@ -202,7 +203,6 @@
 - [ ] Use the correct exception throw
 ```
 {
-    invalid_argument
     runtime_error
     overflow_error
     underflow_error
