@@ -65,7 +65,7 @@
 - [x] Make sure we are not nesting `using namespace`
 - [x] Trim trailing whitespaces
 - [x] Check all comments
-- [x] Update hierarchy file
+- [ ] Update hierarchy file
 
 # VARIABLES
 
@@ -200,14 +200,6 @@
 - [x] Any methods that can be moved to helper file (used by multiple files, has no special reason to stay in module)
 - [x] Cmds will have cmd buffer as the first parameter (search `vkCmd`)
 - [ ] Make sure all fns (especially ones with `delete`) are actually called
-- [ ] Use the correct exception throw
-```
-{
-    runtime_error
-    overflow_error
-    underflow_error
-}
-```
 
 # LOG
 
