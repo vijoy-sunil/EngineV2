@@ -1,6 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <stdexcept>
 #include <vector>
 
 namespace Renderer {
@@ -238,13 +239,14 @@ namespace Renderer {
                              const VkImageAspectFlags aspectFlags,
                              std::vector <VkImageBlit>& blitRegions) {
         /* How are mip maps generated?
-         * The input texture image is generated with multiple mip levels, but the staging buffer can only be used to
-         * fill mip level 0. The other levels are still undefined. To fill these levels we need to generate the data
-         * from the single level that we have. We will use the vkCmdBlitImage command to perform copying, scaling, and
-         * filtering operations. We will call this multiple times to blit data to each level of our texture image. Note
-         * that, vkCmdBlitImage is considered a transfer operation, so we must inform Vulkan that we intend to use the
-         * texture image as both the source and destination of a transfer by specifying in usage flags when creating the
-         * texture image
+         * The input image is generated with multiple mip levels, but the staging buffer can only be used to fill mip
+         * level 0. The other levels are still undefined. To fill these levels we need to generate the data from the
+         * single level that we have. We will use the vkCmdBlitImage command to perform copying, scaling, and filtering
+         * operations. We will call this multiple times to blit data to each level of our image
+         *
+         * Note that, vkCmdBlitImage is considered a transfer operation, so we must inform Vulkan that we intend to use
+         * the image as both the source and destination of a transfer by specifying in usage flags when creating the
+         * image
          *
          * vkCmdBlitImage depends on the layout of the image it operates on. We could transition the entire image to
          * VK_IMAGE_LAYOUT_GENERAL, but this will most likely be slow. For optimal performance, the source image should
@@ -332,8 +334,8 @@ namespace Renderer {
                                    blitRegions.data(),
                                    VK_FILTER_LINEAR);
 
-            /* To be able to start sampling from the texture image in the shader, we need one last transition to prepare
-             * it for shader access. Note that, this transition waits on the current blit command to finish
+            /* To be able to start sampling from the texture in the shader, we need one last transition to prepare it for
+             * shader access. Note that, this transition waits on the current blit command to finish
             */
             auto appendBarriersB = std::vector <VkImageMemoryBarrier> {};
             transitionImageLayout (cmdBuffer,

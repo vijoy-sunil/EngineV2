@@ -64,7 +64,7 @@
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:LGEnum
-    |VKInstance             {glfw3}, {string}, {set}, {vector}, {vk_enum_string_helper}
+    |VKInstance             {glfw3}, {stdexcept}, {string}, {set}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
@@ -74,19 +74,19 @@
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKWindow
-    |VKSurface              {glfw3}, {vk_enum_string_helper}
+    |VKSurface              {glfw3}, {stdexcept}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKSurface
-    |VKPhyDevice            {glfw3}, {string}, {unordered_map}, {set}, {vector}, {optional}
+    |VKPhyDevice            {glfw3}, {stdexcept}, {string}, {unordered_map}, {set}, {vector}, {optional}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKPhyDevice
-    |VKLogDevice            {glfw3}, {set}, {vector}, {vk_enum_string_helper}
+    |VKLogDevice            {glfw3}, {stdexcept}, {set}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
@@ -95,21 +95,21 @@
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
     |<----------------------:VKHelper
-    |VKSwapChain            {glfw3}, {vector}, {limits}, {algorithm}, {vk_enum_string_helper}
+    |VKSwapChain            {glfw3}, {stdexcept}, {vector}, {limits}, {algorithm}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
     |<----------------------:VKHelper
-    |                       {glfw3}, {vector}, {vk_enum_string_helper}
+    |                       {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
     \VKBuffer
     \VKImage
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
-    |                       {glfw3}, {vk_enum_string_helper}
+    |                       {glfw3}, {stdexcept}, {vk_enum_string_helper}
     \VKSampler
     \VKFence
     \VKSemaphore
@@ -118,7 +118,7 @@
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
-    |                       {glfw3}, {vector}, {vk_enum_string_helper}
+    |                       {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
     \VKRenderPass
     \VKFrameBuffer
     \VKDescriptorPool
@@ -128,7 +128,7 @@
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
-    |VKPipeline             {glfw3}, {fstream}, {vector}, {vk_enum_string_helper}
+    |VKPipeline             {glfw3}, {stdexcept}, {fstream}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
@@ -139,11 +139,11 @@
     |<----------------------:VKSemaphore
     |<----------------------:VKCmdBuffer
     |<----------------------:VKHelper
-    |VKRenderer             {glfw3}, {vector}, {functional}, {vk_enum_string_helper}
+    |VKRenderer             {glfw3}, {stdexcept}, {vector}, {functional}, {vk_enum_string_helper}
 
-    |VKCmdList              {glfw3}, {vector}
+    |VKCmdList              {glfw3}, {stdexcept}, {vector}
 
-    |VKHelper               {glfw3}, {set}, {vector}
+    |VKHelper               {glfw3}, {stdexcept}, {set}, {vector}
 </pre>
 
 ## Utility/

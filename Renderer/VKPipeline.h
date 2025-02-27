@@ -1,6 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <stdexcept>
 #include <fstream>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
