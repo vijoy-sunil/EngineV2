@@ -8,11 +8,11 @@
 - [x] Make sure every header file is necessary (search `std::`, respective enum headers)
 - [x] include <> paths before “” paths
 - [x] include order match inheritance order
-- [ ] Global ordering
+- [x] Global ordering
 ```
 {
-    stdexcept
     glfw3
+    stdexcept
     string
     map
     unordered_map
@@ -65,7 +65,7 @@
 - [x] Make sure we are not nesting `using namespace`
 - [x] Trim trailing whitespaces
 - [x] Check all comments
-- [ ] Update hierarchy file
+- [x] Update hierarchy file
 
 # VARIABLES
 
@@ -79,9 +79,9 @@
 - [x] vector names end with `s`
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
-- [ ] Check if uint32_t, int32_t etc. can be replaced with `using ?Type`
+- [x] Check if uint32_t, int32_t etc. can be replaced with `using ?Type`
 - [x] `using` alias begins with upper case
-- [ ] Paths as arguments should be named `?FilePath` or `?DirPath` (imageFilePath, modelFilePath etc.)
+- [x] Paths as arguments should be named `?FilePath` or `?DirPath` (imageFilePath, modelFilePath etc.)
 - [x] When copying struct/vec for use as short hand, always use `auto&`
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
@@ -109,7 +109,7 @@
 - [x] use unordered map instead of map if you don't need inputs to be inherently sorted
 - [x] make sure we are closing all open files
 - [x] make sure we are deleteing all allocated memory (search new and delete)
-- [ ] image vs texture naming
+- [x] image vs texture naming
 ```
 {
     image,              when using as a collection type, or, when loading
