@@ -95,13 +95,18 @@ namespace Scene {
 
             /* System methods */
             template <typename T>
-            T* registerSystem (void) {
-                return m_sceneInfo.resource.systemMgrObj->registerSystem <T>();
+            void registerSystem (void) {
+                m_sceneInfo.resource.systemMgrObj->registerSystem <T>();
             }
 
             template <typename T>
             void setSystemSignature (const Signature systemSignature) {
                 m_sceneInfo.resource.systemMgrObj->setSystemSignature <T> (systemSignature);
+            }
+
+            template <typename T>
+            T* getSystem (void) {
+                return m_sceneInfo.resource.systemMgrObj->getSystem <T>();
             }
 
             void generateReport (void) {

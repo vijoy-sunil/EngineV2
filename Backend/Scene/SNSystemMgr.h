@@ -49,7 +49,7 @@ namespace Scene {
             }
 
             template <typename T>
-            T* registerSystem (void) {
+            void registerSystem (void) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_systemMgrInfo.meta;
                 if (meta.systems.find (typeName) != meta.systems.end()) {
@@ -61,7 +61,6 @@ namespace Scene {
                 }
                 auto systemObj = new T;
                 meta.systems.insert ({typeName, systemObj});
-                return systemObj;
             }
 
             template <typename T>
@@ -76,6 +75,20 @@ namespace Scene {
                     throw std::runtime_error ("System not registered before use");
                 }
                 meta.signatures.insert ({typeName, systemSignature});
+            }
+
+            template <typename T>
+            T* getSystem (void) {
+                const char* typeName = typeid (T).name();
+                auto& meta           = m_systemMgrInfo.meta;
+                if (meta.systems.find (typeName) == meta.systems.end()) {
+                    LOG_ERROR (m_systemMgrInfo.resource.logObj) << "System not registered before use"
+                                                                << " "
+                                                                << "[" << typeName << "]"
+                                                                << std::endl;
+                    throw std::runtime_error ("System not registered before use");
+                }
+                return static_cast <T*> (meta.systems[typeName]);
             }
 
             /* When an entity’s signature has changed (due to components being added or removed), then the system’s list
