@@ -80,6 +80,7 @@ directories:
 	@mkdir -p $(LOG_DIR)/Scene
 	@mkdir -p $(LOG_DIR)/Collection
 	@mkdir -p $(LOG_DIR)/Renderer
+	@mkdir -p $(LOG_DIR)/SandBox
 	@echo "[OK] directories"
 
 shaders: $(VERT_SHADER_TARGET) $(FRAG_SHADER_TARGET)
@@ -90,6 +91,7 @@ clean_logs:
 	@$(RM) $(LOG_DIR)/Scene/*
 	@$(RM) $(LOG_DIR)/Collection/*
 	@$(RM) $(LOG_DIR)/Renderer/*
+	@$(RM) $(LOG_DIR)/SandBox/*
 	@echo "[OK] clean logs"
 
 clean:
