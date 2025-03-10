@@ -55,7 +55,6 @@
 ## Backend/Log/
 <pre>
     |<----------------------|CNTypeInstanceBase [PUB]
-    |<----------------------:LGEnum
     |LGImpl                 {string}, {unordered_map}, {fstream}, {sstream}, {iostream}, {iomanip}, {chrono}
 </pre>
 
@@ -144,14 +143,4 @@
     |VKCmdList              {glfw3}, {stdexcept}, {vector}
 
     |VKHelper               {glfw3}, {stdexcept}, {set}, {vector}
-</pre>
-
-## Utility/
-<pre>
-    |<----------------------:tiny_obj_loader
-    |<----------------------:SBRendererType
-    |UTModelLoader          {stdexcept}, {string}, {unordered_map}, {vector}
-
-    |<----------------------:stb_image
-    |UTImageLoader          {stdexcept}
 </pre>
