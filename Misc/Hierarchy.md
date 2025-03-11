@@ -43,13 +43,12 @@
 <pre>
     |<----------------------:CNTypeInstanceBase
     |<----------------------:LGImpl
-    |CNTypeInstanceArray    {stdexcept}, {string}, {unordered_map}, {iomanip}, {array}
+    |CNTypeInstanceArray    {stdexcept}, {string}, {unordered_map}, {array}
 
     |<----------------------:CNTypeInstanceBase
     |<----------------------:CNTypeInstanceArray
     |<----------------------:LGImpl
-    |<----------------------:LGEnum
-    |CNImpl                 {stdexcept}, {string}, {unordered_map}, {iomanip}
+    |CNImpl                 {stdexcept}, {string}, {unordered_map}
 </pre>
 
 ## Backend/Log/

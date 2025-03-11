@@ -2,11 +2,9 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <iomanip>
 #include "CNTypeInstanceBase.h"
 #include "CNTypeInstanceArray.h"
 #include "../Log/LGImpl.h"
-#include "../Log/LGEnum.h"
 
 namespace Collection {
     class CNImpl {
@@ -124,21 +122,22 @@ namespace Collection {
                 /* Run on update */
                 auto instanceArrayObj = meta.types[typeName];
                 auto instanceArray    = instanceArrayObj->getCollectionTypeInstanceArray();
-                for (auto const& instanceBaseObj: instanceArray)
-                    instanceBaseObj->onUpdate (frameDelta);
+                for (auto const& instanceBaseObj: instanceArray) {
+                    if (instanceBaseObj != nullptr)
+                        instanceBaseObj->onUpdate (frameDelta);
+                }
             }
 
             void generateReport (void) {
                 auto& logObj = m_collectionInfo.resource.logObj;
 
-                LOG_LITE_INFO (logObj) << "{" << std::endl;
+                LOG_LITE_INFO (logObj)     << "{"      << std::endl;
                 for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.types) {
                     LOG_LITE_INFO (logObj) << "\t";
-                    LOG_LITE_INFO (logObj) << std::left << std::setw (50) << typeName << ", ";
+                    LOG_LITE_INFO (logObj) << typeName << std::endl;
                     instanceArrayObj->generateReport();
-                    LOG_LITE_INFO (logObj) << std::endl;
                 }
-                LOG_LITE_INFO (logObj) << "}" << std::endl;
+                LOG_LITE_INFO (logObj)     << "}"      << std::endl;
             }
 
             ~CNImpl (void) {

@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <iomanip>
 #include <array>
 #include "CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
@@ -114,19 +113,17 @@ namespace Collection {
             }
 
             void generateReport (void) {
-                auto& logObj       = m_typeInstanceArrayInfo.resource.logObj;
-                auto& meta         = m_typeInstanceArrayInfo.meta;
-                std::string spacer = "";
+                auto& logObj = m_typeInstanceArrayInfo.resource.logObj;
+                auto& meta   = m_typeInstanceArrayInfo.meta;
 
-                LOG_LITE_INFO (logObj) << "[";
+                LOG_LITE_INFO (logObj) << "\t" << "[" << std::endl;
                 for (uint32_t i = 0; i < g_maxTypeInstances; i++) {
                     if (meta.idxToInstanceIdMap.find (i) != meta.idxToInstanceIdMap.end()) {
-                        LOG_LITE_INFO (logObj) << spacer;
-                        LOG_LITE_INFO (logObj) << std::left << std::setw (30) << meta.idxToInstanceIdMap[i];
-                        spacer = ", ";
+                        LOG_LITE_INFO (logObj) << "\t\t";
+                        LOG_LITE_INFO (logObj) << meta.idxToInstanceIdMap[i] << std::endl;
                     }
                 }
-                LOG_LITE_INFO (logObj) << "]";
+                LOG_LITE_INFO (logObj) << "\t" << "]" << std::endl;
             }
 
             ~CNTypeInstanceArray (void) {
