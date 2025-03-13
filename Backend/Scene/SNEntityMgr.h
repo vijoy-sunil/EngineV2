@@ -1,6 +1,5 @@
 #pragma once
 #include <stdexcept>
-#include <iomanip>
 #include <array>
 #include <queue>
 #include "../Log/LGImpl.h"
@@ -115,13 +114,13 @@ namespace Scene {
                 auto& logObj     = m_entityMgrInfo.resource.logObj;
                 auto& signatures = m_entityMgrInfo.meta.signatures;
 
-                LOG_LITE_INFO (logObj) << "\t" << "["       << std::endl;
-                for (size_t i = 0; i < signatures.size(); i++) {
+                LOG_LITE_INFO (logObj) << "\t" << "["         << std::endl;
+                for (Entity i = 0; i < g_maxEntities; i++) {
                     LOG_LITE_INFO (logObj) << "\t\t";
-                    LOG_LITE_INFO (logObj) << std::left     << std::setw (3) << i << ", ";
-                    LOG_LITE_INFO (logObj) << signatures[i] << std::endl;
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << i << ", ";
+                    LOG_LITE_INFO (logObj) << signatures[i]   << std::endl;
                 }
-                LOG_LITE_INFO (logObj) << "\t" << "]"       << std::endl;
+                LOG_LITE_INFO (logObj) << "\t" << "]"         << std::endl;
             }
 
             ~SNEntityMgr (void) {

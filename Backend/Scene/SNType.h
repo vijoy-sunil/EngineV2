@@ -5,8 +5,8 @@ namespace Scene {
     using Entity                            = uint32_t;
     using ComponentType                     = uint32_t;
 
-    const Entity g_maxEntities              = 8;
-    const ComponentType g_maxComponentTypes = 8;
+    const Entity g_maxEntities              = 128;
+    const ComponentType g_maxComponentTypes = 16;
     /* Since an entity is simply an id, we need a way to track which components an entity “has”, and we also need a way
      * to track which components a system cares about. Each component type has a unique id (starting from 0), which is
      * used to represent a bit in the signature. A system would register its interest in certain components as another

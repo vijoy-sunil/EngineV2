@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <iomanip>
 #include "SNSystemBase.h"
 #include "../Log/LGImpl.h"
 #include "SNType.h"
@@ -49,7 +48,7 @@ namespace Scene {
             }
 
             template <typename T>
-            void registerSystem (void) {
+            T* registerSystem (void) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_systemMgrInfo.meta;
                 if (meta.systems.find (typeName) != meta.systems.end()) {
@@ -61,6 +60,7 @@ namespace Scene {
                 }
                 auto systemObj = new T;
                 meta.systems.insert ({typeName, systemObj});
+                return systemObj;
             }
 
             template <typename T>
@@ -113,16 +113,16 @@ namespace Scene {
             }
 
             void generateReport (void) {
-                auto& logObj       = m_systemMgrInfo.resource.logObj;
-                std::string spacer = "";
+                auto& logObj = m_systemMgrInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "{" << std::endl;
                 for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.systems) {
                     auto systemSignature = m_systemMgrInfo.meta.signatures[typeName];
+                    std::string spacer   = "";
 
                     LOG_LITE_INFO (logObj) << "\t\t";
-                    LOG_LITE_INFO (logObj) << std::left << std::setw (30) << typeName        << ", ";
-                    LOG_LITE_INFO (logObj) << std::left << std::setw (15) << systemSignature << ", ";
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_L << typeName        << ", ";
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_M << systemSignature << ", ";
 
                     LOG_LITE_INFO (logObj) << "[";
                     for (auto const& entity: systemBaseObj->m_entities) {

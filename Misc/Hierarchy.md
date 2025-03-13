@@ -4,7 +4,7 @@
 <pre>
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNEnityMgr             {stdexcept}, {iomanip}, {array}, {queue}
+    |SNEnityMgr             {stdexcept}, {array}, {queue}
 
     |<----------------------:SNType
     |SNComponentArrayBase
@@ -18,7 +18,7 @@
     |<----------------------:SNComponentArray
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNComponentMgr         {stdexcept}, {unordered_map}, {iomanip}
+    |SNComponentMgr         {stdexcept}, {unordered_map}
 
     |<----------------------:SNType
     |SNSystemBase           {set}
@@ -26,13 +26,12 @@
     |<----------------------:SNSystemBase
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNSystemMgr            {stdexcept}, {string}, {unordered_map}, {iomanip}
+    |SNSystemMgr            {stdexcept}, {string}, {unordered_map}
 
     |<----------------------:SNEnityMgr
     |<----------------------:SNComponentMgr
     |<----------------------:SNSystemMgr
     |<----------------------:LGImpl
-    |<----------------------:LGEnum
     |<----------------------:SNType
     |SNImpl
 

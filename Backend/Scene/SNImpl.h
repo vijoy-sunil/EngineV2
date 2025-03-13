@@ -3,7 +3,6 @@
 #include "SNComponentMgr.h"
 #include "SNSystemMgr.h"
 #include "../Log/LGImpl.h"
-#include "../Log/LGEnum.h"
 #include "SNType.h"
 
 namespace Scene {
@@ -32,14 +31,14 @@ namespace Scene {
                                                                                       Log::LOG_SINK_FILE);
 
                 m_sceneInfo.resource.entityMgrObj    = new SNEntityMgr    (m_sceneInfo.resource.logObj);
+                m_sceneInfo.resource.entityMgrObj->initEntityMgrInfo();
                 m_sceneInfo.resource.componentMgrObj = new SNComponentMgr (m_sceneInfo.resource.logObj);
+                m_sceneInfo.resource.componentMgrObj->initComponentMgrInfo();
                 m_sceneInfo.resource.systemMgrObj    = new SNSystemMgr    (m_sceneInfo.resource.logObj);
+                m_sceneInfo.resource.systemMgrObj->initSystemMgrInfo();
             }
 
             void initSceneInfo (void) {
-                m_sceneInfo.resource.entityMgrObj->initEntityMgrInfo();
-                m_sceneInfo.resource.componentMgrObj->initComponentMgrInfo();
-                m_sceneInfo.resource.systemMgrObj->initSystemMgrInfo();
             }
 
             /* Entity methods */
@@ -95,8 +94,8 @@ namespace Scene {
 
             /* System methods */
             template <typename T>
-            void registerSystem (void) {
-                m_sceneInfo.resource.systemMgrObj->registerSystem <T>();
+            T* registerSystem (void) {
+                return m_sceneInfo.resource.systemMgrObj->registerSystem <T>();
             }
 
             template <typename T>

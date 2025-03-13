@@ -1,7 +1,6 @@
 #pragma once
 #include <stdexcept>
 #include <unordered_map>
-#include <iomanip>
 #include "SNComponentArrayBase.h"
 #include "SNComponentArray.h"
 #include "../Log/LGImpl.h"
@@ -127,8 +126,8 @@ namespace Scene {
                     auto type = m_componentMgrInfo.meta.types[typeName];
 
                     LOG_LITE_INFO (logObj) << "\t\t";
-                    LOG_LITE_INFO (logObj) << std::left << std::setw (15) << typeName << ", ";
-                    LOG_LITE_INFO (logObj) << std::left << std::setw (3)  << type     << ", ";
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_L << typeName << ", ";
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << type     << ", ";
                     arrayBaseObj->onGenerateReport();
                     LOG_LITE_INFO (logObj) << std::endl;
                 }
