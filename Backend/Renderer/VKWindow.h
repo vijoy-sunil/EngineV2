@@ -3,8 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <functional>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 
 namespace Renderer {
     class VKWindow: public Collection::CNTypeInstanceBase {
@@ -27,8 +27,8 @@ namespace Renderer {
                     Log::LGImpl* logObj;
                     GLFWwindow* window;
                     /* Bindings */
-                    std::function <void (double, double)> runCursorPosition;
-                    std::function <void (double, double)> runScrollOffset;
+                    std::function <void (double, double)> cursorPositionBinding;
+                    std::function <void (double, double)> scrollOffsetBinding;
                 } resource;
             } m_windowInfo;
 
@@ -38,7 +38,7 @@ namespace Renderer {
                 } state;
 
                 struct Resource {
-                    std::function <void (float)> run;
+                    std::function <void (float)> binding;
                 } resource;
             };
             std::unordered_map <int, KeyEventInfo> m_keyEventInfoPool;
@@ -77,8 +77,8 @@ namespace Renderer {
                                                 const double yPos) {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
-                if (thisPtr->m_windowInfo.resource.runCursorPosition != nullptr)
-                    thisPtr->m_windowInfo.resource.runCursorPosition (xPos, yPos);
+                if (thisPtr->m_windowInfo.resource.cursorPositionBinding != nullptr)
+                    thisPtr->m_windowInfo.resource.cursorPositionBinding (xPos, yPos);
             }
 
             static void scrollOffsetCallback (GLFWwindow* window,
@@ -86,8 +86,8 @@ namespace Renderer {
                                               const double yOffset) {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
-                if (thisPtr->m_windowInfo.resource.runScrollOffset != nullptr)
-                    thisPtr->m_windowInfo.resource.runScrollOffset (xOffset, yOffset);
+                if (thisPtr->m_windowInfo.resource.scrollOffsetBinding != nullptr)
+                    thisPtr->m_windowInfo.resource.scrollOffsetBinding (xOffset, yOffset);
             }
 
             static void keyEventCallback (GLFWwindow* window,
@@ -113,8 +113,8 @@ namespace Renderer {
 
             void handleKeyEvents (const float frameDelta) {
                 for (auto const& [key, info]: m_keyEventInfoPool) {
-                    if ((info.state.pressed) && (info.resource.run != nullptr))
-                        info.resource.run (frameDelta);
+                    if ((info.state.pressed) && (info.resource.binding != nullptr))
+                        info.resource.binding (frameDelta);
                 }
             }
 
@@ -173,20 +173,20 @@ namespace Renderer {
                                  const int height,
                                  const char* title,
                                  const bool resizeDisabled = false,
-                                 const std::function <void (double, double)> runCursorPosition = nullptr,
-                                 const std::function <void (double, double)> runScrollOffset   = nullptr) {
+                                 const std::function <void (double, double)> cursorPositionBinding = nullptr,
+                                 const std::function <void (double, double)> scrollOffsetBinding   = nullptr) {
 
-                m_windowInfo.meta.width                 = width;
-                m_windowInfo.meta.height                = height;
-                m_windowInfo.meta.title                 = title;
+                m_windowInfo.meta.width                     = width;
+                m_windowInfo.meta.height                    = height;
+                m_windowInfo.meta.title                     = title;
 
-                m_windowInfo.state.resizeDisabled       = resizeDisabled;
-                m_windowInfo.state.resized              = false;
-                m_windowInfo.state.iconified            = false;
+                m_windowInfo.state.resizeDisabled           = resizeDisabled;
+                m_windowInfo.state.resized                  = false;
+                m_windowInfo.state.iconified                = false;
 
-                m_windowInfo.resource.window            = nullptr;
-                m_windowInfo.resource.runCursorPosition = runCursorPosition;
-                m_windowInfo.resource.runScrollOffset   = runScrollOffset;
+                m_windowInfo.resource.window                = nullptr;
+                m_windowInfo.resource.cursorPositionBinding = cursorPositionBinding;
+                m_windowInfo.resource.scrollOffsetBinding   = scrollOffsetBinding;
             }
 
             bool isWindowResized (void) {
@@ -239,8 +239,8 @@ namespace Renderer {
             }
 
             void setKeyEventBinding (const int key, const std::function <void (float)> binding) {
-                m_keyEventInfoPool[key].state.pressed = false;
-                m_keyEventInfoPool[key].resource.run  = binding;
+                m_keyEventInfoPool[key].state.pressed    = false;
+                m_keyEventInfoPool[key].resource.binding = binding;
             }
 
             GLFWwindow* getWindow (void) {

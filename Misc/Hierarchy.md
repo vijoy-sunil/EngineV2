@@ -60,7 +60,6 @@
 <pre>
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
-    |<----------------------:LGEnum
     |VKInstance             {glfw3}, {stdexcept}, {string}, {set}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]

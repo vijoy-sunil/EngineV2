@@ -6,9 +6,8 @@
 #include <set>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
-#include "../Backend/Log/LGEnum.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 
 namespace Renderer {
     class VKInstance: public Collection::CNTypeInstanceBase {
@@ -228,9 +227,9 @@ namespace Renderer {
                 VkApplicationInfo appInfo;
                 appInfo.sType                      = VK_STRUCTURE_TYPE_APPLICATION_INFO;
                 appInfo.pNext                      = nullptr;
-                appInfo.pApplicationName           = "ENGINE";
+                appInfo.pApplicationName           = "Engine";
                 appInfo.applicationVersion         = VK_MAKE_VERSION(2, 0, 0);
-                appInfo.pEngineName                = "VULKAN";
+                appInfo.pEngineName                = "Vulkan";
                 appInfo.engineVersion              = VK_MAKE_VERSION(0, 0, 0);
                 appInfo.apiVersion                 = VK_API_VERSION_1_0;
 

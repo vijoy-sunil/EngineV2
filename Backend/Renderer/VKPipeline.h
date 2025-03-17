@@ -5,8 +5,8 @@
 #include <fstream>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 #include "VKLogDevice.h"
 
 namespace Renderer {
@@ -267,15 +267,15 @@ namespace Renderer {
                 return attributeDescription;
             }
 
-            void createVertexInputState (const std::vector <VkVertexInputBindingDescription>&   bindingDescriptrions,
+            void createVertexInputState (const std::vector <VkVertexInputBindingDescription>&   bindingDescriptions,
                                          const std::vector <VkVertexInputAttributeDescription>& attributeDescriptions) {
 
                 VkPipelineVertexInputStateCreateInfo createInfo;
                 createInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
                 createInfo.pNext                           = nullptr;
                 createInfo.flags                           = 0;
-                createInfo.vertexBindingDescriptionCount   = static_cast <uint32_t> (bindingDescriptrions.size());
-                createInfo.pVertexBindingDescriptions      = bindingDescriptrions.data();
+                createInfo.vertexBindingDescriptionCount   = static_cast <uint32_t> (bindingDescriptions.size());
+                createInfo.pVertexBindingDescriptions      = bindingDescriptions.data();
                 createInfo.vertexAttributeDescriptionCount = static_cast <uint32_t> (attributeDescriptions.size());
                 createInfo.pVertexAttributeDescriptions    = attributeDescriptions.data();
 
@@ -481,15 +481,21 @@ namespace Renderer {
             }
 
             void createViewPortState (const std::vector <VkViewport>& viewPorts,
-                                      const std::vector <VkRect2D>& scissors) {
+                                      const std::vector <VkRect2D>& scissors,
+                                      const uint32_t viewPortsCount,
+                                      const uint32_t scissorsCount) {
 
                 VkPipelineViewportStateCreateInfo createInfo;
                 createInfo.sType             = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
                 createInfo.pNext             = nullptr;
                 createInfo.flags             = 0;
-                createInfo.viewportCount     = static_cast <uint32_t> (viewPorts.size());
+                /* Note that, if we are using dynamic state viewport and scissor we would be passing in empty vectors,
+                 * however the viewport and scissor count shouldn't be zero. Hence why we are manually passing in the
+                 * count values instead of computing the respective vector sizes
+                */
+                createInfo.viewportCount     = viewPortsCount;
                 createInfo.pViewports        = viewPorts.data();
-                createInfo.scissorCount      = static_cast <uint32_t> (scissors.size());
+                createInfo.scissorCount      = scissorsCount;
                 createInfo.pScissors         = scissors.data();
 
                 m_pipelineInfo.meta.viewPort = createInfo;
@@ -586,8 +592,8 @@ namespace Renderer {
                     vkDestroyShaderModule (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
                                             shaderModule,
                                             nullptr);
-                    LOG_INFO (m_pipelineInfo.resource.logObj)  << "[X] Shader module"
-                                                               << std::endl;
+                    LOG_INFO (m_pipelineInfo.resource.logObj) << "[X] Shader module"
+                                                              << std::endl;
                 }
             }
 

@@ -6,8 +6,8 @@
 #include <limits>
 #include <algorithm>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 #include "VKWindow.h"
 #include "VKSurface.h"
 #include "VKPhyDevice.h"

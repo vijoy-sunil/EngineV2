@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 #include "VKPhyDevice.h"
 #include "VKLogDevice.h"
 #include "VKHelper.h"
@@ -260,8 +260,20 @@ namespace Renderer {
                 m_imageInfo.resource.view         = nullptr;
             }
 
+            uint32_t getImageMipLevels (void) {
+                return m_imageInfo.meta.mipLevels;
+            }
+
             VkFormat getImageFormat (void) {
                 return m_imageInfo.meta.format;
+            }
+
+            VkImageAspectFlags getImageAspectFlags (void) {
+                return m_imageInfo.meta.aspectFlags;
+            }
+
+            VkImage* getImage (void) {
+                return &m_imageInfo.resource.image;
             }
 
             VkImageView* getImageView (void) {

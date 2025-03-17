@@ -7,8 +7,8 @@
 #include <set>
 #include <vector>
 #include <optional>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 #include "VKInstance.h"
 #include "VKSurface.h"
 
@@ -95,7 +95,7 @@ namespace Renderer {
                     if (flags & VK_QUEUE_TRANSFER_BIT)
                         queueFamilyInfoPool[queueFamilyIdx].transferQueueExists = true;
 
-                    queueFamilyIdx++;
+                    ++queueFamilyIdx;
                 }
                 LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "Available queue families"
                                                                << std::endl;

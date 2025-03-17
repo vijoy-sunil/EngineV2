@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vk_enum_string_helper.h>
-#include "../Backend/Collection/CNTypeInstanceBase.h"
-#include "../Backend/Log/LGImpl.h"
+#include "../Collection/CNTypeInstanceBase.h"
+#include "../Log/LGImpl.h"
 #include "VKPhyDevice.h"
 #include "VKLogDevice.h"
 #include "VKHelper.h"

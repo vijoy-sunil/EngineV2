@@ -91,54 +91,6 @@ namespace Renderer {
                                copyRegions.data());
     }
 
-    void copyBufferToImage (const VkCommandBuffer cmdBuffer,
-                            const VkBuffer srcBuffer,
-                            const VkImage dstImage,
-                            const VkDeviceSize srcOffset,
-                            const uint32_t bufferRowLength,
-                            const uint32_t bufferImageHeight,
-                            const VkOffset3D dstOffset,
-                            const VkExtent3D extent,
-                            const uint32_t mipLevels,
-                            const uint32_t baseArrayLayer,
-                            const uint32_t layersCount,
-                            const VkImageLayout imageLayout,
-                            const VkImageAspectFlags aspectFlags,
-                            std::vector <VkBufferImageCopy>& copyRegions) {
-
-        auto appendBarriers = std::vector <VkImageMemoryBarrier> {};
-        transitionImageLayout (cmdBuffer,
-                               dstImage,
-                               0,
-                               mipLevels,
-                               baseArrayLayer,
-                               layersCount,
-                               VK_IMAGE_LAYOUT_UNDEFINED,
-                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                               aspectFlags,
-                               appendBarriers);
-
-        VkBufferImageCopy copyRegion;
-        copyRegion.bufferOffset                    = srcOffset;
-        copyRegion.bufferRowLength                 = bufferRowLength;
-        copyRegion.bufferImageHeight               = bufferImageHeight;
-        copyRegion.imageOffset                     = dstOffset;
-        copyRegion.imageExtent                     = extent;
-
-        copyRegion.imageSubresource.mipLevel       = 0;
-        copyRegion.imageSubresource.baseArrayLayer = baseArrayLayer;
-        copyRegion.imageSubresource.layerCount     = layersCount;
-        copyRegion.imageSubresource.aspectMask     = aspectFlags;
-
-        copyRegions.push_back  (copyRegion);
-        vkCmdCopyBufferToImage (cmdBuffer,
-                                srcBuffer,
-                                dstImage,
-                                imageLayout,
-                                static_cast <uint32_t> (copyRegions.size()),
-                                copyRegions.data());
-    }
-
     void transitionImageLayout (const VkCommandBuffer cmdBuffer,
                                 const VkImage image,
                                 const uint32_t baseMipLevel,
@@ -222,6 +174,54 @@ namespace Renderer {
                               barriers.data());
     }
 
+    void copyBufferToImage (const VkCommandBuffer cmdBuffer,
+                            const VkBuffer srcBuffer,
+                            const VkImage dstImage,
+                            const VkDeviceSize srcOffset,
+                            const uint32_t bufferRowLength,
+                            const uint32_t bufferImageHeight,
+                            const VkOffset3D dstOffset,
+                            const VkExtent3D extent,
+                            const uint32_t mipLevels,
+                            const uint32_t baseArrayLayer,
+                            const uint32_t layersCount,
+                            const VkImageLayout imageLayout,
+                            const VkImageAspectFlags aspectFlags,
+                            std::vector <VkBufferImageCopy>& copyRegions) {
+
+        auto appendBarriers = std::vector <VkImageMemoryBarrier> {};
+        transitionImageLayout (cmdBuffer,
+                               dstImage,
+                               0,
+                               mipLevels,
+                               baseArrayLayer,
+                               layersCount,
+                               VK_IMAGE_LAYOUT_UNDEFINED,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               aspectFlags,
+                               appendBarriers);
+
+        VkBufferImageCopy copyRegion;
+        copyRegion.bufferOffset                    = srcOffset;
+        copyRegion.bufferRowLength                 = bufferRowLength;
+        copyRegion.bufferImageHeight               = bufferImageHeight;
+        copyRegion.imageOffset                     = dstOffset;
+        copyRegion.imageExtent                     = extent;
+
+        copyRegion.imageSubresource.mipLevel       = 0;
+        copyRegion.imageSubresource.baseArrayLayer = baseArrayLayer;
+        copyRegion.imageSubresource.layerCount     = layersCount;
+        copyRegion.imageSubresource.aspectMask     = aspectFlags;
+
+        copyRegions.push_back  (copyRegion);
+        vkCmdCopyBufferToImage (cmdBuffer,
+                                srcBuffer,
+                                dstImage,
+                                imageLayout,
+                                static_cast <uint32_t> (copyRegions.size()),
+                                copyRegions.data());
+    }
+
     /* Mipmaps are precalculated, downscaled versions of an image. Each new image is half the width and height of the
      * previous one. Mipmaps are used as a form of Level of Detail or LOD. Objects that are far away from the camera will
      * sample their textures from the smaller mip images. Using smaller images increases the rendering speed and avoids
@@ -236,8 +236,7 @@ namespace Renderer {
                              const uint32_t height,
                              const uint32_t mipLevels,
                              const uint32_t baseArrayLayer,
-                             const VkImageAspectFlags aspectFlags,
-                             std::vector <VkImageBlit>& blitRegions) {
+                             const VkImageAspectFlags aspectFlags) {
         /* How are mip maps generated?
          * The input image is generated with multiple mip levels, but the staging buffer can only be used to fill mip
          * level 0. The other levels are still undefined. To fill these levels we need to generate the data from the
@@ -326,12 +325,10 @@ namespace Renderer {
             blitRegion.dstSubresource.layerCount     = 1;
             blitRegion.dstSubresource.aspectMask     = aspectFlags;
 
-            blitRegions.push_back (blitRegion);
             vkCmdBlitImage        (cmdBuffer,
                                    image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                    image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                   static_cast <uint32_t> (blitRegions.size()),
-                                   blitRegions.data(),
+                                   1,     &blitRegion,
                                    VK_FILTER_LINEAR);
 
             /* To be able to start sampling from the texture in the shader, we need one last transition to prepare it for
@@ -437,10 +434,10 @@ namespace Renderer {
     }
 
     void drawSimple (const VkCommandBuffer cmdBuffer,
-                     const uint32_t verticesCount,
-                     const uint32_t instancesCount,
                      const uint32_t firstVertex,
-                     const uint32_t firstInstance) {
+                     const uint32_t verticesCount,
+                     const uint32_t firstInstance,
+                     const uint32_t instancesCount) {
 
         vkCmdDraw (cmdBuffer,
                    verticesCount,
@@ -450,11 +447,11 @@ namespace Renderer {
     }
 
     void drawIndexed (const VkCommandBuffer cmdBuffer,
-                      const uint32_t indicesCount,
-                      const uint32_t instancesCount,
                       const uint32_t firstIndex,
+                      const uint32_t indicesCount,
                       const int32_t  vertexOffset,
-                      const uint32_t firstInstance) {
+                      const uint32_t firstInstance,
+                      const uint32_t instancesCount) {
 
         vkCmdDrawIndexed (cmdBuffer,
                           indicesCount,
