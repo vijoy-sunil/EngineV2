@@ -5,7 +5,7 @@
 - [x] Class name match file name
 - [x] File name has to be singular, not a plural
 - [x] Parent folder/Sub folder names have to be singular
-- [x] Make sure every header file is necessary (search `std::`, respective enum headers)
+- [x] Make sure every header file is necessary (search `std::`, `glm::`, respective enum headers)
 - [x] include <> paths before “” paths
 - [x] include order match inheritance order
 - [x] Global ordering
@@ -223,15 +223,15 @@
 
 # MISC
 
-- [x] `[a-z>]&`                                 use of references
-- [x] `[a-z]\*`                                 use of pointers
-- [x] `\) [a-z]`                                no use of C-style casting
-- [x] `\) &`                                    no use of C-style casting
-- [x] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with f -- search + [space, comma, ], ), ;]
-- [x] `static`                                  is it necessary?
-- [x] `const char*`                             use const char* for string literals
-- [x] `std::string`                             use only if you require std::string features like concat, size etc.
-- [x] `.size()`                                 make sure it is casted from size_t to required types
-- [x] `size_t`                                  only used for size of an object and in fns that accept size_t
-- [x] `#endif  //`                              all endifs should have comment
-- [x] `[ ]`                                     to do list
+- [ ] `[a-z>]&`                                 use of references
+- [ ] `[a-z]\*`                                 use of pointers
+- [ ] `\) [a-z]`                                no use of C-style casting
+- [ ] `\) &`                                    no use of C-style casting
+- [ ] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with f -- search + [space, comma, ], ), ;]
+- [ ] `static`                                  is it necessary?
+- [ ] `const char*`                             use const char* for string literals
+- [ ] `std::string`                             use only if you require std::string features like concat, size etc.
+- [ ] `.size()`                                 make sure it is casted from size_t to required types
+- [ ] `size_t`                                  only used for size of an object and in fns that accept size_t
+- [ ] `#endif  //`                              all endifs should have comment
+- [ ] `[ ]`                                     to do list
