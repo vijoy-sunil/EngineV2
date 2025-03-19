@@ -148,4 +148,6 @@
     |<----------------------:stb_image
     |<----------------------:SBRendererType
     |SBTexturePool          {stdexcept}, {string}, {map}, {unordered_map}
+
+    |SBRendererType         {glm}, {hash}
 </pre>
