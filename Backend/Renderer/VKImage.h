@@ -268,6 +268,10 @@ namespace Renderer {
                 return m_imageInfo.meta.format;
             }
 
+            VkSampleCountFlagBits getImageSamplesCount (void) {
+                return m_imageInfo.meta.samplesCount;
+            }
+
             VkImageAspectFlags getImageAspectFlags (void) {
                 return m_imageInfo.meta.aspectFlags;
             }
