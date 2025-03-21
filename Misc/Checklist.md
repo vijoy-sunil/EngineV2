@@ -121,8 +121,8 @@
 - [x] mesh vs model naming
 ```
 {
-    mesh,               when related to components
-    model,              when referring to loading, instances etc.
+    mesh,               when related to components, instances
+    model,              file path, matrix etc.
 }
 ```
 

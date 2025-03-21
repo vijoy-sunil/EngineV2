@@ -150,4 +150,36 @@
     |SBTexturePool          {stdexcept}, {string}, {map}, {unordered_map}
 
     |SBRendererType         {glm}, {hash}
+
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKInstance
+    |<----------------------:VKWindow
+    |<----------------------:VKSurface
+    |<----------------------:VKPhyDevice
+    |<----------------------:VKLogDevice
+    |<----------------------:VKSwapChain
+    |<----------------------:VKBuffer
+    |<----------------------:VKImage
+    |<----------------------:VKSampler
+    |<----------------------:VKRenderPass
+    |<----------------------:VKFrameBuffer
+    |<----------------------:VKPipeline
+    |<----------------------:VKDescriptorPool
+    |<----------------------:VKDescriptorSet
+    |<----------------------:VKFence
+    |<----------------------:VKSemaphore
+    |<----------------------:VKCmdPool
+    |<----------------------:VKCmdBuffer
+    |<----------------------:VKRenderer
+    |<----------------------:SYMeshLoading
+    |<----------------------:SYMeshBatching
+    |<----------------------:SYMeshInstanceBatching
+    |<----------------------:SYLightInstanceBatching
+    |<----------------------:SBImpl
+    |<----------------------:VKCmdList
+    |<----------------------:VKHelper
+    |<----------------------:SBRendererType
+    |SBRenderer             {glfw3}, {string}, {unordered_map}, {vector}, {algorithm}, {cmath}
 </pre>
