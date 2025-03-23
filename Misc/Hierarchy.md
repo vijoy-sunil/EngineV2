@@ -152,6 +152,20 @@
     |SBRendererType         {glm}, {hash}
 
     |<----------------------:SNImpl
+    |<----------------------:SYMeshLoading
+    |<----------------------:SYMeshBatching
+    |<----------------------:SYMeshController
+    |<----------------------:SYMeshInstanceBatching
+    |<----------------------:SYLightController
+    |<----------------------:SYLightInstanceBatching
+    |<----------------------:SYCameraController
+    |<----------------------:SYDefaultRendering
+    |<----------------------:SBImpl
+    |<----------------------:SNType
+    |<----------------------:SBComponentType
+    |SBScene                {glm}, {string}, {vector}, {utility}
+
+    |<----------------------:SNImpl
     |<----------------------:CNImpl
     |<----------------------:LGImpl
     |<----------------------:VKInstance
