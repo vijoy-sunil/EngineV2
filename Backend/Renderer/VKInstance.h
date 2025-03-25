@@ -335,10 +335,6 @@ namespace Renderer {
                 return m_instanceInfo.state.validationLayersSupported;
             }
 
-            void toggleValidationLayers (const bool val) {
-                m_instanceInfo.state.validationLayersDisabled = !val;
-            }
-
             std::vector <const char*>& getValidationLayers (void) {
                 return m_instanceInfo.meta.validationLayers;
             }

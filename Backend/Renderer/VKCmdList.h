@@ -12,7 +12,7 @@ namespace Renderer {
                        const float height,
                        const float minDepth,
                        const float maxDepth,
-                       const uint32_t firstViewPort,
+                       const uint32_t firstViewPortIdx,
                        std::vector <VkViewport>& viewPorts) {
 
         VkViewport viewPort;
@@ -25,7 +25,7 @@ namespace Renderer {
 
         viewPorts.push_back (viewPort);
         vkCmdSetViewport    (cmdBuffer,
-                             firstViewPort,
+                             firstViewPortIdx,
                              static_cast <uint32_t> (viewPorts.size()),
                              viewPorts.data());
     }
@@ -33,7 +33,7 @@ namespace Renderer {
     void setScissors (const VkCommandBuffer cmdBuffer,
                       const VkOffset2D offset,
                       const VkExtent2D extent,
-                      const uint32_t firstScissor,
+                      const uint32_t firstScissorIdx,
                       std::vector <VkRect2D>& scissors) {
 
         VkRect2D scissor;
@@ -42,18 +42,18 @@ namespace Renderer {
 
         scissors.push_back (scissor);
         vkCmdSetScissor    (cmdBuffer,
-                            firstScissor,
+                            firstScissorIdx,
                             static_cast <uint32_t> (scissors.size()),
                             scissors.data());
     }
 
     void bindVertexBuffers (const VkCommandBuffer cmdBuffer,
-                            const uint32_t firstBinding,
+                            const uint32_t firstBindingIdx,
                             const std::vector <VkBuffer>& buffers,
                             const std::vector <VkDeviceSize>& offsets) {
 
         vkCmdBindVertexBuffers (cmdBuffer,
-                                firstBinding,
+                                firstBindingIdx,
                                 static_cast <uint32_t> (buffers.size()),
                                 buffers.data(),
                                 offsets.data());
@@ -419,14 +419,14 @@ namespace Renderer {
     void bindDescriptorSets (const VkCommandBuffer cmdBuffer,
                              const VkPipelineBindPoint pipelineBindPoint,
                              const VkPipelineLayout pipelineLayout,
-                             const uint32_t firstSet,
+                             const uint32_t firstSetIdx,
                              const std::vector <VkDescriptorSet>& descriptorSets,
                              const std::vector <uint32_t>& dynamicOffsets) {
 
         vkCmdBindDescriptorSets (cmdBuffer,
                                  pipelineBindPoint,
                                  pipelineLayout,
-                                 firstSet,
+                                 firstSetIdx,
                                  static_cast <uint32_t> (descriptorSets.size()),
                                  descriptorSets.data(),
                                  static_cast <uint32_t> (dynamicOffsets.size()),
@@ -434,30 +434,30 @@ namespace Renderer {
     }
 
     void drawSimple (const VkCommandBuffer cmdBuffer,
-                     const uint32_t firstVertex,
+                     const uint32_t firstVertexIdx,
                      const uint32_t verticesCount,
-                     const uint32_t firstInstance,
+                     const uint32_t firstInstanceIdx,
                      const uint32_t instancesCount) {
 
         vkCmdDraw (cmdBuffer,
                    verticesCount,
                    instancesCount,
-                   firstVertex,
-                   firstInstance);
+                   firstVertexIdx,
+                   firstInstanceIdx);
     }
 
     void drawIndexed (const VkCommandBuffer cmdBuffer,
-                      const uint32_t firstIndex,
+                      const uint32_t firstIndexIdx,
                       const uint32_t indicesCount,
                       const int32_t  vertexOffset,
-                      const uint32_t firstInstance,
+                      const uint32_t firstInstanceIdx,
                       const uint32_t instancesCount) {
 
         vkCmdDrawIndexed (cmdBuffer,
                           indicesCount,
                           instancesCount,
-                          firstIndex,
+                          firstIndexIdx,
                           vertexOffset,
-                          firstInstance);
+                          firstInstanceIdx);
     }
 }   // namespace Renderer

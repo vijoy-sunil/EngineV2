@@ -33,6 +33,7 @@
 #define ALIGN_AND_PAD_S                 std::right << std::setw (8)
 #define ALIGN_AND_PAD_M                 std::right << std::setw (32)
 #define ALIGN_AND_PAD_L                 std::right << std::setw (64)
+#define ALIGN_AND_PAD_C(padding)        std::right << std::setw (padding)
 
 #define NULL_LOGOBJ_MSG                 "logObj = nullptr, creating a new one"
 #define NULL_DEPOBJ_MSG                 "Invalid one or more dependency resources"
