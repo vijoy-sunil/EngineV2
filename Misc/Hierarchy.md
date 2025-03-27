@@ -149,6 +149,64 @@
     |<----------------------:SBRendererType
     |SBTexturePool          {stdexcept}, {string}, {map}, {unordered_map}
 
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:LGImpl
+    |<----------------------:tiny_obj_loader
+    |<----------------------:SBTexturePool
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYMeshLoading          {stdexcept}, {string}, {unordered_map}
+
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYMeshBatching         {stdexcept}, {unordered_map}, {vector}
+
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |<----------------------:SBComponentType
+    |SYMeshInstanceBatching {glm}, {stdexcept}, {unordered_map}, {vector}
+
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYLightInstanceBatching {glm}, {stdexcept}, {unordered_map}, {vector}
+
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKSwapChain
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYCameraController     {glm}, {stdexcept}
+
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKSwapChain
+    |<----------------------:VKBuffer
+    |<----------------------:VKRenderPass
+    |<----------------------:VKFrameBuffer
+    |<----------------------:VKPipeline
+    |<----------------------:VKDescriptorSet
+    |<----------------------:VKCmdBuffer
+    |<----------------------:VKRenderer
+    |<----------------------:VKCmdList
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYDefaultRendering     {glfw3}, {stdexcept}, {string}, {vector}
+
     |SBRendererType         {glm}, {hash}
 
     |<----------------------:SNImpl
