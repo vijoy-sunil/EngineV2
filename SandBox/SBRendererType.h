@@ -46,7 +46,7 @@ namespace SandBox {
         }
     };
 
-    /* PC: push constant */
+    /* PC - Push constant */
     struct ActiveCameraPC {
         glm::mat4 viewMatrix;               /* Mat4 must be aligned by 4N (= 16 bytes) */
         glm::mat4 projectionMatrix;

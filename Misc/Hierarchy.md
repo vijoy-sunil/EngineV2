@@ -212,9 +212,7 @@
     |<----------------------:SNImpl
     |<----------------------:SYMeshLoading
     |<----------------------:SYMeshBatching
-    |<----------------------:SYMeshController
     |<----------------------:SYMeshInstanceBatching
-    |<----------------------:SYLightController
     |<----------------------:SYLightInstanceBatching
     |<----------------------:SYCameraController
     |<----------------------:SYDefaultRendering

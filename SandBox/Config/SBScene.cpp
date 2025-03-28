@@ -5,9 +5,7 @@
 #include "../../Backend/Scene/SNImpl.h"
 #include "../System/SYMeshLoading.h"
 #include "../System/SYMeshBatching.h"
-#include "../System/SYMeshController.h"
 #include "../System/SYMeshInstanceBatching.h"
-#include "../System/SYLightController.h"
 #include "../System/SYLightInstanceBatching.h"
 #include "../System/SYCameraController.h"
 #include "../System/SYDefaultRendering.h"
@@ -30,9 +28,7 @@ namespace SandBox {
         {   /* Register systems */
             auto meshLoadingObj           = sceneObj->registerSystem <SYMeshLoading>();
             auto meshBatchingObj          = sceneObj->registerSystem <SYMeshBatching>();
-            auto meshControllerObj        = sceneObj->registerSystem <SYMeshController>();
             auto meshInstanceBatchingObj  = sceneObj->registerSystem <SYMeshInstanceBatching>();
-            auto lightControllerObj       = sceneObj->registerSystem <SYLightController>();
             auto lightInstanceBatchingObj = sceneObj->registerSystem <SYLightInstanceBatching>();
             auto cameraControllerObj      = sceneObj->registerSystem <SYCameraController>();
             auto defaultRenderingObj      = sceneObj->registerSystem <SYDefaultRendering>();
@@ -55,15 +51,6 @@ namespace SandBox {
 
                 sceneObj->setSystemSignature <SYMeshBatching> (systemSignature);
             }
-            {   /* Mesh controller system */
-                meshControllerObj->initMeshControllerInfo (sceneObj);
-
-                Scene::Signature systemSignature;
-                systemSignature.set (sceneObj->getComponentType <MeshComponent>());
-                systemSignature.set (sceneObj->getComponentType <TransformComponent>());
-
-                sceneObj->setSystemSignature <SYMeshController> (systemSignature);
-            }
             {   /* Mesh instance batching system */
                 meshInstanceBatchingObj->initMeshInstanceBatchingInfo (sceneObj);
 
@@ -72,15 +59,6 @@ namespace SandBox {
                 systemSignature.set (sceneObj->getComponentType <TextureIdxLUTComponent>());
 
                 sceneObj->setSystemSignature <SYMeshInstanceBatching> (systemSignature);
-            }
-            {   /* Light controller system */
-                lightControllerObj->initLightControllerInfo (sceneObj);
-
-                Scene::Signature systemSignature;
-                systemSignature.set (sceneObj->getComponentType <LightComponent>());
-                systemSignature.set (sceneObj->getComponentType <TransformComponent>());
-
-                sceneObj->setSystemSignature <SYLightController> (systemSignature);
             }
             {   /* Light instance batching system */
                 lightInstanceBatchingObj->initLightInstanceBatchingInfo (sceneObj);
@@ -198,7 +176,7 @@ namespace SandBox {
             {   /* Mesh loading system */
                 meshLoadingObj->update();
                 auto texturePoolObj = meshLoadingObj->getTexturePoolObj();
-                /* Populate texture idx lut component for child instances */
+                /* Populate texture idx LUT component for child instances */
                 {   /* Entity 1..7 */
                     for (Scene::Entity i = 1; i < 8; i++) {
                         auto srcTextureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (0);
