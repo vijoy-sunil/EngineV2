@@ -73,7 +73,7 @@ namespace SandBox {
 
                     m_meshInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     MeshInstanceSBO instance;
-                    auto modelMatrix      = transformComponent->getModelMatrix();
+                    glm::mat4 modelMatrix = transformComponent->getModelMatrix();
                     instance.modelMatrix  = modelMatrix;
                     instance.normalMatrix = glm::mat4 (glm::transpose (glm::inverse (glm::mat3 (modelMatrix))));
                     /* Array copy */
