@@ -33,6 +33,9 @@ namespace SandBox {
             /* Shininess impacts the scattering/radius of the specular highlight. The table in the following link
              * http://devernay.free.fr/cours/opengl/materials.html shows a list of material properties that simulate
              * real materials found in the outside world
+             *
+             * Note that, the higher the shininess value, the more it properly reflects the light instead of scattering
+             * it all around and thus the smaller the highlight becomes
             */
             uint32_t shininess;
         } material;

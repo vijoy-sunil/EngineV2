@@ -61,13 +61,10 @@ namespace Log {
             struct LogInfo {
                 struct Meta {
                     std::unordered_map <e_logLevel, e_logSink> configs;
+                    std::string saveFileDirPath;
+                    std::string saveFileName;
                     const char* saveFileExtension;
                 } meta;
-
-                struct Path {
-                    std::string saveDir;
-                    std::string saveFileName;
-                } path;
 
                 struct Resource {
                     std::fstream file;
@@ -83,7 +80,7 @@ namespace Log {
                 m_logInfo = {};
             }
 
-            void initLogInfo (const std::string saveDirPath,
+            void initLogInfo (const std::string saveFileDirPath,
                               std::string saveFileName,
                               const char* saveFileExtension = ".log") {
 
@@ -97,9 +94,9 @@ namespace Log {
                 m_logInfo.meta.configs[LOG_LEVEL_WARNING] = LOG_SINK_CONSOLE;
                 m_logInfo.meta.configs[LOG_LEVEL_ERROR]   = LOG_SINK_CONSOLE;
 
+                m_logInfo.meta.saveFileDirPath            = saveFileDirPath;
+                m_logInfo.meta.saveFileName               = saveFileName;
                 m_logInfo.meta.saveFileExtension          = saveFileExtension;
-                m_logInfo.path.saveDir                    = saveDirPath;
-                m_logInfo.path.saveFileName               = saveFileName;
                 m_currentSinks                            = LOG_SINK_NONE;
             }
 
@@ -142,8 +139,8 @@ namespace Log {
                     std::cout << data;
 
                 if (m_currentSinks & LOG_SINK_FILE) {
-                    m_logInfo.resource.file.open (m_logInfo.path.saveDir + "/" +
-                                                  m_logInfo.path.saveFileName  +
+                    m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
+                                                  m_logInfo.meta.saveFileName    +
                                                   m_logInfo.meta.saveFileExtension, std::ios::app);
                     m_logInfo.resource.file << data;
                     m_logInfo.resource.file.close();
@@ -156,8 +153,8 @@ namespace Log {
                     std::cout << endl;
 
                 if (m_currentSinks & LOG_SINK_FILE) {
-                    m_logInfo.resource.file.open (m_logInfo.path.saveDir + "/" +
-                                                  m_logInfo.path.saveFileName  +
+                    m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
+                                                  m_logInfo.meta.saveFileName    +
                                                   m_logInfo.meta.saveFileExtension, std::ios::app);
                     m_logInfo.resource.file << endl;
                     m_logInfo.resource.file.close();

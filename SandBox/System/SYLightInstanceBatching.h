@@ -100,7 +100,7 @@ namespace SandBox {
                     m_lightInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     LightInstanceSBO instance;
                     instance.position    = transformComponent->m_position;
-                    instance.direction   = transformComponent->getDirection();
+                    instance.direction   = transformComponent->createDirectionVector();
 
                     instance.ambient.x   = lightComponent->m_ambient.x;
                     instance.ambient.y   = lightComponent->m_ambient.y;

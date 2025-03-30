@@ -185,7 +185,7 @@ namespace SandBox {
                         auto srcTextureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (0);
                         auto dstTextureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (i);
                         srcTextureIdxLUTComponent->copyToTextureIdxLUT (
-                            dstTextureIdxLUTComponent->m_textureIdxLUT
+                            dstTextureIdxLUTComponent->m_LUT
                         );
                     }
                 }

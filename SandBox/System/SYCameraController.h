@@ -74,8 +74,8 @@ namespace SandBox {
                     /* Compute aspect ratio */
                     float aspectRatio             = swapChainObj->getSwapChainExtent()->width/
                                                     static_cast <float> (swapChainObj->getSwapChainExtent()->height);
-                    activeCamera.viewMatrix       = glm::inverse (transformComponent->getModelMatrix());
-                    activeCamera.projectionMatrix = cameraComponent->getProjectionMatrix (aspectRatio);
+                    activeCamera.viewMatrix       = glm::inverse (transformComponent->createModelMatrix());
+                    activeCamera.projectionMatrix = cameraComponent->createProjectionMatrix (aspectRatio);
                 }
             }
 
