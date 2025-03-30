@@ -80,10 +80,17 @@
 - [x] vector names end with `s`
 - [x] count variables naming "name" + "sCount" (eg: instance'sCount')
 - [x] Index naming should be `idx`
+- [x] `Offset` shouldn't be suffixed with `idx`
 - [x] Check if uint32_t, int32_t etc. can be replaced with `using ?Type`
 - [x] `using` alias begins with upper case
 - [x] Paths as arguments should be named `?FilePath` or `?DirPath` (imageFilePath, modelFilePath etc.)
 - [x] When copying struct/vec for use as short hand, always use `auto&`
+```
+{
+    must match naming, or
+    use of reference must be justified
+}
+```
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
 - [x] struct members should be named short (configs instead of logConfigs in LogInfo); self explanatory
@@ -223,15 +230,18 @@
 
 # MISC
 
-- [ ] `[a-z>]&`                                 use of references
-- [ ] `[a-z]\*`                                 use of pointers
+- [ ] `[a-z>]&`                                 use of `references`
+- [ ] `[a-z]\*`                                 use of `pointers`
 - [ ] `\) [a-z]`                                no use of C-style casting
 - [ ] `\) &`                                    no use of C-style casting
-- [ ] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with f -- search + [space, comma, ], ), ;]
+- [ ] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with `f`
 - [ ] `static`                                  is it necessary?
-- [ ] `const char*`                             use const char* for string literals
-- [ ] `std::string`                             use only if you require std::string features like concat, size etc.
-- [ ] `.size()`                                 make sure it is casted from size_t to required types
-- [ ] `size_t`                                  only used for size of an object and in fns that accept size_t
-- [ ] `#endif  //`                              all endifs should have comment
+- [ ] `const char*`                             use `const char*` for string literals
+- [ ] `std::string`                             use only if you require `std::string` features like concat, size etc.
+- [ ] `.size()`                                 make sure it is casted from `size_t` to required types
+- [ ] `size_t`                                  only used for size of an object and in fns that accept `size_t`
+- [ ] `#endif  //`                              all `endifs` should have comment
+- [ ] `++`, `--`                                prefer prefix over postfix unless in `for` loop
+- [ ] `::`                                      avoid namespace resolution in the same namespace
+- [ ] `#define`                                 #defines for includes like glm, vulkan need to be repeated in every file
 - [ ] `[ ]`                                     to do list
