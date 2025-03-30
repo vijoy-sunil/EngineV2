@@ -18,12 +18,12 @@ namespace SandBox {
         private:
             /* SBO - Storage buffer object */
             struct LightInstanceSBO {
-                alignas (16) glm::vec3 position;    /* Vec3 must be aligned by 4N (= 16 bytes) */
+                glm::vec3 position;                 /* Vec3 must be aligned by 4N (= 16 bytes) */
                 alignas (16) glm::vec3 direction;
 
-                alignas (16) glm::vec4 ambient;     /* Vec4 must be aligned by 4N (= 16 bytes) */
-                glm::vec4 diffuse;
-                glm::vec4 specular;
+                alignas (16) glm::vec3 ambient;
+                alignas (16) glm::vec3 diffuse;
+                alignas (16) glm::vec3 specular;
 
                 float constant;                     /* Scalars must be aligned by N (= 4 bytes given 32 bit floats) */
                 float linear;
@@ -145,33 +145,33 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj) << entity << std::endl;
                     LOG_LITE_INFO (logObj) << "{"    << std::endl;
                     LOG_LITE_INFO (logObj) << "\t"   << "("
-                                                     << ALIGN_AND_PAD_S << instance.position.x  << ", "
-                                                     << ALIGN_AND_PAD_S << instance.position.y  << ", "
-                                                     << ALIGN_AND_PAD_S << instance.position.z
+                                                     << ALIGN_AND_PAD_C (16) << instance.position.x  << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.position.y  << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.position.z
                                                      << ")"
                                                      << std::endl;
                     LOG_LITE_INFO (logObj) << "\t"   << "("
-                                                     << ALIGN_AND_PAD_S << instance.direction.x << ", "
-                                                     << ALIGN_AND_PAD_S << instance.direction.y << ", "
-                                                     << ALIGN_AND_PAD_S << instance.direction.z
+                                                     << ALIGN_AND_PAD_C (16) << instance.direction.x << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.direction.y << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.direction.z
                                                      << ")"
                                                      << std::endl;
                     LOG_LITE_INFO (logObj) << "\t"   << "("
-                                                     << ALIGN_AND_PAD_S << instance.ambient.x   << ", "
-                                                     << ALIGN_AND_PAD_S << instance.ambient.y   << ", "
-                                                     << ALIGN_AND_PAD_S << instance.ambient.z
+                                                     << ALIGN_AND_PAD_C (16) << instance.ambient.x   << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.ambient.y   << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.ambient.z
                                                      << ")"
                                                      << std::endl;
                     LOG_LITE_INFO (logObj) << "\t"   << "("
-                                                     << ALIGN_AND_PAD_S << instance.diffuse.x   << ", "
-                                                     << ALIGN_AND_PAD_S << instance.diffuse.y   << ", "
-                                                     << ALIGN_AND_PAD_S << instance.diffuse.z
+                                                     << ALIGN_AND_PAD_C (16) << instance.diffuse.x   << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.diffuse.y   << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.diffuse.z
                                                      << ")"
                                                      << std::endl;
                     LOG_LITE_INFO (logObj) << "\t"   << "("
-                                                     << ALIGN_AND_PAD_S << instance.specular.x  << ", "
-                                                     << ALIGN_AND_PAD_S << instance.specular.y  << ", "
-                                                     << ALIGN_AND_PAD_S << instance.specular.z
+                                                     << ALIGN_AND_PAD_C (16) << instance.specular.x  << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.specular.y  << ", "
+                                                     << ALIGN_AND_PAD_C (16) << instance.specular.z
                                                      << ")"
                                                      << std::endl;
 

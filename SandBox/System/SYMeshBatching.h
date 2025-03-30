@@ -129,20 +129,20 @@ namespace SandBox {
                         LOG_LITE_INFO (logObj) << std::endl;
 
                         LOG_LITE_INFO (logObj) << "\t" << "("
-                                                       << ALIGN_AND_PAD_S << vertex.meta.uv.x       << ", "
-                                                       << ALIGN_AND_PAD_S << vertex.meta.uv.y
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.uv.x << ", "
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.uv.y
                                                        << ")"
                                                        << " "
                                                        << "("
-                                                       << ALIGN_AND_PAD_S << vertex.meta.normal.x   << ", "
-                                                       << ALIGN_AND_PAD_S << vertex.meta.normal.y   << ", "
-                                                       << ALIGN_AND_PAD_S << vertex.meta.normal.z
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.normal.x << ", "
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.normal.y << ", "
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.normal.z
                                                        << ")"
                                                        << " "
                                                        << "("
-                                                       << ALIGN_AND_PAD_S << vertex.meta.position.x << ", "
-                                                       << ALIGN_AND_PAD_S << vertex.meta.position.y << ", "
-                                                       << ALIGN_AND_PAD_S << vertex.meta.position.z
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.position.x << ", "
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.position.y << ", "
+                                                       << ALIGN_AND_PAD_C (16) << vertex.meta.position.z
                                                        << ")"
                                                        << " "
                                                        << ALIGN_AND_PAD_S << +vertex.material.diffuseTextureIdx  << ", "
