@@ -207,6 +207,9 @@
     |<----------------------:SBRendererType
     |SYDefaultRendering     {glfw3}, {stdexcept}, {string}, {vector}
 
+    |<----------------------:SBRendererType
+    |SBComponentType        {glm}, {matrix_transform}, {string}, {vector}, {algorithm}, {iterator}
+
     |SBRendererType         {glm}, {hash}
 
     |<----------------------:SNImpl
@@ -252,4 +255,23 @@
     |<----------------------:VKHelper
     |<----------------------:SBRendererType
     |SBRenderer             {glfw3}, {string}, {unordered_map}, {vector}, {algorithm}, {cmath}
+
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:VKWindow
+    |<----------------------:VKLogDevice
+    |<----------------------:VKRenderer
+    |<----------------------:SYMeshInstanceBatching
+    |<----------------------:SYLightInstanceBatching
+    |<----------------------:SYCameraController
+    |<----------------------:SYDefaultRendering
+    |SBImpl                 {glfw3}, {chrono}
+</pre>
+
+## ./
+<pre>
+    |<----------------------:SBScene
+    |<----------------------:SBRenderer
+    |<----------------------:SBImpl
+    |main
 </pre>
