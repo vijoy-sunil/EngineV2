@@ -361,8 +361,7 @@ namespace Renderer {
                 destroySwapChain();
             }
 
-            void onUpdate (const float frameDelta) override {
-                static_cast <void> (frameDelta);
+            void onUpdate (void) override {
                 /* Do nothing */
             }
 

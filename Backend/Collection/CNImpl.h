@@ -109,7 +109,7 @@ namespace Collection {
             }
 
             template <typename T>
-            void updateCollectionType (const float frameDelta) {
+            void updateCollectionType (void) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_collectionInfo.meta;
                 if (meta.types.find (typeName) == meta.types.end()) {
@@ -124,7 +124,7 @@ namespace Collection {
                 auto instanceArray    = instanceArrayObj->getCollectionTypeInstanceArray();
                 for (auto const& instanceBaseObj: instanceArray) {
                     if (instanceBaseObj != nullptr)
-                        instanceBaseObj->onUpdate (frameDelta);
+                        instanceBaseObj->onUpdate();
                 }
             }
 

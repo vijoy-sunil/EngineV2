@@ -315,8 +315,7 @@ namespace Renderer {
                 /* Do nothing */
             }
 
-            void onUpdate (const float frameDelta) override {
-                static_cast <void> (frameDelta);
+            void onUpdate (void) override {
                 /* Do nothing */
             }
 
