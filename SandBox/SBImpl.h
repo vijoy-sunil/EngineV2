@@ -81,9 +81,10 @@ namespace SandBox {
                 while (!isSandBoxRunning()) {
                     glfwPollEvents();
                     auto startOfFrameTime = PROFILE_CAPTURE;
-
+                    /* Handle window events */
+                    collectionObj->updateCollectionType <Renderer::VKWindow>();
                     /* Controller updates */
-                    cameraControllerObj->update();
+                    cameraControllerObj->update (frameDelta);
                     /* Batching updates */
                     meshInstanceBatchingObj->update();
                     lightInstanceBatchingObj->update();
@@ -97,8 +98,6 @@ namespace SandBox {
                         );
                         rendererObj->endFrame();
                     }
-
-                    collectionObj->updateCollectionType <Renderer::VKWindow> (frameDelta);
 
                     auto endOfFrameTime = PROFILE_CAPTURE;
                     frameDelta          = PROFILE_COMPUTE (startOfFrameTime, endOfFrameTime);

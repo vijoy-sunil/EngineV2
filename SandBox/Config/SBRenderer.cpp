@@ -88,11 +88,8 @@ namespace SandBox {
             windowObj->toggleKeyEventCallback (
                 true
             );
-            /* ESC key */
-            windowObj->setKeyEventBinding (
-                256,
-                [windowObj](const float frameDelta) {
-                    static_cast <void> (frameDelta);
+            windowObj->setKeyEventBinding (GLFW_KEY_ESCAPE,
+                [windowObj](void) {
                     windowObj->toggleWindowClosed (true);
                 }
             );
