@@ -34,11 +34,12 @@ namespace Renderer {
 
             struct KeyEventInfo {
                 struct State {
-                    bool pressed;
+                    int action;
                 } state;
 
                 struct Resource {
-                    std::function <void (float)> binding;
+                    std::function <void (void)> pressBinding;
+                    std::function <void (void)> releaseBinding;
                 } resource;
             };
             std::unordered_map <int, KeyEventInfo> m_keyEventInfoPool;
@@ -68,9 +69,9 @@ namespace Renderer {
                 else            thisPtr->m_windowInfo.state.iconified = false;
             }
 
-            /* Note that, as of now on Windows, the callback performs as expected where once the mouse leaves the window
-             * area the callback stops firing. For OSX, the window never loses focus and therefore the cursor callback
-             * is always being called
+            /* Note that, as of now on Windows, the callback performs as expected where once the cursor leaves the window
+             * area the callback stops firing. For OSX, the window never loses focus and therefore the callback is always
+             * being called
             */
             static void cursorPositionCallback (GLFWwindow* window,
                                                 const double xPos,
@@ -104,17 +105,21 @@ namespace Renderer {
                 if (thisPtr->m_keyEventInfoPool.find (key) == thisPtr->m_keyEventInfoPool.end())
                     return;
 
-                bool pressed = thisPtr->m_keyEventInfoPool[key].state.pressed;
-                if (action == GLFW_PRESS && !pressed)
-                    thisPtr->m_keyEventInfoPool[key].state.pressed = true;
-                if (action == GLFW_RELEASE)
-                    thisPtr->m_keyEventInfoPool[key].state.pressed = false;
+                thisPtr->m_keyEventInfoPool[key].state.action = action;
             }
 
-            void handleKeyEvents (const float frameDelta) {
-                for (auto const& [key, info]: m_keyEventInfoPool) {
-                    if ((info.state.pressed) && (info.resource.binding != nullptr))
-                        info.resource.binding (frameDelta);
+            void handleKeyEvents (void) {
+                for (auto& [key, info]: m_keyEventInfoPool) {
+                    if ((info.state.action == GLFW_PRESS || info.state.action == GLFW_REPEAT) &&
+                        (info.resource.pressBinding != nullptr))
+                         info.resource.pressBinding();
+
+                    if ((info.state.action == GLFW_RELEASE) &&
+                        (info.resource.releaseBinding != nullptr)) {
+                         info.resource.releaseBinding();
+                        /* Reset action */
+                        info.state.action  = GLFW_KEY_UNKNOWN;
+                    }
                 }
             }
 
@@ -139,7 +144,6 @@ namespace Renderer {
             }
 
             void destroyWindow (void) {
-                /* Disable all callbacks */
                 toggleCursorPositionCallback (false);
                 toggleScrollOffsetCallback   (false);
                 toggleKeyEventCallback       (false);
@@ -172,9 +176,7 @@ namespace Renderer {
             void initWindowInfo (const int width,
                                  const int height,
                                  const char* title,
-                                 const bool resizeDisabled = false,
-                                 const std::function <void (double, double)> cursorPositionBinding = nullptr,
-                                 const std::function <void (double, double)> scrollOffsetBinding   = nullptr) {
+                                 const bool resizeDisabled = false) {
 
                 m_windowInfo.meta.width                     = width;
                 m_windowInfo.meta.height                    = height;
@@ -185,8 +187,8 @@ namespace Renderer {
                 m_windowInfo.state.iconified                = false;
 
                 m_windowInfo.resource.window                = nullptr;
-                m_windowInfo.resource.cursorPositionBinding = cursorPositionBinding;
-                m_windowInfo.resource.scrollOffsetBinding   = scrollOffsetBinding;
+                m_windowInfo.resource.cursorPositionBinding = nullptr;
+                m_windowInfo.resource.scrollOffsetBinding   = nullptr;
             }
 
             bool isWindowResized (void) {
@@ -238,9 +240,21 @@ namespace Renderer {
                     glfwSetKeyCallback (m_windowInfo.resource.window, nullptr);
             }
 
-            void setKeyEventBinding (const int key, const std::function <void (float)> binding) {
-                m_keyEventInfoPool[key].state.pressed    = false;
-                m_keyEventInfoPool[key].resource.binding = binding;
+            void setCursorPositionBinding (const std::function <void (double, double)> binding) {
+                m_windowInfo.resource.cursorPositionBinding = binding;
+            }
+
+            void setScrollOffsetBinding (const std::function <void (double, double)> binding) {
+                m_windowInfo.resource.scrollOffsetBinding = binding;
+            }
+
+            void setKeyEventBinding (const int key,
+                                     const std::function <void (void)> pressBinding,
+                                     const std::function <void (void)> releaseBinding = nullptr) {
+
+                m_keyEventInfoPool[key].state.action            = GLFW_KEY_UNKNOWN;
+                m_keyEventInfoPool[key].resource.pressBinding   = pressBinding;
+                m_keyEventInfoPool[key].resource.releaseBinding = releaseBinding;
             }
 
             GLFWwindow* getWindow (void) {
@@ -255,8 +269,8 @@ namespace Renderer {
                 destroyWindow();
             }
 
-            void onUpdate (const float frameDelta) override {
-                handleKeyEvents (frameDelta);
+            void onUpdate (void) override {
+                handleKeyEvents();
             }
 
             ~VKWindow (void) {

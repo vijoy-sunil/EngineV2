@@ -185,10 +185,12 @@
     |<----------------------:SNImpl
     |<----------------------:CNImpl
     |<----------------------:LGImpl
+    |<----------------------:VKWindow
     |<----------------------:VKSwapChain
+    |<----------------------:SYEnum
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYCameraController     {glm}, {stdexcept}
+    |SYCameraController     {glfw3}, {glm}, {stdexcept}, {algorithm}
 
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
