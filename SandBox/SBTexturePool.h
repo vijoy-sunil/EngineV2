@@ -26,7 +26,7 @@ namespace SandBox {
             struct TexturePoolInfo {
                 struct Meta {
                     std::unordered_map <std::string, TextureIdxType> pathToIdxMap;
-                    std::map <TextureIdxType, ImageInfo>             idxToImageInfoMap;
+                    std::map <TextureIdxType, ImageInfo> idxToImageInfoMap;
                     TextureIdxType nextAvailableIdx;
                 } meta;
 

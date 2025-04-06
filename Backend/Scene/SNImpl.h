@@ -11,10 +11,10 @@ namespace Scene {
         private:
             struct SceneInfo {
                 struct Resource {
-                    Log::LGImpl*    logObj;
-                    SNEntityMgr*    entityMgrObj;
+                    SNEntityMgr* entityMgrObj;
                     SNComponentMgr* componentMgrObj;
-                    SNSystemMgr*    systemMgrObj;
+                    SNSystemMgr* systemMgrObj;
+                    Log::LGImpl* logObj;
                 } resource;
             } m_sceneInfo;
 

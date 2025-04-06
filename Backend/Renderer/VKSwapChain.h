@@ -34,8 +34,8 @@ namespace Renderer {
 
                 struct Resource {
                     Log::LGImpl* logObj;
-                    VKWindow*    windowObj;
-                    VKSurface*   surfaceObj;
+                    VKWindow* windowObj;
+                    VKSurface* surfaceObj;
                     VKPhyDevice* phyDeviceObj;
                     VKLogDevice* logDeviceObj;
                     VkSwapchainKHR swapChain;
