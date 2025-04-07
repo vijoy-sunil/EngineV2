@@ -8,6 +8,7 @@
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKLogDevice.h"
+#include "VKRenderPass.h"
 
 namespace Renderer {
     class VKPipeline: public Collection::CNTypeInstanceBase {
@@ -16,7 +17,6 @@ namespace Renderer {
                 struct Meta {
                     VkPipelineCreateFlags createFlags;
                     uint32_t subPassIdx;
-                    VkRenderPass renderPass;
                     /* Vulkan allows you to create a new graphics pipeline by deriving from an existing pipeline. The
                      * idea of pipeline derivatives is that it is less expensive to set up pipelines when they have much
                      * functionality in common with an existing pipeline and switching between pipelines from the same
@@ -44,9 +44,10 @@ namespace Renderer {
                 struct Resource {
                     Log::LGImpl* logObj;
                     VKLogDevice* logDeviceObj;
+                    VKRenderPass* renderPassObj;
                     VkPipeline pipeline;
                     VkPipelineLayout layout;
-                    std::vector <VkShaderModule>        shaderModules;
+                    std::vector <VkShaderModule> shaderModules;
                     std::vector <VkDescriptorSetLayout> descriptorSetLayouts;
                 } resource;
             } m_pipelineInfo;
@@ -127,7 +128,6 @@ namespace Renderer {
                 createInfo.pNext               = nullptr;
                 createInfo.flags               = m_pipelineInfo.meta.createFlags;
                 createInfo.subpass             = m_pipelineInfo.meta.subPassIdx;
-                createInfo.renderPass          = m_pipelineInfo.meta.renderPass;
                 createInfo.basePipelineIndex   = m_pipelineInfo.meta.basePipelineIdx;
                 createInfo.basePipelineHandle  = m_pipelineInfo.meta.basePipeline;
 
@@ -142,6 +142,7 @@ namespace Renderer {
                 createInfo.pColorBlendState    = &m_pipelineInfo.meta.colorBlend;
                 createInfo.pDynamicState       = &m_pipelineInfo.meta.dynamicState;
                 createInfo.pViewportState      = &m_pipelineInfo.meta.viewPort;
+                createInfo.renderPass          = *m_pipelineInfo.resource.renderPassObj->getRenderPass();
                 createInfo.layout              = m_pipelineInfo.resource.layout;
 
                 auto result = vkCreateGraphicsPipelines (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
@@ -184,8 +185,9 @@ namespace Renderer {
             }
 
         public:
-            VKPipeline (Log::LGImpl* logObj,
-                        VKLogDevice* logDeviceObj) {
+            VKPipeline (Log::LGImpl*  logObj,
+                        VKLogDevice*  logDeviceObj,
+                        VKRenderPass* renderPassObj) {
 
                 m_pipelineInfo = {};
 
@@ -202,23 +204,22 @@ namespace Renderer {
                     m_pipelineInfo.state.logObjCreated = false;
                 }
 
-                if (logDeviceObj == nullptr) {
+                if (logDeviceObj == nullptr || renderPassObj == nullptr) {
                     LOG_ERROR (m_pipelineInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
                 m_pipelineInfo.resource.logDeviceObj   = logDeviceObj;
+                m_pipelineInfo.resource.renderPassObj  = renderPassObj;
             }
 
             void initPipelineInfo (const VkPipelineCreateFlags createFlags,
                                    const uint32_t subPassIdx,
-                                   const VkRenderPass renderPass,
                                    const int32_t basePipelineIdx,
                                    const VkPipeline basePipeline) {
 
                 m_pipelineInfo.meta.createFlags              = createFlags;
                 m_pipelineInfo.meta.subPassIdx               = subPassIdx;
-                m_pipelineInfo.meta.renderPass               = renderPass;
                 m_pipelineInfo.meta.basePipelineIdx          = basePipelineIdx;
                 m_pipelineInfo.meta.basePipeline             = basePipeline;
 

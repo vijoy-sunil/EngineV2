@@ -116,15 +116,31 @@
     |<----------------------:VKLogDevice
     |                       {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
     \VKRenderPass
-    \VKFrameBuffer
     \VKDescriptorPool
-    \VKDescriptorSet
-    \VKCmdBuffer
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
+    |<----------------------:VKRenderPass
+    |VKFrameBuffer          {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
+
+    |<----------------------|CNTypeInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKLogDevice
+    |<----------------------:VKRenderPass
     |VKPipeline             {glfw3}, {stdexcept}, {fstream}, {vector}, {vk_enum_string_helper}
+
+    |<----------------------|CNTypeInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKLogDevice
+    |<----------------------:VKDescriptorPool
+    |VKDescriptorSet        {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
+
+    |<----------------------|CNTypeInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKLogDevice
+    |<----------------------:VKCmdPool
+    |VKCmdBuffer            {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
 
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl

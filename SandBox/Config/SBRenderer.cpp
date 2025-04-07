@@ -669,12 +669,11 @@ namespace SandBox {
                     "DEFAULT_SWAP_CHAIN_" + std::to_string (i)
                 );
 
-                auto bufferObj = new Renderer::VKFrameBuffer (logObj, logDeviceObj);
+                auto bufferObj = new Renderer::VKFrameBuffer (logObj, logDeviceObj, renderPassObj);
                 bufferObj->initFrameBufferInfo (
                     swapChainObj->getSwapChainExtent()->width,
                     swapChainObj->getSwapChainExtent()->height,
                     1,
-                    *renderPassObj->getRenderPass(),
                     {
                         *colorImageObj->getImageView(),     /* Attachment idx 0 */
                         *depthImageObj->getImageView(),     /* Attachment idx 1 */
@@ -699,7 +698,7 @@ namespace SandBox {
             auto phyDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice>  ("DEFAULT");
             auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>  ("DEFAULT");
             auto renderPassObj  = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass> ("DEFAULT");
-            auto pipelineObj    = new Renderer::VKPipeline (logObj, logDeviceObj);
+            auto pipelineObj    = new Renderer::VKPipeline (logObj, logDeviceObj, renderPassObj);
             /* The allow derivative flag specifies that the pipeline to be created is allowed to be the parent of a
              * pipeline that will be created in a subsequent pipeline creation call. Pipeline derivatives can be used
              * for pipelines that share most of their state, depending on the implementation this may result in better
@@ -708,7 +707,6 @@ namespace SandBox {
             pipelineObj->initPipelineInfo (
                 VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
                 0,
-                *renderPassObj->getRenderPass(),
                 -1,
                 nullptr
             );
@@ -967,11 +965,10 @@ namespace SandBox {
             auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>      ("DEFAULT");
             auto pipelineObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("DEFAULT");
             auto descPoolObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
-            auto descSetObj   = new Renderer::VKDescriptorSet (logObj, logDeviceObj);
+            auto descSetObj   = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
             descSetObj->initDescriptorSetInfo (
                 g_maxFramesInFlight,
-                pipelineObj->getDescriptorSetLayouts()[0],
-                *descPoolObj->getDescriptorPool()
+                pipelineObj->getDescriptorSetLayouts()[0]
             );
 
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("DEFAULT_PER_FRAME", descSetObj);
@@ -1043,11 +1040,10 @@ namespace SandBox {
             auto samplerObj     = collectionObj->getCollectionTypeInstance <Renderer::VKSampler>        ("DEFAULT");
             auto pipelineObj    = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("DEFAULT");
             auto descPoolObj    = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
-            auto descSetObj     = new Renderer::VKDescriptorSet (logObj, logDeviceObj);
+            auto descSetObj     = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
             descSetObj->initDescriptorSetInfo (
                 1,
-                pipelineObj->getDescriptorSetLayouts()[1],
-                *descPoolObj->getDescriptorPool()
+                pipelineObj->getDescriptorSetLayouts()[1]
             );
 
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("DEFAULT_ONE_TIME", descSetObj);
@@ -1211,13 +1207,12 @@ namespace SandBox {
             auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
             auto fenObj         = collectionObj->getCollectionTypeInstance <Renderer::VKFence>     ("DEFAULT_COPY_OPS");
             auto cmdPoolObj     = collectionObj->getCollectionTypeInstance <Renderer::VKCmdPool>   ("DEFAULT_COPY_OPS");
-            auto bufferObj      = new Renderer::VKCmdBuffer (logObj, logDeviceObj);
+            auto bufferObj      = new Renderer::VKCmdBuffer (logObj, logDeviceObj, cmdPoolObj);
             /* Note that we are only requesting one command buffer from the pool, since it is recommended to combine
              * operations in a single command buffer and execute them asynchronously for higher throughput
             */
             bufferObj->initCmdBufferInfo (
                 1,
-                *cmdPoolObj->getCmdPool(),
                 VK_COMMAND_BUFFER_LEVEL_PRIMARY
             );
 
@@ -1334,10 +1329,9 @@ namespace SandBox {
             auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
             auto fenObj       = collectionObj->getCollectionTypeInstance <Renderer::VKFence>     ("DEFAULT_BLIT_OPS");
             auto cmdPoolObj   = collectionObj->getCollectionTypeInstance <Renderer::VKCmdPool>   ("DEFAULT_BLIT_OPS");
-            auto bufferObj    = new Renderer::VKCmdBuffer (logObj, logDeviceObj);
+            auto bufferObj    = new Renderer::VKCmdBuffer (logObj, logDeviceObj, cmdPoolObj);
             bufferObj->initCmdBufferInfo (
                 1,
-                *cmdPoolObj->getCmdPool(),
                 VK_COMMAND_BUFFER_LEVEL_PRIMARY
             );
 
@@ -1398,10 +1392,9 @@ namespace SandBox {
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
             auto cmdPoolObj   = collectionObj->getCollectionTypeInstance <Renderer::VKCmdPool>   ("DEFAULT_DRAW_OPS");
-            auto bufferObj    = new Renderer::VKCmdBuffer (logObj, logDeviceObj);
+            auto bufferObj    = new Renderer::VKCmdBuffer (logObj, logDeviceObj, cmdPoolObj);
             bufferObj->initCmdBufferInfo (
                 g_maxFramesInFlight,
-                *cmdPoolObj->getCmdPool(),
                 VK_COMMAND_BUFFER_LEVEL_PRIMARY
             );
 

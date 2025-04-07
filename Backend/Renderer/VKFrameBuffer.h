@@ -7,6 +7,7 @@
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKLogDevice.h"
+#include "VKRenderPass.h"
 
 namespace Renderer {
     class VKFrameBuffer: public Collection::CNTypeInstanceBase {
@@ -16,7 +17,6 @@ namespace Renderer {
                     uint32_t width;
                     uint32_t height;
                     uint32_t layersCount;
-                    VkRenderPass renderPass;
                     std::vector <VkImageView> attachments;
                 } meta;
 
@@ -27,6 +27,7 @@ namespace Renderer {
                 struct Resource {
                     Log::LGImpl* logObj;
                     VKLogDevice* logDeviceObj;
+                    VKRenderPass* renderPassObj;
                     VkFramebuffer buffer;
                 } resource;
             } m_frameBufferInfo;
@@ -43,12 +44,12 @@ namespace Renderer {
                 createInfo.width           = m_frameBufferInfo.meta.width;
                 createInfo.height          = m_frameBufferInfo.meta.height;
                 createInfo.layers          = m_frameBufferInfo.meta.layersCount;
+                createInfo.attachmentCount = static_cast <uint32_t> (m_frameBufferInfo.meta.attachments.size());
+                createInfo.pAttachments    = m_frameBufferInfo.meta.attachments.data();
                 /* Note that, you can only use a frame buffer with the render passes that it is compatible with, which
                  * roughly means that they use the same number and type of attachments
                 */
-                createInfo.renderPass      = m_frameBufferInfo.meta.renderPass;
-                createInfo.attachmentCount = static_cast <uint32_t> (m_frameBufferInfo.meta.attachments.size());
-                createInfo.pAttachments    = m_frameBufferInfo.meta.attachments.data();
+                createInfo.renderPass      = *m_frameBufferInfo.resource.renderPassObj->getRenderPass();
 
                 auto result = vkCreateFramebuffer (*m_frameBufferInfo.resource.logDeviceObj->getLogDevice(),
                                                     &createInfo,
@@ -74,8 +75,9 @@ namespace Renderer {
             }
 
         public:
-            VKFrameBuffer (Log::LGImpl* logObj,
-                           VKLogDevice* logDeviceObj) {
+            VKFrameBuffer (Log::LGImpl*  logObj,
+                           VKLogDevice*  logDeviceObj,
+                           VKRenderPass* renderPassObj) {
 
                 m_frameBufferInfo = {};
 
@@ -92,24 +94,23 @@ namespace Renderer {
                     m_frameBufferInfo.state.logObjCreated = false;
                 }
 
-                if (logDeviceObj == nullptr) {
+                if (logDeviceObj == nullptr || renderPassObj == nullptr) {
                     LOG_ERROR (m_frameBufferInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                   << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
                 m_frameBufferInfo.resource.logDeviceObj   = logDeviceObj;
+                m_frameBufferInfo.resource.renderPassObj  = renderPassObj;
             }
 
             void initFrameBufferInfo (const uint32_t width,
                                       const uint32_t height,
                                       const uint32_t layersCount,
-                                      const VkRenderPass renderPass,
                                       const std::vector <VkImageView> attachments) {
 
                 m_frameBufferInfo.meta.width       = width;
                 m_frameBufferInfo.meta.height      = height;
                 m_frameBufferInfo.meta.layersCount = layersCount;
-                m_frameBufferInfo.meta.renderPass  = renderPass;
                 m_frameBufferInfo.meta.attachments = attachments;
                 m_frameBufferInfo.resource.buffer  = nullptr;
             }

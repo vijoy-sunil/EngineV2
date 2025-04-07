@@ -24,7 +24,9 @@ namespace SandBox {
     class SYDefaultRendering: public Scene::SNSystemBase {
         private:
             struct DefaultRenderingInfo {
-                struct Meta {
+                struct Resource {
+                    Scene::SNImpl*                         sceneObj;
+                    Log::LGImpl*                           logObj;
                     Renderer::VKSwapChain*                 swapChainObj;
                     Renderer::VKBuffer*                    vertexBufferObj;
                     Renderer::VKBuffer*                    indexBufferObj;
@@ -37,11 +39,6 @@ namespace SandBox {
                     Renderer::VKDescriptorSet*             oneTimeDescSetObj;
                     Renderer::VKCmdBuffer*                 cmdBufferObj;
                     Renderer::VKRenderer*                  rendererObj;
-                } meta;
-
-                struct Resource {
-                    Scene::SNImpl* sceneObj;
-                    Log::LGImpl* logObj;
                 } resource;
             } m_defaultRenderingInfo;
 
@@ -66,53 +63,53 @@ namespace SandBox {
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
 
-                auto& meta              = m_defaultRenderingInfo.meta;
-                meta.swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain>     (
+                auto& resource              = m_defaultRenderingInfo.resource;
+                resource.sceneObj           = sceneObj;
+                resource.swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain>     (
                     "DEFAULT"
                 );
-                meta.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                     "DEFAULT_VERTEX"
                 );
-                meta.indexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                resource.indexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                     "DEFAULT_INDEX"
                 );
                 for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
-                    auto bufferObj      = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                         "DEFAULT_MESH_INSTANCE_" + std::to_string (i)
                     );
-                    meta.meshInstanceBufferObjs.push_back (bufferObj);
+                    resource.meshInstanceBufferObjs.push_back (bufferObj);
                 }
                 for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
-                    auto bufferObj      = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                         "DEFAULT_LIGHT_INSTANCE_" + std::to_string (i)
                     );
-                    meta.lightInstanceBufferObjs.push_back (bufferObj);
+                    resource.lightInstanceBufferObjs.push_back (bufferObj);
                 }
-                meta.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
+                resource.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
                     "DEFAULT"
                 );
-                for (uint32_t i = 0; i < meta.swapChainObj->getSwapChainImagesCount(); i++) {
-                    auto bufferObj      = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
+                for (uint32_t i = 0; i < resource.swapChainObj->getSwapChainImagesCount(); i++) {
+                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
                         "DEFAULT_" + std::to_string (i)
                     );
-                    meta.frameBufferObjs.push_back (bufferObj);
+                    resource.frameBufferObjs.push_back (bufferObj);
                 }
-                meta.pipelineObj        = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
+                resource.pipelineObj        = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
                     "DEFAULT"
                 );
-                meta.perFrameDescSetObj = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
+                resource.perFrameDescSetObj = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
                     "DEFAULT_PER_FRAME"
                 );
-                meta.oneTimeDescSetObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
+                resource.oneTimeDescSetObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
                     "DEFAULT_ONE_TIME"
                 );
-                meta.cmdBufferObj       = collectionObj->getCollectionTypeInstance <Renderer::VKCmdBuffer>     (
+                resource.cmdBufferObj       = collectionObj->getCollectionTypeInstance <Renderer::VKCmdBuffer>     (
                     "DEFAULT_DRAW_OPS"
                 );
-                meta.rendererObj        = collectionObj->getCollectionTypeInstance <Renderer::VKRenderer>      (
+                resource.rendererObj        = collectionObj->getCollectionTypeInstance <Renderer::VKRenderer>      (
                     "DEFAULT"
                 );
-                m_defaultRenderingInfo.resource.sceneObj = sceneObj;
             }
 
             void update (const void* batchedMeshInstances,
@@ -120,13 +117,13 @@ namespace SandBox {
                          const void* lightTypeOffsets,
                          const void* activeCamera) {
 
-                auto& meta                 = m_defaultRenderingInfo.meta;
-                auto& sceneObj             = m_defaultRenderingInfo.resource.sceneObj;
+                auto& resource             = m_defaultRenderingInfo.resource;
+                auto& sceneObj             = resource.sceneObj;
 
-                uint32_t swapChainImageIdx = meta.rendererObj->getSwapChainImageIdx();
-                uint32_t frameInFlightIdx  = meta.rendererObj->getFrameInFlightIdx();
-                auto frameBufferObj        = meta.frameBufferObjs[swapChainImageIdx];
-                auto cmdBuffer             = meta.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
+                uint32_t swapChainImageIdx = resource.rendererObj->getSwapChainImageIdx();
+                uint32_t frameInFlightIdx  = resource.rendererObj->getFrameInFlightIdx();
+                auto frameBufferObj        = resource.frameBufferObjs[swapChainImageIdx];
+                auto cmdBuffer             = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
                 /* Define the clear values to use for VK_ATTACHMENT_LOAD_OP_CLEAR. Note that, the order of clear values
                  * should be identical to the order of your attachments
                  *
@@ -144,33 +141,33 @@ namespace SandBox {
                 };
 
                 /* Update buffers */
-                meta.meshInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
+                resource.meshInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
                     batchedMeshInstances,
                     false
                 );
-                meta.lightInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
+                resource.lightInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
                     batchedLightInstances,
                     false
                 );
                 /* Begin */
                 Renderer::beginRenderPass (
                     cmdBuffer,
-                    *meta.renderPassObj->getRenderPass(),
+                    *resource.renderPassObj->getRenderPass(),
                     *frameBufferObj->getFrameBuffer(),
                     {0, 0},
-                    *meta.swapChainObj->getSwapChainExtent(),
+                    *resource.swapChainObj->getSwapChainExtent(),
                     clearValues
                 );
                 /* Pipeline */
                 Renderer::bindPipeline (
                     cmdBuffer,
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    *meta.pipelineObj->getPipeline()
+                    *resource.pipelineObj->getPipeline()
                 );
                 /* Push constants */
                 Renderer::updatePushConstants (
                     cmdBuffer,
-                    *meta.pipelineObj->getPipelineLayout(),
+                    *resource.pipelineObj->getPipelineLayout(),
                     VK_SHADER_STAGE_VERTEX_BIT,
                     0,
                     sizeof (ActiveCameraPC),
@@ -178,7 +175,7 @@ namespace SandBox {
                 );
                 Renderer::updatePushConstants (
                     cmdBuffer,
-                    *meta.pipelineObj->getPipelineLayout(),
+                    *resource.pipelineObj->getPipelineLayout(),
                     VK_SHADER_STAGE_FRAGMENT_BIT,
                     sizeof (ActiveCameraPC),
                     sizeof (LightTypeOffsetsPC),
@@ -190,8 +187,8 @@ namespace SandBox {
                     cmdBuffer,
                     0.0f,
                     0.0f,
-                    (*meta.swapChainObj->getSwapChainExtent()).width,
-                    (*meta.swapChainObj->getSwapChainExtent()).height,
+                    (*resource.swapChainObj->getSwapChainExtent()).width,
+                    (*resource.swapChainObj->getSwapChainExtent()).height,
                     0.0f,
                     1.0f,
                     0,
@@ -202,13 +199,13 @@ namespace SandBox {
                 Renderer::setScissors (
                     cmdBuffer,
                     {0, 0},
-                    *meta.swapChainObj->getSwapChainExtent(),
+                    *resource.swapChainObj->getSwapChainExtent(),
                     0,
                     scissors
                 );
                 /* Vertex buffers */
                 auto vertexBuffers       = std::vector <VkBuffer>     {
-                    *meta.vertexBufferObj->getBuffer()
+                    *resource.vertexBufferObj->getBuffer()
                 };
                 auto vertexBufferOffsets = std::vector <VkDeviceSize> {
                     0
@@ -222,20 +219,20 @@ namespace SandBox {
                 /* Index buffer */
                 Renderer::bindIndexBuffer (
                     cmdBuffer,
-                    *meta.indexBufferObj->getBuffer(),
+                    *resource.indexBufferObj->getBuffer(),
                     0,
                     VK_INDEX_TYPE_UINT32
                 );
                 /* Descriptor sets */
                 auto descriptorSets = std::vector {
-                    meta.perFrameDescSetObj->getDescriptorSets()[frameInFlightIdx],
-                    meta.oneTimeDescSetObj->getDescriptorSets()[0]
+                    resource.perFrameDescSetObj->getDescriptorSets()[frameInFlightIdx],
+                    resource.oneTimeDescSetObj->getDescriptorSets()[0]
                 };
                 auto dynamicOffsets = std::vector <uint32_t> {};
                 Renderer::bindDescriptorSets (
                     cmdBuffer,
                     VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    *meta.pipelineObj->getPipelineLayout(),
+                    *resource.pipelineObj->getPipelineLayout(),
                     0,
                     descriptorSets,
                     dynamicOffsets

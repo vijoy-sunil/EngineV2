@@ -7,6 +7,7 @@
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKLogDevice.h"
+#include "VKDescriptorPool.h"
 
 namespace Renderer {
     class VKDescriptorSet: public Collection::CNTypeInstanceBase {
@@ -15,7 +16,6 @@ namespace Renderer {
                 struct Meta {
                     uint32_t setsCount;
                     VkDescriptorSetLayout layout;
-                    VkDescriptorPool pool;
                     std::vector <VkWriteDescriptorSet> writeSets;
                 } meta;
 
@@ -26,6 +26,7 @@ namespace Renderer {
                 struct Resource {
                     Log::LGImpl* logObj;
                     VKLogDevice* logDeviceObj;
+                    VKDescriptorPool* descPoolObj;
                     std::vector <VkDescriptorSet> sets;
                 } resource;
             } m_descriptorSetInfo;
@@ -38,7 +39,7 @@ namespace Renderer {
                 auto layouts                 = std::vector <VkDescriptorSetLayout> (m_descriptorSetInfo.meta.setsCount,
                                                                                     m_descriptorSetInfo.meta.layout);
                 allocInfo.pSetLayouts        = layouts.data();
-                allocInfo.descriptorPool     = m_descriptorSetInfo.meta.pool;
+                allocInfo.descriptorPool     = *m_descriptorSetInfo.resource.descPoolObj->getDescriptorPool();
 
                 m_descriptorSetInfo.resource.sets.resize (m_descriptorSetInfo.meta.setsCount);
                 auto result = vkAllocateDescriptorSets   (*m_descriptorSetInfo.resource.logDeviceObj->getLogDevice(),
@@ -64,8 +65,9 @@ namespace Renderer {
             }
 
         public:
-            VKDescriptorSet (Log::LGImpl* logObj,
-                             VKLogDevice* logDeviceObj) {
+            VKDescriptorSet (Log::LGImpl*      logObj,
+                             VKLogDevice*      logDeviceObj,
+                             VKDescriptorPool* descPoolObj) {
 
                 m_descriptorSetInfo = {};
 
@@ -82,21 +84,20 @@ namespace Renderer {
                     m_descriptorSetInfo.state.logObjCreated = false;
                 }
 
-                if (logDeviceObj == nullptr) {
+                if (logDeviceObj == nullptr || descPoolObj == nullptr) {
                     LOG_ERROR (m_descriptorSetInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                     << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
                 m_descriptorSetInfo.resource.logDeviceObj   = logDeviceObj;
+                m_descriptorSetInfo.resource.descPoolObj    = descPoolObj;
             }
 
             void initDescriptorSetInfo (const uint32_t descriptorSetsCount,
-                                        const VkDescriptorSetLayout descriptorSetLayout,
-                                        const VkDescriptorPool descriptorPool) {
+                                        const VkDescriptorSetLayout descriptorSetLayout) {
 
                 m_descriptorSetInfo.meta.setsCount = descriptorSetsCount;
                 m_descriptorSetInfo.meta.layout    = descriptorSetLayout;
-                m_descriptorSetInfo.meta.pool      = descriptorPool;
                 m_descriptorSetInfo.meta.writeSets = {};
                 m_descriptorSetInfo.resource.sets  = {};
             }

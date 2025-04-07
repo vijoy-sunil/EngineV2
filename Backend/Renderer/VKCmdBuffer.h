@@ -7,6 +7,7 @@
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKLogDevice.h"
+#include "VKCmdPool.h"
 
 namespace Renderer {
     class VKCmdBuffer: public Collection::CNTypeInstanceBase {
@@ -14,7 +15,6 @@ namespace Renderer {
             struct CmdBufferInfo {
                 struct Meta {
                     uint32_t buffersCount;
-                    VkCommandPool pool;
                     VkCommandBufferLevel bufferLevel;
                 } meta;
 
@@ -25,6 +25,7 @@ namespace Renderer {
                 struct Resource {
                     Log::LGImpl* logObj;
                     VKLogDevice* logDeviceObj;
+                    VKCmdPool* cmdPoolObj;
                     std::vector <VkCommandBuffer> buffers;
                 } resource;
             } m_cmdBufferInfo;
@@ -34,8 +35,8 @@ namespace Renderer {
                 allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocInfo.pNext              = nullptr;
                 allocInfo.commandBufferCount = m_cmdBufferInfo.meta.buffersCount;
-                allocInfo.commandPool        = m_cmdBufferInfo.meta.pool;
                 allocInfo.level              = m_cmdBufferInfo.meta.bufferLevel;
+                allocInfo.commandPool        = *m_cmdBufferInfo.resource.cmdPoolObj->getCmdPool();
 
                 m_cmdBufferInfo.resource.buffers.resize (m_cmdBufferInfo.meta.buffersCount);
                 auto result = vkAllocateCommandBuffers  (*m_cmdBufferInfo.resource.logDeviceObj->getLogDevice(),
@@ -59,7 +60,8 @@ namespace Renderer {
 
         public:
             VKCmdBuffer (Log::LGImpl* logObj,
-                         VKLogDevice* logDeviceObj) {
+                         VKLogDevice* logDeviceObj,
+                         VKCmdPool*   cmdPoolObj) {
 
                 m_cmdBufferInfo = {};
 
@@ -76,20 +78,19 @@ namespace Renderer {
                     m_cmdBufferInfo.state.logObjCreated = false;
                 }
 
-                if (logDeviceObj == nullptr) {
+                if (logDeviceObj == nullptr || cmdPoolObj == nullptr) {
                     LOG_ERROR (m_cmdBufferInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                 << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
                 m_cmdBufferInfo.resource.logDeviceObj   = logDeviceObj;
+                m_cmdBufferInfo.resource.cmdPoolObj     = cmdPoolObj;
             }
 
             void initCmdBufferInfo (const uint32_t cmdBuffersCount,
-                                    const VkCommandPool cmdPool,
                                     const VkCommandBufferLevel cmdBufferLevel) {
 
                 m_cmdBufferInfo.meta.buffersCount = cmdBuffersCount;
-                m_cmdBufferInfo.meta.pool         = cmdPool;
                 m_cmdBufferInfo.meta.bufferLevel  = cmdBufferLevel;
                 m_cmdBufferInfo.resource.buffers  = {};
             }
