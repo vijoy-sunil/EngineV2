@@ -30,14 +30,6 @@ namespace SandBox {
             void configRenderer  (void);
             void destroyRenderer (void);
 
-            bool isSandBoxRunning (void) {
-                auto& collectionObj = m_sandBoxInfo.resource.collectionObj;
-                auto windowObj      = collectionObj->getCollectionTypeInstance <Renderer::VKWindow> (
-                    "DEFAULT"
-                );
-                return windowObj->isWindowClosed();
-            }
-
         public:
             SBImpl (void) {
                 m_sandBoxInfo = {};
@@ -71,6 +63,9 @@ namespace SandBox {
                 cameraControllerObj->initCameraControllerInfo (sceneObj, collectionObj);
                 defaultRenderingObj->initDefaultRenderingInfo (sceneObj, collectionObj);
 
+                auto windowObj                = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    (
+                    "DEFAULT"
+                );
                 auto logDeviceObj             = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> (
                     "DEFAULT"
                 );
@@ -78,7 +73,7 @@ namespace SandBox {
                     "DEFAULT"
                 );
 
-                while (!isSandBoxRunning()) {
+                while (!windowObj->isWindowClosed()) {
                     glfwPollEvents();
                     auto startOfFrameTime = PROFILE_CAPTURE;
                     /* Handle window events */
