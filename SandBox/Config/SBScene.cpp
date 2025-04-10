@@ -100,7 +100,7 @@ namespace SandBox {
          *      v       +---------------+       v       v       +-------+
          *    Parent        Children          Parent  Parent     Children
         */
-        {   /* Entity   [DEBUG_MESH_?] */
+        {   /* Entity   [DEBUG_CUBE_?] */
             uint32_t instancesCount = 8;
             auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
                 {{-2.0f,  0.5f, -2.0f }, { 0.00f, 0.00f, 0.00f }},      /* Parent transform */
@@ -116,7 +116,7 @@ namespace SandBox {
                 auto entity = sceneObj->addEntity();
 
                 sceneObj->addComponent (entity, IdComponent (
-                    "DEBUG_MESH_" + std::to_string (i)
+                    "DEBUG_CUBE_" + std::to_string (i)
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -129,6 +129,25 @@ namespace SandBox {
             sceneObj->addComponent (0, RenderComponent (
                 TAG_TYPE_DEFAULT,
                 instancesCount
+            ));
+        }
+        {   /* Entity   [DEBUG_SPHERE] */
+            auto entity = sceneObj->addEntity();
+            sceneObj->addComponent (entity, IdComponent (
+                "DEBUG_SPHERE"
+            ));
+            sceneObj->addComponent (entity, MeshComponent (
+                "Asset/Model/Debug_Sphere.obj",
+                "Asset/Model/"
+            ));
+            sceneObj->addComponent (entity, TransformComponent (
+                {0.0f, 2.0f, 0.0f},
+                {0.0f, 0.0f, 0.0f}
+            ));
+            sceneObj->addComponent (entity, TextureIdxLUTComponent());
+            sceneObj->addComponent (entity, RenderComponent (
+                TAG_TYPE_DEFAULT,
+                1
             ));
         }
         {   /* Entity   [GROUND_PLANE] */
@@ -148,6 +167,7 @@ namespace SandBox {
             ));
         }
         {   /* Entity   [DEBUG_LIGHT] */
+            /* Directional light */
             auto entity = sceneObj->addEntity();
             sceneObj->addComponent (entity, IdComponent (
                 "DEBUG_LIGHT"
@@ -157,6 +177,64 @@ namespace SandBox {
                 { 0.00f, 5.00f, -5.00f},
                 {-0.78f, 3.14f,  0.00f}
             ));
+        }
+        {   /* Entity   [POINT_LIGHT_?] */
+            uint32_t instancesCount = 2;
+            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
+                {{ 2.0f, 2.0f, -2.0f }, { 0.0f, 0.0f, 0.0f }},
+                {{-2.0f, 2.0f,  2.0f }, { 0.0f, 0.0f, 0.0f }}
+            };
+            for (uint32_t i = 0; i < instancesCount; i++) {
+                auto entity = sceneObj->addEntity();
+
+                sceneObj->addComponent (entity, IdComponent (
+                    "POINT_LIGHT_" + std::to_string (i)
+                ));
+                sceneObj->addComponent (entity, LightComponent (
+                    LIGHT_TYPE_POINT,
+                    {0.05f, 0.05f, 0.05f},
+                    {0.80f, 0.80f, 0.80f},
+                    {1.00f, 1.00f, 1.00f},
+                    1.0f,
+                    0.045f,
+                    0.0075f,
+                    glm::radians (180.0f),
+                    glm::radians (180.0f)
+                ));
+                sceneObj->addComponent (entity, TransformComponent (
+                    instanceTransforms[i].first,
+                    instanceTransforms[i].second
+                ));
+            }
+        }
+        {   /* Entity   [SPOT_LIGHT_?] */
+            uint32_t instancesCount = 2;
+            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
+                {{-2.0f, 2.0f, -2.0f }, {-1.57f, 0.0f, 0.0f }},
+                {{ 0.0f, 2.0f,  2.0f }, {-1.57f, 0.0f, 0.0f }}
+            };
+            for (uint32_t i = 0; i < instancesCount; i++) {
+                auto entity = sceneObj->addEntity();
+
+                sceneObj->addComponent (entity, IdComponent (
+                    "SPOT_LIGHT_" + std::to_string (i)
+                ));
+                sceneObj->addComponent (entity, LightComponent (
+                    LIGHT_TYPE_SPOT,
+                    {0.0f, 0.0f, 0.0f},
+                    {1.0f, 1.0f, 1.0f},
+                    {1.0f, 1.0f, 1.0f},
+                    1.0f,
+                    0.045f,
+                    0.0075f,
+                    glm::radians (20.0f),
+                    glm::radians (30.0f)
+                ));
+                sceneObj->addComponent (entity, TransformComponent (
+                    instanceTransforms[i].first,
+                    instanceTransforms[i].second
+                ));
+            }
         }
         {   /* Entity   [DEBUG_CAMERA] */
             auto entity = sceneObj->addEntity();
@@ -205,7 +283,8 @@ namespace SandBox {
             }
         }
         {   /* Remove render component */
-            sceneObj->removeComponent <RenderComponent> (0);
+            sceneObj->removeComponent <RenderComponent> (0);    /* DEBUG_CUBE   */
+            sceneObj->removeComponent <RenderComponent> (8);    /* DEBUG_SPHERE */
         }
     }
 }   // namespace SandBox

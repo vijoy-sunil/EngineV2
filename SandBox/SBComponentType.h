@@ -115,8 +115,8 @@ namespace SandBox {
              * this result to the fragment shader. Since both angles are now represented as cosines, we can directly
              * compare between them without expensive operations
             */
-            float m_innerRadius = glm::cos (45.0f);
-            float m_outerRadius = glm::cos (45.0f);
+            float m_innerRadius = glm::cos (glm::radians (180.0f));
+            float m_outerRadius = glm::cos (glm::radians (180.0f));
 
             LightComponent (void) = default;
             LightComponent (const e_lightType lightType,
@@ -138,8 +138,8 @@ namespace SandBox {
                 m_linear      = linear;
                 m_quadratic   = quadratic;
 
-                m_innerRadius = innerRadius;
-                m_outerRadius = outerRadius;
+                m_innerRadius = glm::cos (innerRadius);
+                m_outerRadius = glm::cos (outerRadius);
             }
     };
 
@@ -245,7 +245,7 @@ namespace SandBox {
                        glm::scale     (glm::mat4 (1.0f), m_scale);
             }
 
-            glm::vec3 createDirectionVector (void) {
+            glm::vec3 createForwardVector (void) {
                 glm::quat pitch       = glm::angleAxis (m_rotation.x, m_xAxis);
                 glm::quat yaw         = glm::angleAxis (m_rotation.y, m_yAxis);
                 glm::quat roll        = glm::angleAxis (m_rotation.z, m_zAxis);

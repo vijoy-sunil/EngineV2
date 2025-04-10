@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include "../../Backend/Scene/SNSystemBase.h"
 #include "../../Backend/Scene/SNImpl.h"
 #include "../../Backend/Log/LGImpl.h"
@@ -21,6 +22,15 @@ namespace SandBox {
                     SBTexturePool* texturePoolObj;
                 } resource;
             } m_meshLoadingInfo;
+
+            uint32_t transformToRange (const uint32_t oldValue,
+                                       const std::pair <uint32_t, uint32_t> oldRange,
+                                       const std::pair <uint32_t, uint32_t> newRange) {
+                return  (
+                            ((oldValue - oldRange.first) / static_cast <float> (oldRange.second - oldRange.first)) *
+                            (newRange.second - newRange.first)
+                        ) + newRange.first;
+            }
 
             void loadOBJModel (const char* modelFilePath,
                                const char* mtlFileDirPath,
@@ -198,14 +208,18 @@ namespace SandBox {
                                 vertex.material.emissionTextureIdx = material.emissive_texname == "" ?
                                       2:
                                       texturePoolObj->getTextureIdx (material.emissive_texname);
+                                vertex.material.shininess          = transformToRange (
+                                    material.shininess,
+                                    {0,  900},
+                                    {32, 128}
+                                );
                             }
                             else {
                                 vertex.material.diffuseTextureIdx  = 0;
                                 vertex.material.specularTextureIdx = 1;
                                 vertex.material.emissionTextureIdx = 2;
+                                vertex.material.shininess          = 32;
                             }
-                            /* Shininess will be populated post parsing */
-                            vertex.material.shininess = 0;
                             /* To take advantage of the index buffer, we should keep only the unique vertices and use the
                              * index buffer to reuse them whenever they come up. Every time we read a vertex from the OBJ
                              * file, we check if we've already seen a vertex with the exact same attributes before. If

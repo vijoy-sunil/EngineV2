@@ -89,6 +89,7 @@ namespace SandBox {
                 size_t loopIdx                  = 0;
                 uint32_t directionalLightsCount = 0;
                 uint32_t pointLightsCount       = 0;
+                uint32_t spotLightsCount        = 0;
                 for (auto const& entity: m_entities) {
                     auto lightComponent     = sceneObj->getComponent <LightComponent>     (entity);
                     auto transformComponent = sceneObj->getComponent <TransformComponent> (entity);
@@ -96,11 +97,12 @@ namespace SandBox {
 
                     if (lightType == LIGHT_TYPE_DIRECTIONAL)    ++directionalLightsCount;
                     if (lightType == LIGHT_TYPE_POINT)          ++pointLightsCount;
+                    if (lightType == LIGHT_TYPE_SPOT)           ++spotLightsCount;
 
                     m_lightInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     LightInstanceSBO instance;
                     instance.position    = transformComponent->m_position;
-                    instance.direction   = transformComponent->createDirectionVector();
+                    instance.direction   = transformComponent->createForwardVector();
 
                     instance.ambient.x   = lightComponent->m_ambient.x;
                     instance.ambient.y   = lightComponent->m_ambient.y;
@@ -132,8 +134,9 @@ namespace SandBox {
                  *      Direction lights offset             Point lights offset             Spot lights offset
                 */
                 typeOffsets.directionalLightsOffset = 0;
-                typeOffsets.pointLightsOffset       = directionalLightsCount;
-                typeOffsets.spotLightsOffset        = directionalLightsCount + pointLightsCount;
+                typeOffsets.pointLightsOffset       = typeOffsets.directionalLightsOffset + directionalLightsCount;
+                typeOffsets.spotLightsOffset        = typeOffsets.pointLightsOffset       + pointLightsCount;
+                typeOffsets.lightsCount             = typeOffsets.spotLightsOffset        + spotLightsCount;
             }
 
             void generateReport (void) {

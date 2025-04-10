@@ -181,14 +181,14 @@ namespace SandBox {
                             meta.axialDelta   = -meta.movementSensitivity;
                     }
                 );
-                windowObj->setKeyEventBinding (GLFW_KEY_EQUAL,
+                windowObj->setKeyEventBinding (GLFW_KEY_MINUS,
                     [this](void) {
                         auto& meta            = m_cameraControllerInfo.meta;
                         if (meta.droneToggle == KEY_STATE_UNLOCKED)
                             meta.fovDelta     = meta.fovSensitivity;
                     }
                 );
-                windowObj->setKeyEventBinding (GLFW_KEY_MINUS,
+                windowObj->setKeyEventBinding (GLFW_KEY_EQUAL,
                     [this](void) {
                         auto& meta            = m_cameraControllerInfo.meta;
                         if (meta.droneToggle == KEY_STATE_UNLOCKED)
@@ -292,12 +292,12 @@ namespace SandBox {
                         meta.rollDelta  *= meta.deltaDamp;
                     }
                     {   /* Translation update   */
-                        glm::vec3 directionVector       = transformComponent->createDirectionVector();
+                        glm::vec3 forwardVector         = transformComponent->createForwardVector();
                         glm::vec3 upVector              = glm::vec3      (0.0f, 1.0f, 0.0f);
-                        glm::vec3 rightVector           = glm::normalize (glm::cross (directionVector, upVector));
+                        glm::vec3 rightVector           = glm::normalize (glm::cross (forwardVector, upVector));
 
-                        transformComponent->m_position += (rightVector     * meta.lateralDelta * frameDelta) +
-                                                          (directionVector * meta.axialDelta   * frameDelta);
+                        transformComponent->m_position += (rightVector   * meta.lateralDelta * frameDelta) +
+                                                          (forwardVector * meta.axialDelta   * frameDelta);
 
                         meta.lateralDelta *= meta.deltaDamp;
                         meta.axialDelta   *= meta.deltaDamp;
@@ -319,6 +319,7 @@ namespace SandBox {
                     /* Compute aspect ratio */
                     float aspectRatio             = swapChainObj->getSwapChainExtent()->width/
                                                     static_cast <float> (swapChainObj->getSwapChainExtent()->height);
+                    activeCamera.position         = transformComponent->m_position;
                     activeCamera.viewMatrix       = glm::inverse (transformComponent->createModelMatrix());
                     activeCamera.projectionMatrix = cameraComponent->createProjectionMatrix (aspectRatio);
                 }

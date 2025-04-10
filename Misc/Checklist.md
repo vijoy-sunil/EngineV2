@@ -244,4 +244,5 @@
 - [ ] `++`, `--`                                prefer prefix over postfix unless in `for` loop
 - [ ] `::`                                      avoid namespace resolution in the same namespace
 - [ ] `#define`                                 #defines for includes like glm, vulkan need to be repeated in every file
+- [ ] `vec4`                                    host shouldn't be handling `vec4`
 - [ ] `[ ]`                                     to do list

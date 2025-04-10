@@ -53,7 +53,8 @@ namespace SandBox {
 
     /* PC - Push constant */
     struct ActiveCameraPC {
-        glm::mat4 viewMatrix;               /* Mat4 must be aligned by 4N (= 16 bytes) */
+        glm::vec3 position;                 /* Vec3 must be aligned by 4N (= 16 bytes) */
+        alignas (16) glm::mat4 viewMatrix;  /* Mat4 must be aligned by 4N (= 16 bytes) */
         glm::mat4 projectionMatrix;
     };
 
@@ -61,6 +62,7 @@ namespace SandBox {
         uint32_t directionalLightsOffset;   /* Scalars must be aligned by N (= 4 bytes given 32 bit floats) */
         uint32_t pointLightsOffset;
         uint32_t spotLightsOffset;
+        uint32_t lightsCount;
     };
 }   // namespace SandBox
 

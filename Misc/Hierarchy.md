@@ -172,7 +172,7 @@
     |<----------------------:SBTexturePool
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYMeshLoading          {stdexcept}, {string}, {unordered_map}
+    |SYMeshLoading          {stdexcept}, {string}, {unordered_map}, {utility}
 
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
