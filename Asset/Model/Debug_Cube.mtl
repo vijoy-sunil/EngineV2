@@ -1,0 +1,62 @@
+# Blender 4.3.0 MTL File: 'Sketchbook.blend'
+# www.blender.org
+
+newmtl Material_Composite_[O]_[X]_[X]_Cube_NX
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Debug_NX.png
+
+newmtl Material_Composite_[O]_[X]_[X]_Cube_NY
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Debug_NY.png
+
+newmtl Material_Composite_[O]_[X]_[X]_Cube_NZ
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Debug_NZ.png
+
+newmtl Material_Composite_[O]_[X]_[X]_Cube_PX
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Debug_PX.png
+
+newmtl Material_Composite_[O]_[X]_[X]_Cube_PY
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Debug_PY.png
+
+newmtl Material_Composite_[O]_[X]_[X]_Cube_PZ
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Debug_PZ.png
