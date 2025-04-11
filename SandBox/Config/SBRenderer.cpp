@@ -27,7 +27,6 @@
 #include "../../Backend/Renderer/VKCmdPool.h"
 #include "../../Backend/Renderer/VKCmdBuffer.h"
 #include "../../Backend/Renderer/VKRenderer.h"
-#include "../System/SYMeshLoading.h"
 #include "../System/SYMeshBatching.h"
 #include "../System/SYMeshInstanceBatching.h"
 #include "../System/SYLightInstanceBatching.h"
@@ -38,8 +37,9 @@
 
 namespace SandBox {
     void SBImpl::configRenderer (void) {
-        auto& sceneObj      = m_sandBoxInfo.resource.sceneObj;
-        auto& collectionObj = m_sandBoxInfo.resource.collectionObj;
+        auto& sceneObj              = m_sandBoxInfo.resource.sceneObj;
+        auto& collectionObj         = m_sandBoxInfo.resource.collectionObj;
+        auto& defaultTexturePoolObj = m_sandBoxInfo.resource.defaultTexturePoolObj;
         {   /* Log              [DEFAULT] */
             collectionObj->registerCollectionType <Log::LGImpl>();
 
@@ -259,13 +259,11 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("DEFAULT_INDEX", bufferObj);
         }
         {   /* Buffer           [DEFAULT_TEXTURE_STAGING_?] */
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto phyDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
-            auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
 
             for (auto const& [idx, info]: texturePool) {
                 auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
@@ -287,7 +285,7 @@ namespace SandBox {
                     info.resource.data,
                     true
                 );
-                texturePoolObj->destroyImage (idx);
+                defaultTexturePoolObj->destroyImage (idx);
             }
         }
         {   /* Buffer           [DEFAULT_MESH_INSTANCE_?] */
@@ -462,13 +460,11 @@ namespace SandBox {
             }
         }
         {   /* Image            [DEFAULT_TEXTURE_?] */
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto phyDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
-            auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
 
             for (auto const& [idx, info]: texturePool) {
                 auto imageObj = new Renderer::VKImage (logObj, phyDeviceObj, logDeviceObj);
@@ -690,15 +686,13 @@ namespace SandBox {
         {   /* Pipeline         [DEFAULT] */
             collectionObj->registerCollectionType <Renderer::VKPipeline>();
 
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
+            auto texturePool   = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>            ("DEFAULT");
-            auto phyDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice>  ("DEFAULT");
-            auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>  ("DEFAULT");
-            auto renderPassObj  = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass> ("DEFAULT");
-            auto pipelineObj    = new Renderer::VKPipeline (logObj, logDeviceObj, renderPassObj);
+            auto logObj        = collectionObj->getCollectionTypeInstance <Log::LGImpl>            ("DEFAULT");
+            auto phyDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice>  ("DEFAULT");
+            auto logDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>  ("DEFAULT");
+            auto renderPassObj = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass> ("DEFAULT");
+            auto pipelineObj   = new Renderer::VKPipeline (logObj, logDeviceObj, renderPassObj);
             /* The allow derivative flag specifies that the pipeline to be created is allowed to be the parent of a
              * pipeline that will be created in a subsequent pipeline creation call. Pipeline derivatives can be used
              * for pipelines that share most of their state, depending on the implementation this may result in better
@@ -931,13 +925,11 @@ namespace SandBox {
         {   /* Descriptor pool  [DEFAULT] */
             collectionObj->registerCollectionType <Renderer::VKDescriptorPool>();
 
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
-            auto descPoolObj    = new Renderer::VKDescriptorPool (logObj, logDeviceObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto descPoolObj  = new Renderer::VKDescriptorPool (logObj, logDeviceObj);
             descPoolObj->initDescriptorPoolInfo (
                 VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT,
                 g_maxFramesInFlight + 1
@@ -1031,16 +1023,14 @@ namespace SandBox {
             descSetObj->updateDescriptorSets();
         }
         {   /* Descriptor sets  [DEFAULT_ONE_TIME] */
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>                ("DEFAULT");
-            auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>      ("DEFAULT");
-            auto samplerObj     = collectionObj->getCollectionTypeInstance <Renderer::VKSampler>        ("DEFAULT");
-            auto pipelineObj    = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("DEFAULT");
-            auto descPoolObj    = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
-            auto descSetObj     = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>                ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>      ("DEFAULT");
+            auto samplerObj   = collectionObj->getCollectionTypeInstance <Renderer::VKSampler>        ("DEFAULT");
+            auto pipelineObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("DEFAULT");
+            auto descPoolObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
+            auto descSetObj   = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
             descSetObj->initDescriptorSetInfo (
                 1,
                 pipelineObj->getDescriptorSetLayouts()[1]
@@ -1199,15 +1189,13 @@ namespace SandBox {
         {   /* Cmd buffers      [DEFAULT_COPY_OPS] */
             collectionObj->registerCollectionType <Renderer::VKCmdBuffer>();
 
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
-            auto fenObj         = collectionObj->getCollectionTypeInstance <Renderer::VKFence>     ("DEFAULT_COPY_OPS");
-            auto cmdPoolObj     = collectionObj->getCollectionTypeInstance <Renderer::VKCmdPool>   ("DEFAULT_COPY_OPS");
-            auto bufferObj      = new Renderer::VKCmdBuffer (logObj, logDeviceObj, cmdPoolObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto fenObj       = collectionObj->getCollectionTypeInstance <Renderer::VKFence>     ("DEFAULT_COPY_OPS");
+            auto cmdPoolObj   = collectionObj->getCollectionTypeInstance <Renderer::VKCmdPool>   ("DEFAULT_COPY_OPS");
+            auto bufferObj    = new Renderer::VKCmdBuffer (logObj, logDeviceObj, cmdPoolObj);
             /* Note that we are only requesting one command buffer from the pool, since it is recommended to combine
              * operations in a single command buffer and execute them asynchronously for higher throughput
             */
@@ -1342,12 +1330,10 @@ namespace SandBox {
                 VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
             );
             {   /* Image->Image */
-                auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-                auto texturePoolObj = loadingObj->getTexturePoolObj();
-                auto texturePool    = texturePoolObj->getTexturePool();
+                auto texturePool = defaultTexturePoolObj->getTexturePool();
 
                 for (auto const& [idx, info]: texturePool) {
-                    auto imageObj   = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
+                    auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
                         "DEFAULT_TEXTURE_" + std::to_string (idx)
                     );
                     Renderer::blitImageToMipMaps (
@@ -1449,8 +1435,8 @@ namespace SandBox {
     }
 
     void SBImpl::destroyRenderer (void) {
-        auto& sceneObj      = m_sandBoxInfo.resource.sceneObj;
-        auto& collectionObj = m_sandBoxInfo.resource.collectionObj;
+        auto& collectionObj         = m_sandBoxInfo.resource.collectionObj;
+        auto& defaultTexturePoolObj = m_sandBoxInfo.resource.defaultTexturePoolObj;
         {   /* Renderer */
             collectionObj->removeCollectionTypeInstance <Renderer::VKRenderer> ("DEFAULT");
         }
@@ -1500,10 +1486,8 @@ namespace SandBox {
             collectionObj->removeCollectionTypeInstance <Renderer::VKSampler> ("DEFAULT");
         }
         {   /* Image */
-            auto loadingObj     = sceneObj->getSystem <SYMeshLoading>();
-            auto texturePoolObj = loadingObj->getTexturePoolObj();
-            auto texturePool    = texturePoolObj->getTexturePool();
-            auto swapChainObj   = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("DEFAULT");
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
+            auto swapChainObj = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("DEFAULT");
 
             for (auto const& [idx, info]: texturePool)
                 collectionObj->removeCollectionTypeInstance <Renderer::VKImage> (

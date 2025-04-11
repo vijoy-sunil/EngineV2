@@ -246,35 +246,25 @@ namespace SandBox {
             SYMeshLoading (void) {
                 m_meshLoadingInfo = {};
 
-                auto& resource  = m_meshLoadingInfo.resource;
-                resource.logObj = new Log::LGImpl();
-                resource.logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
-                resource.logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                resource.logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-                resource.logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-
-                resource.texturePoolObj = new SBTexturePool (resource.logObj);
-                resource.texturePoolObj->initTexturePoolInfo();
-                /* Add default textures. Note that, the first 3 textures in the pool (0, 1, 2) are the default diffuse,
-                 * specular and emission textures
-                */
-                resource.texturePoolObj->addTextureToPool ("Asset/Texture/[D]_Empty.png");
-                resource.texturePoolObj->addTextureToPool ("Asset/Texture/[S]_Empty.png");
-                resource.texturePoolObj->addTextureToPool ("Asset/Texture/[E]_Empty.png");
+                auto& logObj = m_meshLoadingInfo.resource.logObj;
+                logObj       = new Log::LGImpl();
+                logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
+                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
             }
 
             /* Note that, system constructors DO NOT take in any arguments, as a result dependencies are passed in here */
-            void initMeshLoadingInfo (Scene::SNImpl* sceneObj) {
-                if (sceneObj == nullptr) {
+            void initMeshLoadingInfo (Scene::SNImpl* sceneObj,
+                                      SBTexturePool* texturePoolObj) {
+
+                if (sceneObj == nullptr || texturePoolObj == nullptr) {
                     LOG_ERROR (m_meshLoadingInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                   << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_meshLoadingInfo.resource.sceneObj = sceneObj;
-            }
-
-            SBTexturePool* getTexturePoolObj (void) {
-                return m_meshLoadingInfo.resource.texturePoolObj;
+                m_meshLoadingInfo.resource.sceneObj       = sceneObj;
+                m_meshLoadingInfo.resource.texturePoolObj = texturePoolObj;
             }
 
             void update (void) {
@@ -299,7 +289,6 @@ namespace SandBox {
 
             ~SYMeshLoading (void) {
                 delete m_meshLoadingInfo.resource.logObj;
-                delete m_meshLoadingInfo.resource.texturePoolObj;
             }
     };
 }   // namespace SandBox

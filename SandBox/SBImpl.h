@@ -7,6 +7,7 @@
 #include "../Backend/Renderer/VKWindow.h"
 #include "../Backend/Renderer/VKLogDevice.h"
 #include "../Backend/Renderer/VKRenderer.h"
+#include "SBTexturePool.h"
 #include "System/SYMeshInstanceBatching.h"
 #include "System/SYLightInstanceBatching.h"
 #include "System/SYCameraController.h"
@@ -23,6 +24,7 @@ namespace SandBox {
                 struct Resource {
                     Scene::SNImpl* sceneObj;
                     Collection::CNImpl* collectionObj;
+                    SBTexturePool* defaultTexturePoolObj;
                 } resource;
             } m_sandBoxInfo;
 
@@ -34,10 +36,23 @@ namespace SandBox {
             SBImpl (void) {
                 m_sandBoxInfo = {};
 
-                m_sandBoxInfo.resource.sceneObj      = new Scene::SNImpl();
+                m_sandBoxInfo.resource.sceneObj              = new Scene::SNImpl();
                 m_sandBoxInfo.resource.sceneObj->initSceneInfo();
-                m_sandBoxInfo.resource.collectionObj = new Collection::CNImpl();
+                m_sandBoxInfo.resource.collectionObj         = new Collection::CNImpl();
                 m_sandBoxInfo.resource.collectionObj->initCollectionInfo();
+                m_sandBoxInfo.resource.defaultTexturePoolObj = new SBTexturePool();
+                m_sandBoxInfo.resource.defaultTexturePoolObj->initTexturePoolInfo();
+
+                /* Add default textures */
+                m_sandBoxInfo.resource.defaultTexturePoolObj->addTextureToPool (
+                    "Asset/Texture/[D]_Empty.png"   /* Texture idx 0 */
+                );
+                m_sandBoxInfo.resource.defaultTexturePoolObj->addTextureToPool (
+                    "Asset/Texture/[S]_Empty.png"   /* Texture idx 1 */
+                );
+                m_sandBoxInfo.resource.defaultTexturePoolObj->addTextureToPool (
+                    "Asset/Texture/[E]_Empty.png"   /* Texture idx 2 */
+                );
             }
 
             void initSandBoxInfo (void) {
@@ -47,6 +62,7 @@ namespace SandBox {
                 /* Reports */
                 m_sandBoxInfo.resource.sceneObj->generateReport();
                 m_sandBoxInfo.resource.collectionObj->generateReport();
+                m_sandBoxInfo.resource.defaultTexturePoolObj->generateReport();
             }
 
             void runSandBox (void) {
@@ -111,11 +127,13 @@ namespace SandBox {
                 /* Reports */
                 m_sandBoxInfo.resource.sceneObj->generateReport();
                 m_sandBoxInfo.resource.collectionObj->generateReport();
+                m_sandBoxInfo.resource.defaultTexturePoolObj->generateReport();
             }
 
             ~SBImpl (void) {
                 delete m_sandBoxInfo.resource.sceneObj;
                 delete m_sandBoxInfo.resource.collectionObj;
+                delete m_sandBoxInfo.resource.defaultTexturePoolObj;
             }
     };
 }   // namespace SandBox

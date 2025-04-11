@@ -264,7 +264,6 @@
     |<----------------------:VKCmdPool
     |<----------------------:VKCmdBuffer
     |<----------------------:VKRenderer
-    |<----------------------:SYMeshLoading
     |<----------------------:SYMeshBatching
     |<----------------------:SYMeshInstanceBatching
     |<----------------------:SYLightInstanceBatching
@@ -279,6 +278,7 @@
     |<----------------------:VKWindow
     |<----------------------:VKLogDevice
     |<----------------------:VKRenderer
+    |<----------------------:SBTexturePool
     |<----------------------:SYMeshInstanceBatching
     |<----------------------:SYLightInstanceBatching
     |<----------------------:SYCameraController

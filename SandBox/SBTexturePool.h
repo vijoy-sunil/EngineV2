@@ -30,10 +30,6 @@ namespace SandBox {
                     TextureIdxType nextAvailableIdx;
                 } meta;
 
-                struct State {
-                    bool logObjCreated;
-                } state;
-
                 struct Resource {
                     Log::LGImpl* logObj;
                 } resource;
@@ -62,21 +58,15 @@ namespace SandBox {
             }
 
         public:
-            SBTexturePool (Log::LGImpl* logObj) {
+            SBTexturePool (void) {
                 m_texturePoolInfo = {};
 
-                if (logObj == nullptr) {
-                    m_texturePoolInfo.resource.logObj     = new Log::LGImpl();
-                    m_texturePoolInfo.state.logObjCreated = true;
-
-                    m_texturePoolInfo.resource.logObj->initLogInfo ("Build/Log/SandBox", __FILE__);
-                    LOG_WARNING (m_texturePoolInfo.resource.logObj) << NULL_LOGOBJ_MSG
-                                                                    << std::endl;
-                }
-                else {
-                    m_texturePoolInfo.resource.logObj     = logObj;
-                    m_texturePoolInfo.state.logObjCreated = false;
-                }
+                auto& logObj = m_texturePoolInfo.resource.logObj;
+                logObj       = new Log::LGImpl();
+                logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
+                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
             }
 
             void initTexturePoolInfo (void) {
@@ -147,8 +137,7 @@ namespace SandBox {
             }
 
             ~SBTexturePool (void) {
-                if (m_texturePoolInfo.state.logObjCreated)
-                    delete m_texturePoolInfo.resource.logObj;
+                delete m_texturePoolInfo.resource.logObj;
             }
     };
 }   // namespace SandBox

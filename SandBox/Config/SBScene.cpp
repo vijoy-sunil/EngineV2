@@ -18,7 +18,8 @@
 
 namespace SandBox {
     void SBImpl::configScene (void) {
-        auto& sceneObj = m_sandBoxInfo.resource.sceneObj;
+        auto& sceneObj              = m_sandBoxInfo.resource.sceneObj;
+        auto& defaultTexturePoolObj = m_sandBoxInfo.resource.defaultTexturePoolObj;
         {   /* Register components */
             sceneObj->registerComponent <IdComponent>();
             sceneObj->registerComponent <MeshComponent>();
@@ -37,7 +38,7 @@ namespace SandBox {
             auto defaultRenderingObj      = sceneObj->registerSystem <SYDefaultRendering>();
             /* Set system signature */
             {   /* Mesh loading system */
-                meshLoadingObj->initMeshLoadingInfo (sceneObj);
+                meshLoadingObj->initMeshLoadingInfo (sceneObj, defaultTexturePoolObj);
 
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <MeshComponent>());
@@ -256,7 +257,6 @@ namespace SandBox {
 
             {   /* Mesh loading system */
                 meshLoadingObj->update();
-                auto texturePoolObj = meshLoadingObj->getTexturePoolObj();
                 /* Populate texture idx LUT component for child instances */
                 {   /* Entity 1..7 */
                     for (Scene::Entity i = 1; i < 8; i++) {
@@ -267,7 +267,6 @@ namespace SandBox {
                         );
                     }
                 }
-                texturePoolObj->generateReport();
             }
             {   /* Mesh batching system */
                 meshBatchingObj->update();
