@@ -138,6 +138,7 @@
 - [x] input vars begin with `i_`
 - [x] output vars begin with `o_`
 - [x] constants are capitalized
+- [x] array names end with `s` (search `[`)
 
 # METHODS
 
