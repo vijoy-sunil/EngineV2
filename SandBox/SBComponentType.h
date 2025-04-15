@@ -29,17 +29,21 @@ namespace SandBox {
     } e_projectionType;
 
     typedef enum {
-        TAG_TYPE_DEFAULT
+        TAG_TYPE_DEFAULT,
+        TAG_TYPE_SKY_BOX
     } e_tagType;
 
     /* Components */
     struct IdComponent {
         public:
-            std::string m_id   = "Unnamed";
+            std::string m_id        = "Unnamed";
+            /* Prevent entity properties from being batched by systems if set to true */
+            bool m_batchingDisabled = false;
 
             IdComponent (void) = default;
-            IdComponent (const std::string id) {
-                m_id = id;
+            IdComponent (const std::string id, const bool batchingDisabled = false) {
+                m_id               = id;
+                m_batchingDisabled = batchingDisabled;
             }
     };
 

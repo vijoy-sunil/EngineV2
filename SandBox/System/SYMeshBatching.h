@@ -76,14 +76,24 @@ namespace SandBox {
                 size_t indicesCount      = 0;
                 uint32_t instancesCount  = 0;
                 for (auto const& entity: m_entities) {
+                    auto idComponent     = sceneObj->getComponent <IdComponent>     (entity);
                     auto meshComponent   = sceneObj->getComponent <MeshComponent>   (entity);
                     auto renderComponent = sceneObj->getComponent <RenderComponent> (entity);
 
+                    /* Populate render component for un-batched entities */
+                    if (idComponent->m_batchingDisabled) {
+                        renderComponent->m_firstIndexIdx    = 0;
+                        renderComponent->m_indicesCount     = static_cast <uint32_t> (meshComponent->m_indices.size());
+                        renderComponent->m_vertexOffset     = 0;
+                        renderComponent->m_firstInstanceIdx = 0;
+                        continue;
+                    }
+
                     /* Populate render component */
-                    renderComponent->m_firstIndexIdx    = static_cast <uint32_t> (indicesCount);
-                    renderComponent->m_indicesCount     = static_cast <uint32_t> (meshComponent->m_indices.size());
-                    renderComponent->m_vertexOffset     = static_cast <int32_t>  (verticesCount);
-                    renderComponent->m_firstInstanceIdx = instancesCount;
+                    renderComponent->m_firstIndexIdx        = static_cast <uint32_t> (indicesCount);
+                    renderComponent->m_indicesCount         = static_cast <uint32_t> (meshComponent->m_indices.size());
+                    renderComponent->m_vertexOffset         = static_cast <int32_t>  (verticesCount);
+                    renderComponent->m_firstInstanceIdx     = instancesCount;
 
                     verticesCount  += meshComponent->m_vertices.size();
                     indicesCount   += meshComponent->m_indices.size();

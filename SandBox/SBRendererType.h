@@ -51,6 +51,11 @@ namespace SandBox {
         }
     };
 
+    /* UBO - Uniform buffer object */
+    struct MeshInstanceUBO {
+        glm::mat4 modelMatrix;
+    };
+
     /* PC - Push constant */
     struct ActiveCameraPC {
         glm::vec3 position;                 /* Vec3 must be aligned by 4N (= 16 bytes) */

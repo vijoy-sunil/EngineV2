@@ -44,7 +44,7 @@ layout (set = 0, binding = 1) readonly buffer LightInstanceSBOContainer {
 } lightInstanceSBOContainer;
 
 /* Note that, only the final binding in a descriptor set can have variable size */
-layout (set = 1, binding = 0) uniform sampler2D textureSampler[];
+layout (set = 1, binding = 0) uniform sampler2D textureSamplers[];
 
 layout (push_constant) uniform LightTypeOffsetsPC {
 layout (offset = 144)
@@ -56,7 +56,7 @@ layout (offset = 144)
 
 vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirection) {
     vec3 ambient            = lightInstance.ambient *
-                              vec3 (texture (textureSampler[i_diffuseTextureIdx], i_uv));
+                              vec3 (texture (textureSamplers[i_diffuseTextureIdx], i_uv));
     /* Diffuse lighting gives the object more brightness the closer its fragments are aligned to the light rays from a
      * light source
      *
@@ -76,7 +76,7 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
     float diffuseIntensity  = max (dot (i_normal, lightDirection), 0.0);
     vec3 diffuse            = diffuseIntensity      *
                               lightInstance.diffuse *
-                              vec3 (texture (textureSampler[i_diffuseTextureIdx], i_uv));
+                              vec3 (texture (textureSamplers[i_diffuseTextureIdx], i_uv));
     /* Similar to diffuse lighting, specular lighting is based on the light's direction and the object's normal vectors,
      * but this time it is also based on the view direction
      *
@@ -130,7 +130,7 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
     float specularIntensity = pow (max (dot (i_normal, halfwayDirection), 0.0), i_shininess);
     vec3 specular           = specularIntensity      *
                               lightInstance.specular *
-                              vec3 (texture (textureSampler[i_specularTextureIdx], i_uv));
+                              vec3 (texture (textureSamplers[i_specularTextureIdx], i_uv));
 
     float distance          = length (vec4 (lightInstance.position, 1.0) - i_position);
     float attenuation       = 1.0 /  (lightInstance.constant  +
@@ -165,7 +165,7 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
 }
 
 void main (void) {
-    vec3 fragColor = vec3 (texture (textureSampler[i_emissionTextureIdx], i_uv));
+    vec3 fragColor = vec3 (texture (textureSamplers[i_emissionTextureIdx], i_uv));
     /* Directional lights */
     for (uint i = lightTypeOffsets.directionalLightsOffset; i < lightTypeOffsets.pointLightsOffset; i++) {
         LightInstanceSBO lightInstance = lightInstanceSBOContainer.instances[i];

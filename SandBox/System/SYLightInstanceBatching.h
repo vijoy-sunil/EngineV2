@@ -91,9 +91,13 @@ namespace SandBox {
                 uint32_t pointLightsCount       = 0;
                 uint32_t spotLightsCount        = 0;
                 for (auto const& entity: m_entities) {
+                    auto idComponent        = sceneObj->getComponent <IdComponent>        (entity);
                     auto lightComponent     = sceneObj->getComponent <LightComponent>     (entity);
                     auto transformComponent = sceneObj->getComponent <TransformComponent> (entity);
                     auto lightType          = lightComponent->m_type;
+
+                    if (idComponent->m_batchingDisabled)
+                        continue;
 
                     if (lightType == LIGHT_TYPE_DIRECTIONAL)    ++directionalLightsCount;
                     if (lightType == LIGHT_TYPE_POINT)          ++pointLightsCount;
