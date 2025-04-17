@@ -12,12 +12,14 @@
 #include "../System/SYLightInstanceBatching.h"
 #include "../System/SYCameraController.h"
 #include "../System/SYDefaultRendering.h"
+#include "../System/SYSkyBoxRendering.h"
 #include "../SBImpl.h"
 #include "../../Backend/Scene/SNType.h"
 #include "../SBComponentType.h"
 
 namespace SandBox {
     void SBImpl::configScene (void) {
+        auto& skyBoxEntity          = m_sandBoxInfo.meta.skyBoxEntity;
         auto& sceneObj              = m_sandBoxInfo.resource.sceneObj;
         auto& defaultTexturePoolObj = m_sandBoxInfo.resource.defaultTexturePoolObj;
         {   /* Register components */
@@ -36,6 +38,7 @@ namespace SandBox {
             auto lightInstanceBatchingObj = sceneObj->registerSystem <SYLightInstanceBatching>();
             auto cameraControllerObj      = sceneObj->registerSystem <SYCameraController>();
             auto defaultRenderingObj      = sceneObj->registerSystem <SYDefaultRendering>();
+            auto skyBoxRenderingObj       = sceneObj->registerSystem <SYSkyBoxRendering>();
             /* Set system signature */
             {   /* Mesh loading system */
                 meshLoadingObj->initMeshLoadingInfo (sceneObj, defaultTexturePoolObj);
@@ -90,6 +93,14 @@ namespace SandBox {
                 systemSignature.set (sceneObj->getComponentType <RenderComponent>());
 
                 sceneObj->setSystemSignature <SYDefaultRendering> (systemSignature);
+            }
+            {   /* Sky box rendering system */
+                static_cast <void> (skyBoxRenderingObj);
+
+                Scene::Signature systemSignature;
+                systemSignature.set (sceneObj->getComponentType <RenderComponent>());
+
+                sceneObj->setSystemSignature <SYSkyBoxRendering> (systemSignature);
             }
         }
 
@@ -150,6 +161,25 @@ namespace SandBox {
                 TAG_TYPE_DEFAULT,
                 1
             ));
+        }
+        {   /* Entity   [SKY_BOX] */
+            auto entity = sceneObj->addEntity();
+            sceneObj->addComponent (entity, IdComponent (
+                "SKY_BOX",
+                true
+            ));
+            sceneObj->addComponent (entity, MeshComponent (
+                "Asset/Model/Sky_Box.obj",
+                "Asset/Model/"
+            ));
+            sceneObj->addComponent (entity, TransformComponent());
+            sceneObj->addComponent (entity, TextureIdxLUTComponent());
+            sceneObj->addComponent (entity, RenderComponent (
+                TAG_TYPE_SKY_BOX,
+                1
+            ));
+            /* Save sky box entity */
+            skyBoxEntity = entity;
         }
         {   /* Entity   [GROUND_PLANE] */
             auto entity = sceneObj->addEntity();

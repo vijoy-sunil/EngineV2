@@ -225,6 +225,20 @@
     |<----------------------:SBRendererType
     |SYDefaultRendering     {glfw3}, {stdexcept}, {string}, {vector}
 
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKBuffer
+    |<----------------------:VKPipeline
+    |<----------------------:VKDescriptorSet
+    |<----------------------:VKCmdBuffer
+    |<----------------------:VKRenderer
+    |<----------------------:VKCmdList
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYSkyBoxRendering      {glfw3}, {stdexcept}, {string}, {vector}
+
     |<----------------------:SBRendererType
     |SBComponentType        {glm}, {matrix_transform}, {string}, {vector}, {algorithm}, {iterator}
 
@@ -237,6 +251,7 @@
     |<----------------------:SYLightInstanceBatching
     |<----------------------:SYCameraController
     |<----------------------:SYDefaultRendering
+    |<----------------------:SYSkyBoxRendering
     |<----------------------:SBImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
@@ -270,8 +285,9 @@
     |<----------------------:SBImpl
     |<----------------------:VKCmdList
     |<----------------------:VKHelper
+    |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SBRenderer             {glfw3}, {string}, {unordered_map}, {vector}, {algorithm}, {cmath}
+    |SBRenderer             {glfw3}, {glm}, {string}, {unordered_map}, {vector}, {algorithm}, {cmath}
 
     |<----------------------:SNImpl
     |<----------------------:CNImpl
@@ -283,6 +299,10 @@
     |<----------------------:SYLightInstanceBatching
     |<----------------------:SYCameraController
     |<----------------------:SYDefaultRendering
+    |<----------------------:SYSkyBoxRendering
+    |<----------------------:SNType
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
     |SBImpl                 {glfw3}, {chrono}
 </pre>
 
