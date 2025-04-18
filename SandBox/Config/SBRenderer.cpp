@@ -1107,12 +1107,19 @@ namespace SandBox {
              * the descriptor will use
             */
             auto oneTimeBindingFlags   = std::vector <VkDescriptorBindingFlags> {
-                VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT
+                VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT,
+                0
             };
             auto oneTimeLayoutBindings = std::vector {
                 pipelineObj->createDescriptorSetLayoutBinding (
                     0,
                     static_cast <uint32_t> (texturePool.size()),
+                    VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                    VK_SHADER_STAGE_FRAGMENT_BIT
+                ),
+                pipelineObj->createDescriptorSetLayoutBinding (
+                    1,
+                    1,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     VK_SHADER_STAGE_FRAGMENT_BIT
                 )
@@ -1342,7 +1349,7 @@ namespace SandBox {
                 VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
             );
             descPoolObj->addDescriptorPoolSize (
-                static_cast <uint32_t> (texturePool.size()),
+                static_cast <uint32_t> (texturePool.size()) + 1,
                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
             );
 
@@ -1491,14 +1498,18 @@ namespace SandBox {
             descSetObj->updateDescriptorSets();
         }
         {   /* Descriptor sets  [DEFAULT_ONE_TIME] */
-            auto texturePool  = defaultTexturePoolObj->getTexturePool();
+            auto texturePool      = defaultTexturePoolObj->getTexturePool();
 
-            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>                ("DEFAULT");
-            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>      ("DEFAULT");
-            auto samplerObj   = collectionObj->getCollectionTypeInstance <Renderer::VKSampler>        ("DEFAULT");
-            auto pipelineObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("DEFAULT");
-            auto descPoolObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
-            auto descSetObj   = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
+            auto logObj           = collectionObj->getCollectionTypeInstance <Log::LGImpl>                ("DEFAULT");
+            auto logDeviceObj     = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>      ("DEFAULT");
+            auto imageObj         = collectionObj->getCollectionTypeInstance <Renderer::VKImage>          (
+                "SKY_BOX_TEXTURE"
+            );
+            auto samplerObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSampler>        ("DEFAULT");
+            auto skyBoxSamplerObj = collectionObj->getCollectionTypeInstance <Renderer::VKSampler>        ("SKY_BOX");
+            auto pipelineObj      = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("DEFAULT");
+            auto descPoolObj      = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
+            auto descSetObj       = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
             descSetObj->initDescriptorSetInfo (
                 1,
                 pipelineObj->getDescriptorSetLayouts()[1]
@@ -1506,14 +1517,15 @@ namespace SandBox {
 
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("DEFAULT_ONE_TIME", descSetObj);
 
-            auto descriptorBufferInfos = std::vector <VkDescriptorBufferInfo> {};
-            auto descriptorImageInfos  = std::vector <VkDescriptorImageInfo>  {};
+            auto descriptorBufferInfos =  std::vector <VkDescriptorBufferInfo> {};
+            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingToImageInfosMap;
+            /* Binding 0 */
             for (auto const& [idx, info]: texturePool) {
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
                     "DEFAULT_TEXTURE_" + std::to_string (idx)
                 );
                 /* Note that, we can push the info to the vector since the texture pool is ordered by its indices */
-                descriptorImageInfos.push_back (
+                bindingToImageInfosMap[0].push_back (
                     descSetObj->createDescriptorImageInfo (
                         *samplerObj->getSampler(),
                         *imageObj->getImageView(),
@@ -1521,6 +1533,14 @@ namespace SandBox {
                     )
                 );
             }
+            /* Binding 1 */
+            bindingToImageInfosMap[1].push_back (
+                descSetObj->createDescriptorImageInfo (
+                    *skyBoxSamplerObj->getSampler(),
+                    *imageObj->getImageView(),
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                )
+            );
             descSetObj->addWriteDescriptorSet (
                 0,
                 static_cast <uint32_t> (texturePool.size()),
@@ -1528,7 +1548,16 @@ namespace SandBox {
                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                 descSetObj->getDescriptorSets()[0],
                 descriptorBufferInfos,
-                descriptorImageInfos
+                bindingToImageInfosMap[0]
+            );
+            descSetObj->addWriteDescriptorSet (
+                1,
+                1,
+                0,
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                descSetObj->getDescriptorSets()[0],
+                descriptorBufferInfos,
+                bindingToImageInfosMap[1]
             );
             descSetObj->updateDescriptorSets();
         }

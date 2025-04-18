@@ -43,8 +43,8 @@ layout (set = 0, binding = 1) readonly buffer LightInstanceSBOContainer {
     LightInstanceSBO instances[];
 } lightInstanceSBOContainer;
 
-/* Note that, only the final binding in a descriptor set can have variable size */
-layout (set = 1, binding = 0) uniform sampler2D textureSamplers[];
+layout (set = 1, binding = 0) uniform sampler2D   textureSamplers[];
+layout (set = 1, binding = 1) uniform samplerCube skyBoxSampler;
 
 layout (push_constant) uniform LightTypeOffsetsPC {
 layout (offset = 144)
@@ -53,6 +53,42 @@ layout (offset = 144)
     uint spotLightsOffset;
     uint lightsCount;
 } lightTypeOffsets;
+
+vec3 createColor (const float reflectionIntensity) {
+    /* We calculate a reflection vector around the object's normal vector based on the view direction, which is then used
+     * as a direction vector to sample the cube map, returning a color value of the environment. The resulting effect is
+     * that the object seems to reflect the sky box
+     *
+     *                                               Cube map top face
+     *                                  +---------------------∆---------------------+
+     *                                                        ^
+     *                                                       /
+     *                                   View direction     /Reflection
+     *                                   \                 /
+     *                                    \       Normal  /
+     *                                     \      ^      /
+     *                                      \     |     /
+     *                                       \    |    /
+     *                                        \   |   /
+     *                                         \  |  /
+     *                                          v | /
+     *                      +---------------------∆---------------------+
+     *                      |                                           |
+     *                      +-------------------------------------------+
+    */
+    vec4 viewDirection = normalize (i_position - i_view);
+    vec4 reflection    = reflect   (viewDirection, i_normal);
+
+    return reflectionIntensity                            *
+           vec3 (texture (skyBoxSampler, reflection.rgb)) *
+           vec3 (texture (textureSamplers[i_specularTextureIdx], i_uv));
+
+    /* Another form of environment mapping is refraction, where we use the refraction vector to sample from the cube map.
+     * Refraction vector is fairly easy to implement using GLSL's built-in refract function that expects a normal vector,
+     * a view direction, and a ratio between both materials' refractive indices. With the right combination of lighting,
+     * reflection, refraction and vertex movement, we can create pretty neat water graphics
+    */
+}
 
 vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirection) {
     vec3 ambient            = lightInstance.ambient *
@@ -165,7 +201,10 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
 }
 
 void main (void) {
-    vec3 fragColor = vec3 (texture (textureSamplers[i_emissionTextureIdx], i_uv));
+    /* Emission */
+    vec3 fragColor                     = vec3 (texture (textureSamplers[i_emissionTextureIdx], i_uv));
+    /* Environment mapping */
+    fragColor                         += createColor (0.25);
     /* Directional lights */
     for (uint i = lightTypeOffsets.directionalLightsOffset; i < lightTypeOffsets.pointLightsOffset; i++) {
         LightInstanceSBO lightInstance = lightInstanceSBOContainer.instances[i];
