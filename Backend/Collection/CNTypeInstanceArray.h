@@ -7,7 +7,7 @@
 #include "../Log/LGImpl.h"
 
 namespace Collection {
-    const uint32_t g_maxTypeInstances = 32;
+    const uint32_t g_maxTypeInstances = 128;
 
     class CNTypeInstanceArray {
         private:

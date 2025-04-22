@@ -1,7 +1,7 @@
 #pragma once
 
 namespace SandBox {
-    /* TYPE-1: Press to lock/unlock
+    /*  TYPE-1: Press to lock/unlock
      *  +-------------------+           +-------------------+           +-------------------+
      *  |      _LOCKED      |---------->|  _PENDING_UNLOCK  |---------->|     _UNLOCKED     |
      *  +-------------------+   press   +-------------------+  release  +-------------------+

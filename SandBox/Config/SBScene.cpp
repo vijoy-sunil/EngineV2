@@ -312,7 +312,7 @@ namespace SandBox {
             }
         }
         {   /* Remove render component */
-            sceneObj->removeComponent <RenderComponent> (0);    /* DEBUG_CUBE   */
+            sceneObj->removeComponent <RenderComponent> (0);    /* DEBUG_CUBE_0 */
             sceneObj->removeComponent <RenderComponent> (8);    /* DEBUG_SPHERE */
         }
     }

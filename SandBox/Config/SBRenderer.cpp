@@ -2112,7 +2112,7 @@ namespace SandBox {
             );
 
             collectionObj->addCollectionTypeInstance <Renderer::VKRenderer> ("DEFAULT", rendererObj);
-            /* View port resize bindings */
+            /* Add view port resize bindings */
             rendererObj->addViewPortResizeBinding (
                 [](void) {}
             );

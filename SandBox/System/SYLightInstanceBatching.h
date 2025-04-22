@@ -129,13 +129,13 @@ namespace SandBox {
                     m_lightInstanceBatchingInfo.meta.instances.push_back (instance);
                 }
                 /* Note that light entities will be ordered based on light type and batched together as follows
-                 *  +---------------+   +---------------+-----------+   +-----------+   +-----------+-----------+
-                 *  |  DIRECTIONAL  |   |  DIRECTIONAL  |  POINT    |   |  POINT    |   |  SPOT     |  SPOT     |
-                 *  |  0            |...|  n-1          |  0        |...|  n-1      |...|  0        |  n-1      |
-                 *  +---------------+   +---------------+-----------+   +-----------+   +-----------+-----------+
-                 *      ^                                   ^                               ^
-                 *      |                                   |                               |
-                 *      Direction lights offset             Point lights offset             Spot lights offset
+                 *  +---------------+   +---------------+-----------+   +-----------+-----------+   +-----------+
+                 *  |  DIRECTIONAL  |   |  DIRECTIONAL  |  POINT    |   |  POINT    |  SPOT     |   |  SPOT     |
+                 *  |  0            |...|  n-1          |  0        |...|  n-1      |  0        |...|  n-1      |
+                 *  +---------------+   +---------------+-----------+   +-----------+-----------+   +-----------+
+                 *     ^                                   ^                           ^
+                 *     |                                   |                           |
+                 *     Direction lights offset             Point lights offset         Spot lights offset
                 */
                 typeOffsets.directionalLightsOffset = 0;
                 typeOffsets.pointLightsOffset       = typeOffsets.directionalLightsOffset + directionalLightsCount;
