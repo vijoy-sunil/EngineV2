@@ -22,17 +22,6 @@ namespace SandBox {
         private:
             struct CameraControllerInfo {
                 struct Meta {
-                    e_keyState droneToggle;
-                    e_keyState fineToggle;
-                    /* When the cursor position binding is called for the first time, the cursor X and Y position is
-                     * equal to the location your cursor entered the screen from. This is often a position that is
-                     * significantly far away from the center of the screen, resulting in large offsets and thus a large
-                     * movement jump. We can circumvent this issue by defining a boolean variable to check if this is
-                     * the first time we receive cursor input. If it is, we update the initial cursor position to the
-                     * new X and Y values. The resulting cursor movements will then use the newly entered position
-                     * coordinates to calculate the offsets
-                    */
-                    bool  firstCursorPositionEvent;
                     float lastCursorXPos;
                     float lastCursorYPos;
                     /* Delta values are computed in their respective bindings, and then used in the update function */
@@ -54,6 +43,20 @@ namespace SandBox {
 
                     ActiveCameraPC activeCamera;
                 } meta;
+
+                struct State {
+                    e_keyState droneToggle;
+                    e_keyState fineToggle;
+                    /* When the cursor position binding is called for the first time, the cursor X and Y position is
+                     * equal to the location your cursor entered the screen from. This is often a position that is
+                     * significantly far away from the center of the screen, resulting in large offsets and thus a large
+                     * movement jump. We can circumvent this issue by defining a boolean variable to check if this is
+                     * the first time we receive cursor input. If it is, we update the initial cursor position to the
+                     * new X and Y values. The resulting cursor movements will then use the newly entered position
+                     * coordinates to calculate the offsets
+                    */
+                    bool firstCursorPositionEvent;
+                } state;
 
                 struct Resource {
                     Scene::SNImpl* sceneObj;
@@ -86,25 +89,25 @@ namespace SandBox {
 
                 windowObj->setKeyEventBinding (GLFW_KEY_PERIOD,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_LOCKED)
-                            meta.droneToggle  = KEY_STATE_PENDING_UNLOCK;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_LOCKED)
+                            state.droneToggle  = KEY_STATE_PENDING_UNLOCK;
 
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.droneToggle  = KEY_STATE_PENDING_LOCK;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            state.droneToggle  = KEY_STATE_PENDING_LOCK;
                     },
                     [this, windowObj](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_PENDING_UNLOCK) {
-                            meta.droneToggle  = KEY_STATE_UNLOCKED;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_PENDING_UNLOCK) {
+                            state.droneToggle  = KEY_STATE_UNLOCKED;
 
-                            meta.firstCursorPositionEvent = true;
+                            state.firstCursorPositionEvent = true;
                             windowObj->toggleCursorPositionCallback (true);
                             windowObj->toggleScrollOffsetCallback   (true);
                         }
 
-                        if (meta.droneToggle == KEY_STATE_PENDING_LOCK) {
-                            meta.droneToggle  = KEY_STATE_LOCKED;
+                        if (state.droneToggle == KEY_STATE_PENDING_LOCK) {
+                            state.droneToggle  = KEY_STATE_LOCKED;
 
                             windowObj->toggleCursorPositionCallback (false);
                             windowObj->toggleScrollOffsetCallback   (false);
@@ -113,17 +116,17 @@ namespace SandBox {
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_SLASH,
                     [this](void) {
-                        auto& meta           = m_cameraControllerInfo.meta;
-                        if (meta.fineToggle == KEY_STATE_LOCKED) {
-                            meta.fineToggle  = KEY_STATE_UNLOCKED;
+                        auto& state           = m_cameraControllerInfo.state;
+                        if (state.fineToggle == KEY_STATE_LOCKED) {
+                            state.fineToggle  = KEY_STATE_UNLOCKED;
 
                             setCameraControllerSensitivity (SENSITIVITY_TYPE_FINE);
                         }
                     },
                     [this](void) {
-                        auto& meta           = m_cameraControllerInfo.meta;
-                        if (meta.fineToggle == KEY_STATE_UNLOCKED) {
-                            meta.fineToggle  = KEY_STATE_LOCKED;
+                        auto& state           = m_cameraControllerInfo.state;
+                        if (state.fineToggle == KEY_STATE_UNLOCKED) {
+                            state.fineToggle  = KEY_STATE_LOCKED;
 
                             setCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
                         }
@@ -131,11 +134,12 @@ namespace SandBox {
                 );
                 windowObj->setCursorPositionBinding (
                     [this](const double xPos, const double yPos) {
-                        auto& meta = m_cameraControllerInfo.meta;
-                        if (meta.firstCursorPositionEvent) {
-                            meta.lastCursorXPos           = static_cast <float> (xPos);
-                            meta.lastCursorYPos           = static_cast <float> (yPos);
-                            meta.firstCursorPositionEvent = false;
+                        auto& meta  = m_cameraControllerInfo.meta;
+                        auto& state = m_cameraControllerInfo.state;
+                        if (state.firstCursorPositionEvent) {
+                            meta.lastCursorXPos            = static_cast <float> (xPos);
+                            meta.lastCursorYPos            = static_cast <float> (yPos);
+                            state.firstCursorPositionEvent = false;
                         }
 
                         meta.pitchDelta     = meta.cursorSensitivity *
@@ -155,44 +159,50 @@ namespace SandBox {
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_D,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.lateralDelta = meta.movementSensitivity;
+                        auto& meta             = m_cameraControllerInfo.meta;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.lateralDelta  = meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_A,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.lateralDelta = -meta.movementSensitivity;
+                        auto& meta             = m_cameraControllerInfo.meta;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.lateralDelta  = -meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_W,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.axialDelta   = meta.movementSensitivity;
+                        auto& meta             = m_cameraControllerInfo.meta;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.axialDelta    = meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_S,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.axialDelta   = -meta.movementSensitivity;
+                        auto& meta             = m_cameraControllerInfo.meta;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.axialDelta    = -meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_MINUS,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.fovDelta     = meta.fovSensitivity;
+                        auto& meta             = m_cameraControllerInfo.meta;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.fovDelta      = meta.fovSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_EQUAL,
                     [this](void) {
-                        auto& meta            = m_cameraControllerInfo.meta;
-                        if (meta.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.fovDelta     = -meta.fovSensitivity;
+                        auto& meta             = m_cameraControllerInfo.meta;
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.fovDelta      = -meta.fovSensitivity;
                     }
                 );
             }
@@ -218,28 +228,29 @@ namespace SandBox {
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
 
-                m_cameraControllerInfo.meta.droneToggle              = KEY_STATE_LOCKED;
-                m_cameraControllerInfo.meta.fineToggle               = KEY_STATE_LOCKED;
-                m_cameraControllerInfo.meta.firstCursorPositionEvent = false;
-                m_cameraControllerInfo.meta.lastCursorXPos           = 0.0f;
-                m_cameraControllerInfo.meta.lastCursorYPos           = 0.0f;
+                m_cameraControllerInfo.meta.lastCursorXPos            = 0.0f;
+                m_cameraControllerInfo.meta.lastCursorYPos            = 0.0f;
 
-                m_cameraControllerInfo.meta.pitchDelta               = 0.0f;
-                m_cameraControllerInfo.meta.yawDelta                 = 0.0f;
-                m_cameraControllerInfo.meta.rollDelta                = 0.0f;
-                m_cameraControllerInfo.meta.lateralDelta             = 0.0f;
-                m_cameraControllerInfo.meta.axialDelta               = 0.0f;
-                m_cameraControllerInfo.meta.fovDelta                 = 0.0f;
-                m_cameraControllerInfo.meta.minFov                   = glm::radians (  5.0f);
-                m_cameraControllerInfo.meta.maxFov                   = glm::radians (120.0f);
-                m_cameraControllerInfo.meta.activeCamera             = {};
+                m_cameraControllerInfo.meta.pitchDelta                = 0.0f;
+                m_cameraControllerInfo.meta.yawDelta                  = 0.0f;
+                m_cameraControllerInfo.meta.rollDelta                 = 0.0f;
+                m_cameraControllerInfo.meta.lateralDelta              = 0.0f;
+                m_cameraControllerInfo.meta.axialDelta                = 0.0f;
+                m_cameraControllerInfo.meta.fovDelta                  = 0.0f;
+                m_cameraControllerInfo.meta.minFov                    = glm::radians (  5.0f);
+                m_cameraControllerInfo.meta.maxFov                    = glm::radians (120.0f);
+                m_cameraControllerInfo.meta.activeCamera              = {};
 
-                m_cameraControllerInfo.resource.sceneObj             = sceneObj;
-                m_cameraControllerInfo.resource.windowObj            =
+                m_cameraControllerInfo.state.droneToggle              = KEY_STATE_LOCKED;
+                m_cameraControllerInfo.state.fineToggle               = KEY_STATE_LOCKED;
+                m_cameraControllerInfo.state.firstCursorPositionEvent = false;
+
+                m_cameraControllerInfo.resource.sceneObj              = sceneObj;
+                m_cameraControllerInfo.resource.windowObj             =
                 collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    (
                     "DEFAULT"
                 );
-                m_cameraControllerInfo.resource.swapChainObj         =
+                m_cameraControllerInfo.resource.swapChainObj          =
                 collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> (
                     "DEFAULT"
                 );
