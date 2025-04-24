@@ -97,8 +97,8 @@ namespace Renderer {
                                           const int action,
                                           const int mods) {
 
-                static_cast <void>  (scanCode);
-                static_cast <void>  (mods);
+                static_cast <void> (scanCode);
+                static_cast <void> (mods);
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
                 /* Do not save event info if the key doesn't exist in pool */
