@@ -33,7 +33,7 @@
     |<----------------------:SNSystemMgr
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNImpl
+    |SNImpl                 {bitset}
 
     |SNType                 {bitset}
 </pre>
@@ -255,7 +255,7 @@
     |<----------------------:SBImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
-    |SBScene                {glm}, {string}, {vector}, {utility}
+    |SBScene                {glm}, {string}, {vector}, {bitset}, {utility}
 
     |<----------------------:SNImpl
     |<----------------------:CNImpl
@@ -279,6 +279,7 @@
     |<----------------------:VKCmdPool
     |<----------------------:VKCmdBuffer
     |<----------------------:VKRenderer
+    |<----------------------:SBTexturePool
     |<----------------------:SYMeshBatching
     |<----------------------:SYMeshInstanceBatching
     |<----------------------:SYLightInstanceBatching

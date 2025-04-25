@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <bitset>
 #include <utility>
 #include "../../Backend/Scene/SNImpl.h"
 #include "../System/SYMeshLoading.h"

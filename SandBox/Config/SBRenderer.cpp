@@ -31,6 +31,7 @@
 #include "../../Backend/Renderer/VKCmdPool.h"
 #include "../../Backend/Renderer/VKCmdBuffer.h"
 #include "../../Backend/Renderer/VKRenderer.h"
+#include "../SBTexturePool.h"
 #include "../System/SYMeshBatching.h"
 #include "../System/SYMeshInstanceBatching.h"
 #include "../System/SYLightInstanceBatching.h"

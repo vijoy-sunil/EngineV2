@@ -1,4 +1,5 @@
 #pragma once
+#include <bitset>
 #include "SNEntityMgr.h"
 #include "SNComponentMgr.h"
 #include "SNSystemMgr.h"
