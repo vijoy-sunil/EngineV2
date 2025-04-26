@@ -65,8 +65,8 @@ namespace Renderer {
                                                const int iconified) {
 
                 auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
-                if (iconified)  thisPtr->m_windowInfo.state.iconified = true;
-                else            thisPtr->m_windowInfo.state.iconified = false;
+                if (iconified) thisPtr->m_windowInfo.state.iconified = true;
+                else           thisPtr->m_windowInfo.state.iconified = false;
             }
 
             /* Note that, as of now on Windows, the callback performs as expected where once the cursor leaves the window

@@ -53,10 +53,7 @@ namespace SandBox {
             collectionObj->registerCollectionType <Log::LGImpl>();
 
             auto logObj = new Log::LGImpl();
-            logObj->initLogInfo (
-                "Build/Log/Renderer",
-                __FILE__
-            );
+            logObj->initLogInfo     ("Build/Log/Renderer",   __FILE__);
             logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
             logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
             logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
@@ -1999,6 +1996,8 @@ namespace SandBox {
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("SKY_BOX_VERTEX_STAGING");
         }
         {   /* Cmd buffers      [DEFAULT_BLIT_OPS] */
+            auto texturePool  = defaultTexturePoolObj->getTexturePool();
+
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
             auto fenObj       = collectionObj->getCollectionTypeInstance <Renderer::VKFence>     ("DEFAULT_BLIT_OPS");
@@ -2016,8 +2015,6 @@ namespace SandBox {
                 VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
             );
             {   /* Image->Image */
-                auto texturePool = defaultTexturePoolObj->getTexturePool();
-
                 for (auto const& [idx, info]: texturePool) {
                     auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
                         "DEFAULT_TEXTURE_" + std::to_string (idx)

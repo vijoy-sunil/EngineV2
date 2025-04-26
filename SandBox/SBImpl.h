@@ -134,12 +134,12 @@ namespace SandBox {
                     skyBoxMeshInstance.modelMatrix = skyBoxTransformComponent->createModelMatrix();
 
                     if (rendererObj->beginFrame()) {
-                        defaultRenderingObj->update  (meshInstanceBatchingObj->getBatchedMeshInstances().data(),
-                                                      lightInstanceBatchingObj->getBatchedLightInstances().data(),
-                                                      lightInstanceBatchingObj->getLightTypeOffsets(),
-                                                      cameraControllerObj->getActiveCamera());
-                        skyBoxRenderingObj->update   (&skyBoxMeshInstance,
-                                                      cameraControllerObj->getActiveCamera());
+                        defaultRenderingObj->update (meshInstanceBatchingObj->getBatchedMeshInstances().data(),
+                                                     lightInstanceBatchingObj->getBatchedLightInstances().data(),
+                                                     lightInstanceBatchingObj->getLightTypeOffsets(),
+                                                     cameraControllerObj->getActiveCamera());
+                        skyBoxRenderingObj->update  (&skyBoxMeshInstance,
+                                                     cameraControllerObj->getActiveCamera());
                         rendererObj->endFrame();
                     }
 
