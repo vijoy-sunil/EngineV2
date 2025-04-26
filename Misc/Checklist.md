@@ -112,6 +112,7 @@
 }
 ```
 - [x] bool vars shouldn't start with `is`
+- [x] bool vars should generally be in `State` struct
 - [x] use `nullptr` for null pointers, instead of `VK_NULL_HANDLE`
 - [x] For loops use matching types for iterator
 - [x] use unordered map instead of map if you don't need inputs to be inherently sorted
