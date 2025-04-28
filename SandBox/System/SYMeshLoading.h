@@ -26,10 +26,10 @@ namespace SandBox {
             uint32_t transformToRange (const uint32_t oldValue,
                                        const std::pair <uint32_t, uint32_t> oldRange,
                                        const std::pair <uint32_t, uint32_t> newRange) {
-                return  (
-                            ((oldValue - oldRange.first) / static_cast <float> (oldRange.second - oldRange.first)) *
-                            (newRange.second - newRange.first)
-                        ) + newRange.first;
+                return (
+                    ((oldValue - oldRange.first) / static_cast <float> (oldRange.second - oldRange.first)) *
+                    (newRange.second - newRange.first)
+                ) +  newRange.first;
             }
 
             void loadOBJModel (const char* modelFilePath,
