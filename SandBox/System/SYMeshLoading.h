@@ -1,9 +1,6 @@
 #pragma once
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <utility>
+#include "../../Backend/Common.h"
 #include "../../Backend/Scene/SNSystemBase.h"
 #include "../../Backend/Scene/SNImpl.h"
 #include "../../Backend/Log/LGImpl.h"

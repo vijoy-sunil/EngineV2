@@ -1,8 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <array>
+#include "../Common.h"
 #include "CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 
@@ -89,7 +86,7 @@ namespace Collection {
                 auto instanceBaseObj                    = meta.array[removeIdx];
                 meta.array[removeIdx]                   = meta.array[lastIdx];
 
-                auto lastInstanceId                     = meta.idxToInstanceIdMap[lastIdx];
+                std::string lastInstanceId              = meta.idxToInstanceIdMap[lastIdx];
                 meta.instanceIdToIdxMap[lastInstanceId] = removeIdx;
                 meta.idxToInstanceIdMap[removeIdx]      = lastInstanceId;
 
@@ -113,8 +110,8 @@ namespace Collection {
             }
 
             void generateReport (void) {
-                auto& logObj = m_typeInstanceArrayInfo.resource.logObj;
                 auto& meta   = m_typeInstanceArrayInfo.meta;
+                auto& logObj = m_typeInstanceArrayInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "[" << std::endl;
                 for (uint32_t i = 0; i < g_maxTypeInstances; i++) {

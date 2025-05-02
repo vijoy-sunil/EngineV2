@@ -1,7 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
+#include "../Common.h"
 #include "CNTypeInstanceBase.h"
 #include "CNTypeInstanceArray.h"
 #include "../Log/LGImpl.h"
@@ -23,13 +21,12 @@ namespace Collection {
             CNImpl (void) {
                 m_collectionInfo = {};
 
-                m_collectionInfo.resource.logObj = new Log::LGImpl();
-                m_collectionInfo.resource.logObj->initLogInfo     ("Build/Log/Collection", __FILE__);
-                m_collectionInfo.resource.logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                m_collectionInfo.resource.logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
-                                                                                           Log::LOG_SINK_FILE);
-                m_collectionInfo.resource.logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE |
-                                                                                           Log::LOG_SINK_FILE);
+                auto& logObj = m_collectionInfo.resource.logObj;
+                logObj       = new Log::LGImpl();
+                logObj->initLogInfo     ("Build/Log/Collection", __FILE__);
+                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
             }
 
             void initCollectionInfo (void) {

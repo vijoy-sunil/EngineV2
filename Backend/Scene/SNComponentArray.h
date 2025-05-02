@@ -1,8 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <array>
+#include "../Common.h"
 #include "SNComponentArrayBase.h"
 #include "../Log/LGImpl.h"
 #include "SNType.h"
@@ -126,8 +123,8 @@ namespace Scene {
             }
 
             void onGenerateReport (void) override {
-                auto& logObj       = m_componentArrayInfo.resource.logObj;
                 auto& meta         = m_componentArrayInfo.meta;
+                auto& logObj       = m_componentArrayInfo.resource.logObj;
                 std::string spacer = "";
 
                 LOG_LITE_INFO (logObj) << "[";

@@ -1,10 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <stdexcept>
-#include <set>
-#include <vector>
-#include <vulkan/vk_enum_string_helper.h>
+#include "../Common.h"
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKInstance.h"
@@ -16,7 +11,7 @@ namespace Renderer {
             struct LogDeviceInfo {
                 struct Meta {
                     VkQueue graphicsQueue;
-                    VkQueue  presentQueue;
+                    VkQueue presentQueue;
                     VkQueue transferQueue;
                 } meta;
 
@@ -26,7 +21,7 @@ namespace Renderer {
 
                 struct Resource {
                     Log::LGImpl* logObj;
-                    VKInstance*  instanceObj;
+                    VKInstance* instanceObj;
                     VKPhyDevice* phyDeviceObj;
                     VkDevice device;
                 } resource;

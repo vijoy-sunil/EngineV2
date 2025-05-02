@@ -1,9 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <stdexcept>
-#include <vector>
-#include <vulkan/vk_enum_string_helper.h>
+#include "../Common.h"
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKLogDevice.h"
@@ -14,8 +10,8 @@ namespace Renderer {
             struct RenderPassInfo {
                 struct Meta {
                     std::vector <VkAttachmentDescription> attachments;
-                    std::vector <VkSubpassDescription>    subPasses;
-                    std::vector <VkSubpassDependency>     dependencies;
+                    std::vector <VkSubpassDescription> subPasses;
+                    std::vector <VkSubpassDependency> dependencies;
                 } meta;
 
                 struct State {

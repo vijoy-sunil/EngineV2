@@ -1,7 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <array>
-#include <queue>
+#include "../Common.h"
 #include "../Log/LGImpl.h"
 #include "SNType.h"
 
@@ -111,8 +109,8 @@ namespace Scene {
             }
 
             void generateReport (void) {
-                auto& logObj     = m_entityMgrInfo.resource.logObj;
                 auto& signatures = m_entityMgrInfo.meta.signatures;
+                auto& logObj     = m_entityMgrInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "["         << std::endl;
                 for (Entity i = 0; i < g_maxEntities; i++) {

@@ -1,9 +1,6 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
-#include <stdexcept>
-#include <string>
-#include <map>
-#include <unordered_map>
+#include "../Backend/Common.h"
 #include "../Backend/Log/LGImpl.h"
 #include "../Dependency/stb/stb_image.h"
 #include "SBRendererType.h"

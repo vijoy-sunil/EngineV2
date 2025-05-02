@@ -1,7 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <unordered_map>
-#include <vector>
+#include "../../Backend/Common.h"
 #include "../../Backend/Scene/SNSystemBase.h"
 #include "../../Backend/Scene/SNImpl.h"
 #include "../../Backend/Log/LGImpl.h"
@@ -15,7 +13,7 @@ namespace SandBox {
             struct OffsetInfo {
                 uint32_t firstIndexIdx;
                 uint32_t indicesCount;
-                int32_t  vertexOffset;
+                int32_t vertexOffset;
             };
 
             struct MeshBatchingInfo {

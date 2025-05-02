@@ -1,5 +1,5 @@
 #pragma once
-#include <bitset>
+#include "../Common.h"
 
 namespace Scene {
     using Entity                            = uint32_t;

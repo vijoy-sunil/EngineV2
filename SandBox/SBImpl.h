@@ -1,7 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <chrono>
+#include "../Backend/Common.h"
 #include "../Backend/Scene/SNImpl.h"
 #include "../Backend/Collection/CNImpl.h"
 #include "../Backend/Renderer/VKWindow.h"

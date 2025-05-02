@@ -1,6 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <unordered_map>
+#include "../Common.h"
 #include "SNComponentArrayBase.h"
 #include "SNComponentArray.h"
 #include "../Log/LGImpl.h"
@@ -11,7 +10,7 @@ namespace Scene {
         private:
             struct ComponentMgrInfo {
                 struct Meta {
-                    std::unordered_map <const char*, ComponentType>         types;
+                    std::unordered_map <const char*, ComponentType> types;
                     std::unordered_map <const char*, SNComponentArrayBase*> arrays;
                     ComponentType nextAvailableType;
                 } meta;

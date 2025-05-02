@@ -1,11 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <stdexcept>
-#include <string>
-#include <set>
-#include <vector>
-#include <vulkan/vk_enum_string_helper.h>
+#include "../Common.h"
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 
@@ -287,7 +281,6 @@ namespace Renderer {
                 vkDestroyInstance (m_instanceInfo.resource.instance, nullptr);
                 LOG_INFO (m_instanceInfo.resource.logObj) << "[X] Instance"
                                                           << std::endl;
-                delete m_validationLogObj;
             }
 
         public:
@@ -306,6 +299,12 @@ namespace Renderer {
                     m_instanceInfo.resource.logObj     = logObj;
                     m_instanceInfo.state.logObjCreated = false;
                 }
+
+                m_validationLogObj = new Log::LGImpl();
+                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",   "Validation");
+                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
+                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_NONE);
             }
 
             void initInstanceInfo (const std::vector <const char*> validationLayers,
@@ -318,13 +317,6 @@ namespace Renderer {
                 m_instanceInfo.state.validationLayersSupported = isValidationLayersSupportedEXT();
                 m_instanceInfo.resource.instance               = nullptr;
                 m_instanceInfo.resource.debugUtilsMessenger    = nullptr;
-
-                m_validationLogObj                             = new Log::LGImpl();
-                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",   "Validation");
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
-                                                                             Log::LOG_SINK_FILE);
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_NONE);
             }
 
             bool isValidationLayersDisabled (void) {
@@ -358,6 +350,7 @@ namespace Renderer {
             ~VKInstance (void) {
                 if (m_instanceInfo.state.logObjCreated)
                     delete m_instanceInfo.resource.logObj;
+                delete m_validationLogObj;
             }
     };
     Log::LGImpl* VKInstance::m_validationLogObj = nullptr;

@@ -1,5 +1,5 @@
 #pragma once
-#include <bitset>
+#include "../Common.h"
 #include "SNEntityMgr.h"
 #include "SNComponentMgr.h"
 #include "SNSystemMgr.h"
@@ -23,13 +23,12 @@ namespace Scene {
             SNImpl (void) {
                 m_sceneInfo = {};
 
-                m_sceneInfo.resource.logObj          = new Log::LGImpl();
-                m_sceneInfo.resource.logObj->initLogInfo     ("Build/Log/Scene",      __FILE__);
-                m_sceneInfo.resource.logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                m_sceneInfo.resource.logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE |
-                                                                                      Log::LOG_SINK_FILE);
-                m_sceneInfo.resource.logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE |
-                                                                                      Log::LOG_SINK_FILE);
+                auto& logObj = m_sceneInfo.resource.logObj;
+                logObj       = new Log::LGImpl();
+                logObj->initLogInfo     ("Build/Log/Scene",      __FILE__);
+                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
 
                 m_sceneInfo.resource.entityMgrObj    = new SNEntityMgr    (m_sceneInfo.resource.logObj);
                 m_sceneInfo.resource.entityMgrObj->initEntityMgrInfo();

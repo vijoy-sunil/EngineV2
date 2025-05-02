@@ -1,7 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
+#include "../Common.h"
 #include "SNSystemBase.h"
 #include "../Log/LGImpl.h"
 #include "SNType.h"
@@ -11,7 +9,7 @@ namespace Scene {
         private:
             struct SysteMgrInfo {
                 struct Meta {
-                    std::unordered_map <const char*, Signature>     signatures;
+                    std::unordered_map <const char*, Signature> signatures;
                     std::unordered_map <const char*, SNSystemBase*> systems;
                 } meta;
 

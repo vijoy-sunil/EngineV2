@@ -1,18 +1,12 @@
 #pragma once
-#include <string>
-#include <unordered_map>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <chrono>
+#include "../Common.h"
 #include "../Collection/CNTypeInstanceBase.h"
 
 /* 1-line log macros */
 #define LOG_LITE(obj, level)            obj->getReference()                                     \
-                                            << obj->setCurrentSinks (level)
+                                            << obj->setActiveSinks (level)
 #define LOG(obj, level)                 obj->getReference()                                     \
-                                            << obj->setCurrentSinks (level)                     \
+                                            << obj->setActiveSinks (level)                      \
                                             << "[" << obj->getTimeStamp()            << "]"     \
                                             << " "                                              \
                                             << "[" << obj->getLogLevelString (level) << "]"     \
@@ -66,12 +60,15 @@ namespace Log {
                     const char* saveFileExtension;
                 } meta;
 
+                struct State {
+                    e_logSink activeSinks;
+                } state;
+
                 struct Resource {
                     std::fstream file;
                 } resource;
             } m_logInfo;
 
-            e_logSink m_currentSinks;
             /* std::endl is a template function, and this is the signature of that function */
             using EndlType = std::ostream& (std::ostream&);
 
@@ -97,7 +94,7 @@ namespace Log {
                 m_logInfo.meta.saveFileDirPath            = saveFileDirPath;
                 m_logInfo.meta.saveFileName               = saveFileName;
                 m_logInfo.meta.saveFileExtension          = saveFileExtension;
-                m_currentSinks                            = LOG_SINK_NONE;
+                m_logInfo.state.activeSinks               = LOG_SINK_NONE;
             }
 
             void updateLogConfig (const e_logLevel level, const e_logSink sink) {
@@ -108,8 +105,8 @@ namespace Log {
                 return *this;
             }
 
-            const char* setCurrentSinks (const e_logLevel level) {
-                m_currentSinks = m_logInfo.meta.configs[level];
+            const char* setActiveSinks (const e_logLevel level) {
+                m_logInfo.state.activeSinks = m_logInfo.meta.configs[level];
                 return "";
             }
 
@@ -135,10 +132,10 @@ namespace Log {
             */
             template <typename T>
             LGImpl& operator << (const T& data) {
-                if (m_currentSinks & LOG_SINK_CONSOLE)
+                if (m_logInfo.state.activeSinks & LOG_SINK_CONSOLE)
                     std::cout << data;
 
-                if (m_currentSinks & LOG_SINK_FILE) {
+                if (m_logInfo.state.activeSinks & LOG_SINK_FILE) {
                     m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
                                                   m_logInfo.meta.saveFileName    +
                                                   m_logInfo.meta.saveFileExtension, std::ios::app);
@@ -149,10 +146,10 @@ namespace Log {
             }
 
             LGImpl& operator << (EndlType endl) {
-                if (m_currentSinks & LOG_SINK_CONSOLE)
+                if (m_logInfo.state.activeSinks & LOG_SINK_CONSOLE)
                     std::cout << endl;
 
-                if (m_currentSinks & LOG_SINK_FILE) {
+                if (m_logInfo.state.activeSinks & LOG_SINK_FILE) {
                     m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
                                                   m_logInfo.meta.saveFileName    +
                                                   m_logInfo.meta.saveFileExtension, std::ios::app);

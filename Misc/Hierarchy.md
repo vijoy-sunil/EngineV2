@@ -1,89 +1,134 @@
 # Class/file hierarchy
 
+## Backend/
+<pre>
+    |<----------------------:glfw3
+    |<----------------------:vk_enum_string_helper
+    |<----------------------:glm
+    |<----------------------:hash
+    |<----------------------:matrix_transform
+    |<----------------------:set
+    |<----------------------:map
+    |<----------------------:vector
+    |<----------------------:array
+    |<----------------------:queue
+    |<----------------------:string
+    |<----------------------:bitset
+    |<----------------------:utility
+    |<----------------------:optional
+    |<----------------------:unordered_map
+    |<----------------------:fstream
+    |<----------------------:sstream
+    |<----------------------:iostream
+    |<----------------------:cmath
+    |<----------------------:limits
+    |<----------------------:algorithm
+    |<----------------------:chrono
+    |<----------------------:cstdint
+    |<----------------------:iomanip
+    |<----------------------:iterator
+    |<----------------------:stdexcept
+    |<----------------------:functional
+    |Common
+</pre>
+
 ## Backend/Scene/
 <pre>
+    |<----------------------:Common
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNEnityMgr             {stdexcept}, {array}, {queue}
+    |SNEntityMgr
 
     |<----------------------:SNType
     |SNComponentArrayBase
 
+    |<----------------------:Common
     |<----------------------|SNComponentArrayBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNComponentArray       {stdexcept}, {string}, {unordered_map}, {array}
+    |SNComponentArray
 
+    |<----------------------:Common
     |<----------------------:SNComponentArrayBase
     |<----------------------:SNComponentArray
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNComponentMgr         {stdexcept}, {unordered_map}
+    |SNComponentMgr
 
+    |<----------------------:Common
     |<----------------------:SNType
-    |SNSystemBase           {set}
+    |SNSystemBase
 
+    |<----------------------:Common
     |<----------------------:SNSystemBase
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNSystemMgr            {stdexcept}, {string}, {unordered_map}
+    |SNSystemMgr
 
-    |<----------------------:SNEnityMgr
+    |<----------------------:Common
+    |<----------------------:SNEntityMgr
     |<----------------------:SNComponentMgr
     |<----------------------:SNSystemMgr
     |<----------------------:LGImpl
     |<----------------------:SNType
-    |SNImpl                 {bitset}
+    |SNImpl
 
-    |SNType                 {bitset}
+    |<----------------------:Common
+    |SNType
 </pre>
 
 ## Backend/Collection/
 <pre>
+    |<----------------------:Common
     |<----------------------:CNTypeInstanceBase
     |<----------------------:LGImpl
-    |CNTypeInstanceArray    {stdexcept}, {string}, {unordered_map}, {array}
+    |CNTypeInstanceArray
 
+    |<----------------------:Common
     |<----------------------:CNTypeInstanceBase
     |<----------------------:CNTypeInstanceArray
     |<----------------------:LGImpl
-    |CNImpl                 {stdexcept}, {string}, {unordered_map}
+    |CNImpl
 </pre>
 
 ## Backend/Log/
 <pre>
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
-    |LGImpl                 {string}, {unordered_map}, {fstream}, {sstream}, {iostream}, {iomanip}, {chrono}
+    |LGImpl
 </pre>
 
 ## Backend/Renderer/
 <pre>
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
-    |VKInstance             {glfw3}, {stdexcept}, {string}, {set}, {vector}, {vk_enum_string_helper}
+    |
+    \VKInstance
+    \VKWindow
 
-    |<----------------------|CNTypeInstanceBase [PUB]
-    |<----------------------:LGImpl
-    |VKWindow               {glfw3}, {unordered_map}, {functional}
-
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKWindow
-    |VKSurface              {glfw3}, {stdexcept}, {vk_enum_string_helper}
+    |VKSurface
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKSurface
-    |VKPhyDevice            {glfw3}, {stdexcept}, {string}, {unordered_map}, {set}, {vector}, {optional}
+    |VKPhyDevice
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKInstance
     |<----------------------:VKPhyDevice
-    |VKLogDevice            {glfw3}, {stdexcept}, {set}, {vector}, {vk_enum_string_helper}
+    |VKLogDevice
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKWindow
@@ -91,57 +136,54 @@
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
     |<----------------------:VKHelper
-    |VKSwapChain            {glfw3}, {stdexcept}, {vector}, {limits}, {algorithm}, {vk_enum_string_helper}
+    |VKSwapChain
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKPhyDevice
     |<----------------------:VKLogDevice
     |<----------------------:VKHelper
-    |                       {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
+    |
     \VKBuffer
     \VKImage
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
-    |                       {glfw3}, {stdexcept}, {vk_enum_string_helper}
+    |
     \VKSampler
+    \VKRenderPass
+    \VKDescriptorPool
     \VKFence
     \VKSemaphore
     \VKCmdPool
 
-    |<----------------------|CNTypeInstanceBase [PUB]
-    |<----------------------:LGImpl
-    |<----------------------:VKLogDevice
-    |                       {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
-    \VKRenderPass
-    \VKDescriptorPool
-
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
     |<----------------------:VKRenderPass
-    |VKFrameBuffer          {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
+    |
+    \VKFrameBuffer
+    \VKPipeline
 
-    |<----------------------|CNTypeInstanceBase [PUB]
-    |<----------------------:LGImpl
-    |<----------------------:VKLogDevice
-    |<----------------------:VKRenderPass
-    |VKPipeline             {glfw3}, {stdexcept}, {fstream}, {vector}, {vk_enum_string_helper}
-
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
     |<----------------------:VKDescriptorPool
-    |VKDescriptorSet        {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
+    |VKDescriptorSet
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKLogDevice
     |<----------------------:VKCmdPool
-    |VKCmdBuffer            {glfw3}, {stdexcept}, {vector}, {vk_enum_string_helper}
+    |VKCmdBuffer
 
+    |<----------------------:Common
     |<----------------------|CNTypeInstanceBase [PUB]
     |<----------------------:LGImpl
     |<----------------------:VKWindow
@@ -151,20 +193,23 @@
     |<----------------------:VKSemaphore
     |<----------------------:VKCmdBuffer
     |<----------------------:VKHelper
-    |VKRenderer             {glfw3}, {stdexcept}, {vector}, {functional}, {vk_enum_string_helper}
+    |VKRenderer
 
-    |VKCmdList              {glfw3}, {stdexcept}, {vector}
-
-    |VKHelper               {glfw3}, {stdexcept}, {set}, {vector}
+    |<----------------------:Common
+    |
+    \VKCmdList
+    \VKHelper
 </pre>
 
 ## SandBox/
 <pre>
+    |<----------------------:Common
     |<----------------------:LGImpl
     |<----------------------:stb_image
     |<----------------------:SBRendererType
-    |SBTexturePool          {stdexcept}, {string}, {map}, {unordered_map}
+    |SBTexturePool
 
+    |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
     |<----------------------:LGImpl
@@ -172,31 +217,28 @@
     |<----------------------:SBTexturePool
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYMeshLoading          {stdexcept}, {string}, {unordered_map}, {utility}
+    |SYMeshLoading
 
+    |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
     |<----------------------:LGImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYMeshBatching         {stdexcept}, {unordered_map}, {vector}
+    |
+    \SYMeshBatching
+    \SYLightInstanceBatching
 
+    |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
     |<----------------------:LGImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
-    |SYMeshInstanceBatching {glm}, {stdexcept}, {unordered_map}, {vector}
+    |SYMeshInstanceBatching
 
-    |<----------------------|SNSystemBase [PUB]
-    |<----------------------:SNImpl
-    |<----------------------:LGImpl
-    |<----------------------:SNType
-    |<----------------------:SBComponentType
-    |<----------------------:SBRendererType
-    |SYLightInstanceBatching {glm}, {stdexcept}, {unordered_map}, {vector}
-
+    |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
     |<----------------------:CNImpl
@@ -206,8 +248,9 @@
     |<----------------------:SYEnum
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYCameraController     {glfw3}, {glm}, {stdexcept}, {algorithm}
+    |SYCameraController
 
+    |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
     |<----------------------:CNImpl
@@ -223,8 +266,9 @@
     |<----------------------:VKCmdList
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYDefaultRendering     {glfw3}, {stdexcept}, {string}, {vector}
+    |SYDefaultRendering
 
+    |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
     |<----------------------:SNImpl
     |<----------------------:CNImpl
@@ -237,13 +281,9 @@
     |<----------------------:VKCmdList
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYSkyBoxRendering      {glfw3}, {stdexcept}, {string}, {vector}
+    |SYSkyBoxRendering
 
-    |<----------------------:SBRendererType
-    |SBComponentType        {glm}, {matrix_transform}, {string}, {vector}, {algorithm}, {iterator}
-
-    |SBRendererType         {glm}, {hash}
-
+    |<----------------------:Common
     |<----------------------:SNImpl
     |<----------------------:SYMeshLoading
     |<----------------------:SYMeshBatching
@@ -255,8 +295,9 @@
     |<----------------------:SBImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
-    |SBScene                {glm}, {string}, {vector}, {bitset}, {utility}
+    |SBScene
 
+    |<----------------------:Common
     |<----------------------:SNImpl
     |<----------------------:CNImpl
     |<----------------------:LGImpl
@@ -288,8 +329,9 @@
     |<----------------------:VKHelper
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SBRenderer             {glfw3}, {glm}, {string}, {unordered_map}, {vector}, {algorithm}, {cmath}
+    |SBRenderer
 
+    |<----------------------:Common
     |<----------------------:SNImpl
     |<----------------------:CNImpl
     |<----------------------:VKWindow
@@ -304,7 +346,14 @@
     |<----------------------:SNType
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SBImpl                 {glfw3}, {chrono}
+    |SBImpl
+
+    |<----------------------:Common
+    |<----------------------:SBRendererType
+    |SBComponentType
+
+    |<----------------------:Common
+    |SBRendererType
 </pre>
 
 ## ./

@@ -1,12 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <stdexcept>
-#include <algorithm>
+#include "../../Backend/Common.h"
 #include "../../Backend/Scene/SNSystemBase.h"
 #include "../../Backend/Scene/SNImpl.h"
 #include "../../Backend/Collection/CNImpl.h"

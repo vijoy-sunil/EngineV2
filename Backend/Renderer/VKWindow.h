@@ -1,19 +1,28 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <unordered_map>
-#include <functional>
+#include "../Common.h"
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 
 namespace Renderer {
     class VKWindow: public Collection::CNTypeInstanceBase {
         private:
+            struct KeyEventInfo {
+                struct State {
+                    int action;
+                } state;
+
+                struct Resource {
+                    std::function <void (void)> pressBinding;
+                    std::function <void (void)> releaseBinding;
+                } resource;
+            };
+
             struct WindowInfo {
                 struct Meta {
                     int width;
                     int height;
                     const char* title;
+                    std::unordered_map <int, KeyEventInfo> keyEventInfoPool;
                 } meta;
 
                 struct State {
@@ -31,18 +40,6 @@ namespace Renderer {
                     std::function <void (double, double)> scrollOffsetBinding;
                 } resource;
             } m_windowInfo;
-
-            struct KeyEventInfo {
-                struct State {
-                    int action;
-                } state;
-
-                struct Resource {
-                    std::function <void (void)> pressBinding;
-                    std::function <void (void)> releaseBinding;
-                } resource;
-            };
-            std::unordered_map <int, KeyEventInfo> m_keyEventInfoPool;
 
             /* Callbacks */
             static void windowResizeCallback (GLFWwindow* window,
@@ -100,16 +97,17 @@ namespace Renderer {
                 static_cast <void> (scanCode);
                 static_cast <void> (mods);
 
-                auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
+                auto thisPtr           = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
+                auto& keyEventInfoPool = thisPtr->m_windowInfo.meta.keyEventInfoPool;
                 /* Do not save event info if the key doesn't exist in pool */
-                if (thisPtr->m_keyEventInfoPool.find (key) == thisPtr->m_keyEventInfoPool.end())
+                if (keyEventInfoPool.find (key) == keyEventInfoPool.end())
                     return;
 
-                thisPtr->m_keyEventInfoPool[key].state.action = action;
+                keyEventInfoPool[key].state.action = action;
             }
 
             void handleKeyEvents (void) {
-                for (auto& [key, info]: m_keyEventInfoPool) {
+                for (auto& [key, info]: m_windowInfo.meta.keyEventInfoPool) {
                     if ((info.state.action == GLFW_PRESS || info.state.action == GLFW_REPEAT) &&
                         (info.resource.pressBinding != nullptr))
                          info.resource.pressBinding();
@@ -181,6 +179,7 @@ namespace Renderer {
                 m_windowInfo.meta.width                     = width;
                 m_windowInfo.meta.height                    = height;
                 m_windowInfo.meta.title                     = title;
+                m_windowInfo.meta.keyEventInfoPool          = {};
 
                 m_windowInfo.state.resizeDisabled           = resizeDisabled;
                 m_windowInfo.state.resized                  = false;
@@ -252,9 +251,10 @@ namespace Renderer {
                                      const std::function <void (void)> pressBinding,
                                      const std::function <void (void)> releaseBinding = nullptr) {
 
-                m_keyEventInfoPool[key].state.action            = GLFW_KEY_UNKNOWN;
-                m_keyEventInfoPool[key].resource.pressBinding   = pressBinding;
-                m_keyEventInfoPool[key].resource.releaseBinding = releaseBinding;
+                auto& keyEventInfoPool                        = m_windowInfo.meta.keyEventInfoPool;
+                keyEventInfoPool[key].state.action            = GLFW_KEY_UNKNOWN;
+                keyEventInfoPool[key].resource.pressBinding   = pressBinding;
+                keyEventInfoPool[key].resource.releaseBinding = releaseBinding;
             }
 
             GLFWwindow* getWindow (void) {

@@ -1,11 +1,5 @@
 #pragma once
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <stdexcept>
-#include <unordered_map>
-#include <vector>
+#include "../../Backend/Common.h"
 #include "../../Backend/Scene/SNSystemBase.h"
 #include "../../Backend/Scene/SNImpl.h"
 #include "../../Backend/Log/LGImpl.h"

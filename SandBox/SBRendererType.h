@@ -1,9 +1,5 @@
 #pragma once
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtx/hash.hpp>
+#include "../Backend/Common.h"
 
 namespace SandBox {
     /* Note that, it is possible to use either uint16_t or uint32_t for your index buffer depending on the number of
@@ -76,22 +72,22 @@ namespace std {
     struct hash <SandBox::Vertex> {
         /* https://stackoverflow.com/questions/1646807/quick-and-simple-hash-code-combinations/1646913#1646913 */
         size_t operator () (const SandBox::Vertex& vertex) const {
-            size_t h1 = hash <glm::vec2>               () (vertex.meta.uv);
-            size_t h2 = hash <glm::vec3>               () (vertex.meta.normal);
-            size_t h3 = hash <glm::vec3>               () (vertex.meta.position);
-            size_t h4 = hash <SandBox::TextureIdxType> () (vertex.material.diffuseTextureIdx);
-            size_t h5 = hash <SandBox::TextureIdxType> () (vertex.material.specularTextureIdx);
-            size_t h6 = hash <SandBox::TextureIdxType> () (vertex.material.emissionTextureIdx);
-            size_t h7 = hash <uint32_t>                () (vertex.material.shininess);
+            size_t h1   = hash <glm::vec2>              () (vertex.meta.uv);
+            size_t h2   = hash <glm::vec3>              () (vertex.meta.normal);
+            size_t h3   = hash <glm::vec3>              () (vertex.meta.position);
+            size_t h4   = hash <SandBox::TextureIdxType>() (vertex.material.diffuseTextureIdx);
+            size_t h5   = hash <SandBox::TextureIdxType>() (vertex.material.specularTextureIdx);
+            size_t h6   = hash <SandBox::TextureIdxType>() (vertex.material.emissionTextureIdx);
+            size_t h7   = hash <uint32_t>               () (vertex.material.shininess);
 
             size_t hash = 17;
-            hash = hash * 31 + h1;
-            hash = hash * 31 + h2;
-            hash = hash * 31 + h3;
-            hash = hash * 31 + h4;
-            hash = hash * 31 + h5;
-            hash = hash * 31 + h6;
-            hash = hash * 31 + h7;
+            hash        = hash * 31 + h1;
+            hash        = hash * 31 + h2;
+            hash        = hash * 31 + h3;
+            hash        = hash * 31 + h4;
+            hash        = hash * 31 + h5;
+            hash        = hash * 31 + h6;
+            hash        = hash * 31 + h7;
             return hash;
         }
     };

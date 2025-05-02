@@ -1,5 +1,5 @@
 #pragma once
-#include <set>
+#include "../Common.h"
 #include "SNType.h"
 
 namespace Scene {

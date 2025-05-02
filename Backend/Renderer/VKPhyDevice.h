@@ -1,12 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <set>
-#include <vector>
-#include <optional>
+#include "../Common.h"
 #include "../Collection/CNTypeInstanceBase.h"
 #include "../Log/LGImpl.h"
 #include "VKInstance.h"
@@ -19,7 +12,7 @@ namespace Renderer {
                 struct Meta {
                     std::vector <const char*> extensions;
                     std::optional <uint32_t> graphicsQueueFamilyIdx;
-                    std::optional <uint32_t>  presentQueueFamilyIdx;
+                    std::optional <uint32_t> presentQueueFamilyIdx;
                     std::optional <uint32_t> transferQueueFamilyIdx;
                 } meta;
 
@@ -29,8 +22,8 @@ namespace Renderer {
 
                 struct Resource {
                     Log::LGImpl* logObj;
-                    VKInstance*  instanceObj;
-                    VKSurface*   surfaceObj;
+                    VKInstance* instanceObj;
+                    VKSurface* surfaceObj;
                     VkPhysicalDevice device;
                 } resource;
             } m_phyDeviceInfo;
