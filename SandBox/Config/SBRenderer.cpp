@@ -33,7 +33,6 @@
 
 namespace SandBox {
     void SBImpl::configRenderer (void) {
-        auto& skyBoxEntity          = m_sandBoxInfo.meta.skyBoxEntity;
         auto& sceneObj              = m_sandBoxInfo.resource.sceneObj;
         auto& collectionObj         = m_sandBoxInfo.resource.collectionObj;
         auto& defaultTexturePoolObj = m_sandBoxInfo.resource.defaultTexturePoolObj;
@@ -166,7 +165,7 @@ namespace SandBox {
             collectionObj->registerCollectionType <Renderer::VKBuffer>();
 
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
-            auto vertices     = batchingObj->getBatchedVertices();
+            auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_DEFAULT);
 
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
@@ -189,20 +188,21 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [SKY_BOX_VERTEX_STAGING] */
-            auto meshComponent = sceneObj->getComponent <MeshComponent> (skyBoxEntity);
-            auto vertices      = std::vector <glm::vec3> {};
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_SKY_BOX);
+            auto positions    = std::vector <glm::vec3> {};
 
-            auto logObj        = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto phyDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
-            auto logDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
-            auto bufferObj     = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
 
             /* Repack vertex data since we only need the position as the vertex attribute */
-            for (auto const& vertex: meshComponent->m_vertices)
-                vertices.push_back (vertex.meta.position);
+            for (auto const& vertex: vertices)
+                positions.push_back (vertex.meta.position);
 
             bufferObj->initBufferInfo (
-                vertices.size() * sizeof (vertices[0]),
+                positions.size() * sizeof (positions[0]),
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                 {
@@ -213,13 +213,13 @@ namespace SandBox {
 
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("SKY_BOX_VERTEX_STAGING", bufferObj);
             bufferObj->updateBuffer (
-                vertices.data(),
+                positions.data(),
                 true
             );
         }
         {   /* Buffer           [DEFAULT_VERTEX] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
-            auto vertices     = batchingObj->getBatchedVertices();
+            auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_DEFAULT);
 
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
@@ -239,19 +239,20 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("DEFAULT_VERTEX", bufferObj);
         }
         {   /* Buffer           [SKY_BOX_VERTEX] */
-            auto meshComponent = sceneObj->getComponent <MeshComponent> (skyBoxEntity);
-            auto vertices      = std::vector <glm::vec3> {};
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_SKY_BOX);
+            auto positions    = std::vector <glm::vec3> {};
 
-            auto logObj        = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto phyDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
-            auto logDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
-            auto bufferObj     = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
 
-            for (auto const& vertex: meshComponent->m_vertices)
-                vertices.push_back (vertex.meta.position);
+            for (auto const& vertex: vertices)
+                positions.push_back (vertex.meta.position);
 
             bufferObj->initBufferInfo (
-                vertices.size() * sizeof (vertices[0]),
+                positions.size() * sizeof (positions[0]),
                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 {
@@ -265,7 +266,7 @@ namespace SandBox {
         }
         {   /* Buffer           [DEFAULT_INDEX_STAGING] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
-            auto indices      = batchingObj->getBatchedIndices();
+            auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_DEFAULT);
 
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
@@ -288,13 +289,13 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [SKY_BOX_INDEX_STAGING] */
-            auto meshComponent = sceneObj->getComponent <MeshComponent> (skyBoxEntity);
-            auto indices       = meshComponent->m_indices;
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_SKY_BOX);
 
-            auto logObj        = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto phyDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
-            auto logDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
-            auto bufferObj     = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
                 indices.size() * sizeof (IndexType),
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -313,7 +314,7 @@ namespace SandBox {
         }
         {   /* Buffer           [DEFAULT_INDEX] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
-            auto indices      = batchingObj->getBatchedIndices();
+            auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_DEFAULT);
 
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
@@ -333,13 +334,13 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("DEFAULT_INDEX", bufferObj);
         }
         {   /* Buffer           [SKY_BOX_INDEX] */
-            auto meshComponent = sceneObj->getComponent <MeshComponent> (skyBoxEntity);
-            auto indices       = meshComponent->m_indices;
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_SKY_BOX);
 
-            auto logObj        = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
-            auto phyDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
-            auto logDeviceObj  = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
-            auto bufferObj     = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
                 indices.size() * sizeof (IndexType),
                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,

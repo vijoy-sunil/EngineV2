@@ -65,12 +65,8 @@ namespace SandBox {
 
                 size_t loopIdx = 0;
                 for (auto const& entity: m_entities) {
-                    auto idComponent            = sceneObj->getComponent <IdComponent>            (entity);
                     auto transformComponent     = sceneObj->getComponent <TransformComponent>     (entity);
                     auto textureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (entity);
-
-                    if (idComponent->m_batchingDisabled)
-                        continue;
 
                     m_meshInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     MeshInstanceSBO instance;

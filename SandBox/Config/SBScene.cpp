@@ -159,8 +159,7 @@ namespace SandBox {
         {   /* Entity   [SKY_BOX] */
             auto entity = sceneObj->addEntity();
             sceneObj->addComponent (entity, IdComponent (
-                "SKY_BOX",
-                true
+                "SKY_BOX"
             ));
             sceneObj->addComponent (entity, MeshComponent (
                 "Asset/Model/Sky_Box.obj",
@@ -297,6 +296,9 @@ namespace SandBox {
                 meshBatchingObj->generateReport();
             }
             {   /* Mesh instance batching system */
+                {   /* Remove texture idx LUT component */
+                    sceneObj->removeComponent <TextureIdxLUTComponent> (9);     /* SKY_BOX */
+                }
                 meshInstanceBatchingObj->update();
                 meshInstanceBatchingObj->generateReport();
             }

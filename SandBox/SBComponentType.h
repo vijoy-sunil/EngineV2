@@ -28,14 +28,11 @@ namespace SandBox {
     /* Components */
     struct IdComponent {
         public:
-            std::string m_id        = "Unnamed";
-            /* Prevent entity properties from being batched by systems if set to true */
-            bool m_batchingDisabled = false;
+            std::string m_id   = "Unnamed";
 
             IdComponent (void) = default;
-            IdComponent (const std::string id, const bool batchingDisabled = false) {
-                m_id               = id;
-                m_batchingDisabled = batchingDisabled;
+            IdComponent (const std::string id) {
+                m_id = id;
             }
     };
 
