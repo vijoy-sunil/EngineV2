@@ -1352,9 +1352,9 @@ namespace SandBox {
             /* Color blend */
             auto colorBlendAttachments = std::vector {
                 pipelineObj->createColorBlendAttachment (
-                    VK_TRUE,
-                    VK_BLEND_FACTOR_SRC_ALPHA,
-                    VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+                    VK_FALSE,
+                    VK_BLEND_FACTOR_ONE,
+                    VK_BLEND_FACTOR_ZERO,
                     VK_BLEND_OP_ADD,
                     VK_BLEND_FACTOR_ONE,
                     VK_BLEND_FACTOR_ZERO,
@@ -1468,27 +1468,7 @@ namespace SandBox {
                 "Build/Bin/SkyBox[FRAG].spv",
                 "main"
             );
-            /* There are two options when we render the sky box. First, we render the sky box first before we render all
-             * the other objects in the scene. This works great, but is too inefficient. If we render the sky box first,
-             * we're running the fragment shader for each pixel on the screen even though only a small part of the sky
-             * box will eventually be visible
-             *
-             * Second, render the sky box last. This way, the depth buffer is completely filled with all the scene's
-             * depth values so we only have to render the sky box's fragments wherever the early depth test passes,
-             * greatly reducing the number of fragment shader calls. The problem is that the sky box will most likely
-             * render on top of all other objects since it's only a 1x1x1 cube, succeeding most depth tests
-             *
-             * We need to trick the depth buffer into believing that the sky box has the maximum depth value of 1.0 so
-             * that it fails the depth test wherever there's a different object in front of it. We know that perspective
-             * division is performed after the vertex shader has run (dividing the gl_Position's xyz coordinates by its
-             * w component). We also know that the z component of the resulting division is equal to that vertex's depth
-             * value. Using this information we can set the z component of the output position equal to its w component
-             * which will result in a z component that is always equal to 1.0, because when the perspective division is
-             * applied its z component translates to w / w = 1.0
-             *
-             * The resulting normalized device coordinates will then always have a z value equal to 1.0: the maximum
-             * depth value. The sky box will as a result only be rendered wherever there are no objects visible
-            */
+            /* Depth stencil */
             pipelineObj->createDepthStencilState (
                 VK_TRUE,
                 VK_TRUE,
@@ -1516,9 +1496,9 @@ namespace SandBox {
             /* Color blend */
             auto colorBlendAttachments = std::vector {
                 pipelineObj->createColorBlendAttachment (
-                    VK_TRUE,
-                    VK_BLEND_FACTOR_SRC_ALPHA,
-                    VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+                    VK_FALSE,
+                    VK_BLEND_FACTOR_ONE,
+                    VK_BLEND_FACTOR_ZERO,
                     VK_BLEND_OP_ADD,
                     VK_BLEND_FACTOR_ONE,
                     VK_BLEND_FACTOR_ZERO,
