@@ -11,6 +11,7 @@ namespace SandBox {
     class SYMeshBatching: public Scene::SNSystemBase {
         private:
             struct OffsetInfo {
+                uint32_t verticesCountPerPrimitive;
                 uint32_t firstIndexIdx;
                 uint32_t indicesCount;
                 int32_t vertexOffset;
@@ -87,6 +88,7 @@ namespace SandBox {
                     auto& counters                      = tagToCountersMap             [renderComponent->m_tag];
                     auto& batchedVertices               = meta.tagToBatchedVerticesMap [renderComponent->m_tag];
                     auto& batchedIndices                = meta.tagToBatchedIndicesMap  [renderComponent->m_tag];
+                    uint32_t verticesCountPerPrimitive  = renderComponent->m_tag == TAG_TYPE_WIRE ? 2:3;
 
                     /* Populate render component */
                     renderComponent->m_firstIndexIdx    = static_cast <uint32_t> (counters.indices);
@@ -99,6 +101,7 @@ namespace SandBox {
                     counters.instances                 += renderComponent->m_instancesCount;
 
                     meta.entityToOffsetInfoMap[entity]  = {
+                        verticesCountPerPrimitive,
                         renderComponent->m_firstIndexIdx,
                         renderComponent->m_indicesCount,
                         renderComponent->m_vertexOffset
@@ -133,10 +136,11 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj) << "{" << std::endl;
 
                     for (auto const& entity: entities) {
-                        auto info              = meta.entityToOffsetInfoMap[entity];
-                        uint32_t firstIndexIdx = info.firstIndexIdx;
-                        uint32_t lastIndexIdx  = firstIndexIdx + info.indicesCount;
-                        size_t loopIdx         = 0;
+                        auto info                          = meta.entityToOffsetInfoMap[entity];
+                        uint32_t verticesCountPerPrimitive = info.verticesCountPerPrimitive;
+                        uint32_t firstIndexIdx             = info.firstIndexIdx;
+                        uint32_t lastIndexIdx              = firstIndexIdx + info.indicesCount;
+                        size_t loopIdx                     = 0;
 
                         LOG_LITE_INFO (logObj) << "\t" << entity << std::endl;
                         LOG_LITE_INFO (logObj) << "\t" << "{"    << std::endl;
@@ -145,8 +149,8 @@ namespace SandBox {
                             auto index  = batchedIndices[indexIdx];
                             auto vertex = batchedVertices[info.vertexOffset + index];
 
-                            /* New line after every 3rd vertex */
-                            if (loopIdx > 0 && (loopIdx % 3 == 0))
+                            /* New line after every primitive */
+                            if (loopIdx > 0 && (loopIdx % verticesCountPerPrimitive == 0))
                             LOG_LITE_INFO (logObj) << std::endl;
 
                             LOG_LITE_INFO (logObj) << "\t\t"
