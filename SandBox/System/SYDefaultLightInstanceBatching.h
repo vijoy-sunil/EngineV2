@@ -8,7 +8,7 @@
 #include "../SBRendererType.h"
 
 namespace SandBox {
-    class SYLightInstanceBatching: public Scene::SNSystemBase {
+    class SYDefaultLightInstanceBatching: public Scene::SNSystemBase {
         private:
             /* SBO - Storage buffer object */
             struct LightInstanceSBO {
@@ -26,7 +26,7 @@ namespace SandBox {
                 float outerRadius;
             };
 
-            struct LightInstanceBatchingInfo {
+            struct DefaultLightInstanceBatchingInfo {
                 struct Meta {
                     LightTypeOffsetsPC typeOffsets;
                     /* Used for report purpose only */
@@ -38,13 +38,13 @@ namespace SandBox {
                     Scene::SNImpl* sceneObj;
                     Log::LGImpl* logObj;
                 } resource;
-            } m_lightInstanceBatchingInfo;
+            } m_defaultLightInstanceBatchingInfo;
 
         public:
-            SYLightInstanceBatching (void) {
-                m_lightInstanceBatchingInfo = {};
+            SYDefaultLightInstanceBatching (void) {
+                m_defaultLightInstanceBatchingInfo = {};
 
-                auto& logObj = m_lightInstanceBatchingInfo.resource.logObj;
+                auto& logObj = m_defaultLightInstanceBatchingInfo.resource.logObj;
                 logObj       = new Log::LGImpl();
                 logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
                 logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
@@ -52,33 +52,33 @@ namespace SandBox {
                 logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
             }
 
-            void initLightInstanceBatchingInfo (Scene::SNImpl* sceneObj) {
-                m_lightInstanceBatchingInfo.meta.typeOffsets    = {};
-                m_lightInstanceBatchingInfo.meta.entityToIdxMap = {};
-                m_lightInstanceBatchingInfo.meta.instances      = {};
+            void initDefaultLightInstanceBatchingInfo (Scene::SNImpl* sceneObj) {
+                m_defaultLightInstanceBatchingInfo.meta.typeOffsets    = {};
+                m_defaultLightInstanceBatchingInfo.meta.entityToIdxMap = {};
+                m_defaultLightInstanceBatchingInfo.meta.instances      = {};
 
                 if (sceneObj == nullptr) {
-                    LOG_ERROR (m_lightInstanceBatchingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                            << std::endl;
+                    LOG_ERROR (m_defaultLightInstanceBatchingInfo.resource.logObj) << NULL_DEPOBJ_MSG
+                                                                                   << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_lightInstanceBatchingInfo.resource.sceneObj = sceneObj;
+                m_defaultLightInstanceBatchingInfo.resource.sceneObj = sceneObj;
             }
 
             LightTypeOffsetsPC* getLightTypeOffsets (void) {
-                return &m_lightInstanceBatchingInfo.meta.typeOffsets;
+                return &m_defaultLightInstanceBatchingInfo.meta.typeOffsets;
             }
 
             std::vector <LightInstanceSBO>& getBatchedLightInstances (void) {
-                return m_lightInstanceBatchingInfo.meta.instances;
+                return m_defaultLightInstanceBatchingInfo.meta.instances;
             }
 
             void update (void) {
-                auto& typeOffsets = m_lightInstanceBatchingInfo.meta.typeOffsets;
-                auto& sceneObj    = m_lightInstanceBatchingInfo.resource.sceneObj;
+                auto& typeOffsets = m_defaultLightInstanceBatchingInfo.meta.typeOffsets;
+                auto& sceneObj    = m_defaultLightInstanceBatchingInfo.resource.sceneObj;
                 /* Clear previous batched data */
-                m_lightInstanceBatchingInfo.meta.entityToIdxMap.clear();
-                m_lightInstanceBatchingInfo.meta.instances.clear();
+                m_defaultLightInstanceBatchingInfo.meta.entityToIdxMap.clear();
+                m_defaultLightInstanceBatchingInfo.meta.instances.clear();
 
                 size_t loopIdx                  = 0;
                 uint32_t directionalLightsCount = 0;
@@ -93,7 +93,7 @@ namespace SandBox {
                     if (lightType == LIGHT_TYPE_POINT)          ++pointLightsCount;
                     if (lightType == LIGHT_TYPE_SPOT)           ++spotLightsCount;
 
-                    m_lightInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
+                    m_defaultLightInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     LightInstanceSBO instance;
                     instance.position    = transformComponent->m_position;
                     instance.direction   = transformComponent->createForwardVector();
@@ -116,7 +116,7 @@ namespace SandBox {
                     instance.innerRadius = lightComponent->m_innerRadius;
                     instance.outerRadius = lightComponent->m_outerRadius;
 
-                    m_lightInstanceBatchingInfo.meta.instances.push_back (instance);
+                    m_defaultLightInstanceBatchingInfo.meta.instances.push_back (instance);
                 }
                 /* Note that light entities will be ordered based on light type and batched together as follows
                  *  +---------------+   +---------------+-----------+   +-----------+-----------+   +-----------+
@@ -134,10 +134,10 @@ namespace SandBox {
             }
 
             void generateReport (void) {
-                auto& logObj = m_lightInstanceBatchingInfo.resource.logObj;
+                auto& logObj = m_defaultLightInstanceBatchingInfo.resource.logObj;
 
-                for (auto const& [entity, idx]: m_lightInstanceBatchingInfo.meta.entityToIdxMap) {
-                    auto instance = m_lightInstanceBatchingInfo.meta.instances[idx];
+                for (auto const& [entity, idx]: m_defaultLightInstanceBatchingInfo.meta.entityToIdxMap) {
+                    auto instance = m_defaultLightInstanceBatchingInfo.meta.instances[idx];
 
                     LOG_LITE_INFO (logObj) << entity << std::endl;
                     LOG_LITE_INFO (logObj) << "{"    << std::endl;
@@ -181,8 +181,8 @@ namespace SandBox {
                 }
             }
 
-            ~SYLightInstanceBatching (void) {
-                delete m_lightInstanceBatchingInfo.resource.logObj;
+            ~SYDefaultLightInstanceBatching (void) {
+                delete m_defaultLightInstanceBatchingInfo.resource.logObj;
             }
     };
 }   // namespace SandBox

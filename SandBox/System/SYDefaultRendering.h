@@ -108,8 +108,8 @@ namespace SandBox {
                 );
             }
 
-            void update (const void* batchedMeshInstances,
-                         const void* batchedLightInstances,
+            void update (const void* meshInstances,
+                         const void* lightInstances,
                          const void* lightTypeOffsets,
                          const void* activeCamera) {
 
@@ -138,11 +138,11 @@ namespace SandBox {
 
                 /* Update buffer */
                 resource.meshInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
-                    batchedMeshInstances,
+                    meshInstances,
                     false
                 );
                 resource.lightInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
-                    batchedLightInstances,
+                    lightInstances,
                     false
                 );
                 /* [O] Begin render pass

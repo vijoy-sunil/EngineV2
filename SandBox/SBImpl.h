@@ -6,10 +6,12 @@
 #include "../Backend/Renderer/VKLogDevice.h"
 #include "../Backend/Renderer/VKRenderer.h"
 #include "SBTexturePool.h"
-#include "System/SYMeshInstanceBatching.h"
-#include "System/SYLightInstanceBatching.h"
+#include "System/SYDefaultMeshInstanceBatching.h"
+#include "System/SYWireMeshInstanceBatching.h"
+#include "System/SYDefaultLightInstanceBatching.h"
 #include "System/SYCameraController.h"
 #include "System/SYDefaultRendering.h"
+#include "System/SYWireRendering.h"
 #include "System/SYSkyBoxRendering.h"
 #include "../Backend/Scene/SNType.h"
 #include "SBComponentType.h"
@@ -94,17 +96,19 @@ namespace SandBox {
             }
 
             void runSandBox (void) {
-                auto& skyBoxEntity            = m_sandBoxInfo.meta.skyBoxEntity;
-                auto& sceneObj                = m_sandBoxInfo.resource.sceneObj;
-                auto& collectionObj           = m_sandBoxInfo.resource.collectionObj;
+                auto& skyBoxEntity                   = m_sandBoxInfo.meta.skyBoxEntity;
+                auto& sceneObj                       = m_sandBoxInfo.resource.sceneObj;
+                auto& collectionObj                  = m_sandBoxInfo.resource.collectionObj;
 
-                auto skyBoxTransformComponent = sceneObj->getComponent <TransformComponent> (skyBoxEntity);
-                auto meshInstanceBatchingObj  = sceneObj->getSystem    <SYMeshInstanceBatching>();
-                auto lightInstanceBatchingObj = sceneObj->getSystem    <SYLightInstanceBatching>();
-                auto cameraControllerObj      = sceneObj->getSystem    <SYCameraController>();
-                auto defaultRenderingObj      = sceneObj->getSystem    <SYDefaultRendering>();
-                auto skyBoxRenderingObj       = sceneObj->getSystem    <SYSkyBoxRendering>();
-                float frameDelta              = 0.0f;
+                auto skyBoxTransformComponent        = sceneObj->getComponent <TransformComponent> (skyBoxEntity);
+                auto defaultMeshInstanceBatchingObj  = sceneObj->getSystem    <SYDefaultMeshInstanceBatching>();
+                auto wireMeshInstanceBatchingObj     = sceneObj->getSystem    <SYWireMeshInstanceBatching>();
+                auto defaultLightInstanceBatchingObj = sceneObj->getSystem    <SYDefaultLightInstanceBatching>();
+                auto cameraControllerObj             = sceneObj->getSystem    <SYCameraController>();
+                auto defaultRenderingObj             = sceneObj->getSystem    <SYDefaultRendering>();
+                auto wireRenderingObj                = sceneObj->getSystem    <SYWireRendering>();
+                auto skyBoxRenderingObj              = sceneObj->getSystem    <SYSkyBoxRendering>();
+                float frameDelta                     = 0.0f;
                 /* Un-batched mesh instance */
                 MeshInstanceUBO skyBoxMeshInstance;
                 /* Note that, certain systems may need some collection type instances to be configured before it is
@@ -112,6 +116,7 @@ namespace SandBox {
                 */
                 cameraControllerObj->initCameraControllerInfo (sceneObj, collectionObj);
                 defaultRenderingObj->initDefaultRenderingInfo (sceneObj, collectionObj);
+                wireRenderingObj->initWireRenderingInfo       (sceneObj, collectionObj);
                 skyBoxRenderingObj->initSkyBoxRenderingInfo   (sceneObj, collectionObj);
 
                 auto windowObj    = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    ("DEFAULT");
@@ -126,15 +131,18 @@ namespace SandBox {
                     /* Controller updates */
                     cameraControllerObj->update (frameDelta);
                     /* Batching updates */
-                    meshInstanceBatchingObj->update();
-                    lightInstanceBatchingObj->update();
+                    defaultMeshInstanceBatchingObj->update();
+                    wireMeshInstanceBatchingObj->update();
+                    defaultLightInstanceBatchingObj->update();
                     /* Un-batched updates */
                     skyBoxMeshInstance.modelMatrix = skyBoxTransformComponent->createModelMatrix();
 
                     if (rendererObj->beginFrame()) {
-                        defaultRenderingObj->update (meshInstanceBatchingObj->getBatchedMeshInstances().data(),
-                                                     lightInstanceBatchingObj->getBatchedLightInstances().data(),
-                                                     lightInstanceBatchingObj->getLightTypeOffsets(),
+                        defaultRenderingObj->update (defaultMeshInstanceBatchingObj->getBatchedMeshInstances().data(),
+                                                     defaultLightInstanceBatchingObj->getBatchedLightInstances().data(),
+                                                     defaultLightInstanceBatchingObj->getLightTypeOffsets(),
+                                                     cameraControllerObj->getActiveCamera());
+                        wireRenderingObj->update    (wireMeshInstanceBatchingObj->getBatchedMeshInstances().data(),
                                                      cameraControllerObj->getActiveCamera());
                         skyBoxRenderingObj->update  (&skyBoxMeshInstance,
                                                      cameraControllerObj->getActiveCamera());

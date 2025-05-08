@@ -23,8 +23,9 @@
 #include "../../Backend/Renderer/VKRenderer.h"
 #include "../SBTexturePool.h"
 #include "../System/SYMeshBatching.h"
-#include "../System/SYMeshInstanceBatching.h"
-#include "../System/SYLightInstanceBatching.h"
+#include "../System/SYDefaultMeshInstanceBatching.h"
+#include "../System/SYWireMeshInstanceBatching.h"
+#include "../System/SYDefaultLightInstanceBatching.h"
 #include "../SBImpl.h"
 #include "../../Backend/Renderer/VKCmdList.h"
 #include "../../Backend/Renderer/VKHelper.h"
@@ -187,6 +188,35 @@ namespace SandBox {
                 true
             );
         }
+        {   /* Buffer           [WIRE_VERTEX_STAGING] */
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_WIRE);
+            auto positions    = std::vector <glm::vec3> {};
+
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+
+            for (auto const& vertex: vertices)
+                positions.push_back (vertex.meta.position);
+
+            bufferObj->initBufferInfo (
+                positions.size() * sizeof (positions[0]),
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                {
+                    phyDeviceObj->getTransferQueueFamilyIdx()
+                },
+                false
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("WIRE_VERTEX_STAGING", bufferObj);
+            bufferObj->updateBuffer (
+                positions.data(),
+                true
+            );
+        }
         {   /* Buffer           [SKY_BOX_VERTEX_STAGING] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
             auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_SKY_BOX);
@@ -238,6 +268,32 @@ namespace SandBox {
 
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("DEFAULT_VERTEX", bufferObj);
         }
+        {   /* Buffer           [WIRE_VERTEX] */
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_WIRE);
+            auto positions    = std::vector <glm::vec3> {};
+
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+
+            for (auto const& vertex: vertices)
+                positions.push_back (vertex.meta.position);
+
+            bufferObj->initBufferInfo (
+                positions.size() * sizeof (positions[0]),
+                VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                {
+                    phyDeviceObj->getGraphicsQueueFamilyIdx(),
+                    phyDeviceObj->getTransferQueueFamilyIdx()
+                },
+                true
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("WIRE_VERTEX", bufferObj);
+        }
         {   /* Buffer           [SKY_BOX_VERTEX] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
             auto vertices     = batchingObj->getBatchedVertices (TAG_TYPE_SKY_BOX);
@@ -288,6 +344,30 @@ namespace SandBox {
                 true
             );
         }
+        {   /* Buffer           [WIRE_INDEX_STAGING] */
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_WIRE);
+
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+            bufferObj->initBufferInfo (
+                indices.size() * sizeof (IndexType),
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                {
+                    phyDeviceObj->getTransferQueueFamilyIdx()
+                },
+                false
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("WIRE_INDEX_STAGING", bufferObj);
+            bufferObj->updateBuffer (
+                indices.data(),
+                true
+            );
+        }
         {   /* Buffer           [SKY_BOX_INDEX_STAGING] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
             auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_SKY_BOX);
@@ -332,6 +412,27 @@ namespace SandBox {
             );
 
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("DEFAULT_INDEX", bufferObj);
+        }
+        {   /* Buffer           [WIRE_INDEX] */
+            auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
+            auto indices      = batchingObj->getBatchedIndices (TAG_TYPE_WIRE);
+
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto bufferObj    = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+            bufferObj->initBufferInfo (
+                indices.size() * sizeof (IndexType),
+                VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                {
+                    phyDeviceObj->getGraphicsQueueFamilyIdx(),
+                    phyDeviceObj->getTransferQueueFamilyIdx()
+                },
+                true
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("WIRE_INDEX", bufferObj);
         }
         {   /* Buffer           [SKY_BOX_INDEX] */
             auto batchingObj  = sceneObj->getSystem <SYMeshBatching>();
@@ -416,7 +517,7 @@ namespace SandBox {
             }
         }
         {   /* Buffer           [DEFAULT_MESH_INSTANCE_?] */
-            auto batchingObj  = sceneObj->getSystem <SYMeshInstanceBatching>();
+            auto batchingObj  = sceneObj->getSystem <SYDefaultMeshInstanceBatching>();
             auto instances    = batchingObj->getBatchedMeshInstances();
 
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
@@ -445,6 +546,32 @@ namespace SandBox {
                 );
             }
         }
+        {   /* Buffer           [WIRE_MESH_INSTANCE_?] */
+            auto batchingObj  = sceneObj->getSystem <SYWireMeshInstanceBatching>();
+            auto instances    = batchingObj->getBatchedMeshInstances();
+
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+
+            for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
+                auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+                bufferObj->initBufferInfo (
+                    instances.size() * sizeof (instances[0]),
+                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    {
+                        phyDeviceObj->getGraphicsQueueFamilyIdx()
+                    },
+                    false
+                );
+
+                collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> (
+                    "WIRE_MESH_INSTANCE_" + std::to_string (i),
+                    bufferObj
+                );
+            }
+        }
         {   /* Buffer           [SKY_BOX_MESH_INSTANCE_?] */
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
@@ -469,7 +596,7 @@ namespace SandBox {
             }
         }
         {   /* Buffer           [DEFAULT_LIGHT_INSTANCE_?] */
-            auto batchingObj  = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj  = sceneObj->getSystem <SYDefaultLightInstanceBatching>();
             auto instances    = batchingObj->getBatchedLightInstances();
 
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
@@ -1140,6 +1267,157 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKPipeline> ("DEFAULT", pipelineObj);
             pipelineObj->destroyShaderModules();
         }
+        {   /* Pipeline         [WIRE] */
+            auto logObj          = collectionObj->getCollectionTypeInstance <Log::LGImpl>            ("DEFAULT");
+            auto phyDeviceObj    = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice>  ("DEFAULT");
+            auto logDeviceObj    = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>  ("DEFAULT");
+            auto renderPassObj   = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass> ("DEFAULT");
+            auto basePipelineObj = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>   ("DEFAULT");
+            auto pipelineObj     = new Renderer::VKPipeline (logObj, logDeviceObj, renderPassObj);
+            pipelineObj->initPipelineInfo (
+                VK_PIPELINE_CREATE_DERIVATIVE_BIT,
+                0,
+                -1,
+                *basePipelineObj->getPipeline()
+            );
+
+            /* Vertex input */
+            auto vertexBindingDescriptions   = std::vector {
+                pipelineObj->createVertexBindingDescription (
+                    0,
+                    sizeof (glm::vec3),
+                    VK_VERTEX_INPUT_RATE_VERTEX
+                )
+            };
+            auto vertexAttributeDescriptions = std::vector {
+                pipelineObj->createVertexAttributeDescription (
+                    0,
+                    0,
+                    0,
+                    VK_FORMAT_R32G32B32_SFLOAT
+                )
+            };
+            pipelineObj->createVertexInputState (
+                vertexBindingDescriptions,
+                vertexAttributeDescriptions
+            );
+            /* Input assembly */
+            pipelineObj->createInputAssemblyState (
+                VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
+                VK_FALSE
+            );
+            /* Shader stage */
+            pipelineObj->addShaderStage (
+                VK_SHADER_STAGE_VERTEX_BIT,
+                "Build/Bin/Wire[VERT].spv",
+                "main"
+            );
+            pipelineObj->addShaderStage (
+                VK_SHADER_STAGE_FRAGMENT_BIT,
+                "Build/Bin/Wire[FRAG].spv",
+                "main"
+            );
+            /* Depth stencil */
+            pipelineObj->createDepthStencilState (
+                VK_TRUE,
+                VK_TRUE,
+                VK_FALSE,
+                VK_FALSE,
+                VK_COMPARE_OP_LESS,
+                0.0f,
+                1.0f,
+                {},
+                {}
+            );
+            /* Note that, wideLines (VkPhysicalDeviceFeatures) specifies whether lines with width other than 1.0 are
+             * supported. If it is not enabled, the lineWidth member must be 1.0 unless the VK_DYNAMIC_STATE_LINE_WIDTH
+             * dynamic state is enabled, in which case the lineWidth parameter to vkCmdSetLineWidth must be 1.0
+             *
+             * However, as of when this code is written, there are no native vulkan drivers on MacOS nor iOS, only
+             * emulation through MoltenVK which translates vulkan API calls to Metal API calls. Since Metal does not
+             * support wideLines, the features is reported as not supported in VkPhysicalDeviceFeatures
+            */
+            pipelineObj->createRasterizationState (
+                1.0f,
+                VK_POLYGON_MODE_LINE,
+                VK_CULL_MODE_NONE,
+                VK_FRONT_FACE_COUNTER_CLOCKWISE
+            );
+            /* Multi sample */
+            pipelineObj->createMultiSampleState (
+                Renderer::getMaxSupportedSamplesCount (*phyDeviceObj->getPhyDevice()),
+                VK_TRUE,
+                0.2f
+            );
+            /* Color blend */
+            auto colorBlendAttachments = std::vector {
+                pipelineObj->createColorBlendAttachment (
+                    VK_TRUE,
+                    VK_BLEND_FACTOR_SRC_ALPHA,
+                    VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+                    VK_BLEND_OP_ADD,
+                    VK_BLEND_FACTOR_ONE,
+                    VK_BLEND_FACTOR_ZERO,
+                    VK_BLEND_OP_ADD,
+                    VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                    VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+                )
+            };
+            auto colorBlendConstants = std::vector <float> {
+                0.0f,
+                0.0f,
+                0.0f,
+                0.0f
+            };
+            pipelineObj->createColorBlendState (
+                VK_FALSE,
+                VK_LOGIC_OP_COPY,
+                colorBlendAttachments,
+                colorBlendConstants
+            );
+            /* Dynamic state */
+            auto dynamicStates = std::vector {
+                VK_DYNAMIC_STATE_VIEWPORT,
+                VK_DYNAMIC_STATE_SCISSOR
+            };
+            pipelineObj->createDynamicState (dynamicStates);
+            /* View port */
+            auto viewPorts = std::vector <VkViewport> {};
+            auto scissors  = std::vector <VkRect2D>   {};
+            pipelineObj->createViewPortState (
+                viewPorts,
+                scissors,
+                1,
+                1
+            );
+            /* Descriptor set layout */
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {
+                0
+            };
+            auto perFrameLayoutBindings = std::vector {
+                pipelineObj->createDescriptorSetLayoutBinding (
+                    0,
+                    1,
+                    VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                    VK_SHADER_STAGE_VERTEX_BIT
+                )
+            };
+            /* Layout 0 */
+            pipelineObj->addDescriptorSetLayout (
+                0,
+                perFrameBindingFlags,
+                perFrameLayoutBindings
+            );
+            /* Push constant range */
+            pipelineObj->addPushConstantRange (
+                VK_SHADER_STAGE_VERTEX_BIT,
+                0,
+                sizeof (ActiveCameraPC)
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKPipeline> ("WIRE", pipelineObj);
+            pipelineObj->destroyShaderModules();
+        }
         {   /* Pipeline         [SKY_BOX] */
             auto logObj          = collectionObj->getCollectionTypeInstance <Log::LGImpl>            ("DEFAULT");
             auto phyDeviceObj    = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice>  ("DEFAULT");
@@ -1344,6 +1622,21 @@ namespace SandBox {
 
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT", descPoolObj);
         }
+        {   /* Descriptor pool  [WIRE] */
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto descPoolObj  = new Renderer::VKDescriptorPool (logObj, logDeviceObj);
+            descPoolObj->initDescriptorPoolInfo (
+                0,
+                g_maxFramesInFlight
+            );
+            descPoolObj->addDescriptorPoolSize (
+                g_maxFramesInFlight,
+                VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorPool> ("WIRE", descPoolObj);
+        }
         {   /* Descriptor pool  [SKY_BOX] */
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
@@ -1366,8 +1659,8 @@ namespace SandBox {
         {   /* Descriptor sets  [DEFAULT_PER_FRAME] */
             collectionObj->registerCollectionType <Renderer::VKDescriptorSet>();
 
-            auto meshInstanceBatchingObj  = sceneObj->getSystem <SYMeshInstanceBatching>();
-            auto lightInstanceBatchingObj = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto meshInstanceBatchingObj  = sceneObj->getSystem <SYDefaultMeshInstanceBatching>();
+            auto lightInstanceBatchingObj = sceneObj->getSystem <SYDefaultLightInstanceBatching>();
             auto meshInstances            = meshInstanceBatchingObj->getBatchedMeshInstances();
             auto lightInstances           = lightInstanceBatchingObj->getBatchedLightInstances();
 
@@ -1435,6 +1728,55 @@ namespace SandBox {
                     VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                     descSetObj->getDescriptorSets()[i],
                     bindingToBufferInfosMap[1][i],
+                    descriptorImageInfos
+                );
+            }
+            descSetObj->updateDescriptorSets();
+        }
+        {   /* Descriptor sets  [WIRE_PER_FRAME] */
+            auto batchingObj  = sceneObj->getSystem <SYWireMeshInstanceBatching>();
+            auto instances    = batchingObj->getBatchedMeshInstances();
+
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>                ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice>      ("DEFAULT");
+            auto pipelineObj  = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>       ("WIRE");
+            auto descPoolObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("WIRE");
+            auto descSetObj   = new Renderer::VKDescriptorSet (logObj, logDeviceObj, descPoolObj);
+            descSetObj->initDescriptorSetInfo (
+                g_maxFramesInFlight,
+                pipelineObj->getDescriptorSetLayouts()[0]
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("WIRE_PER_FRAME", descSetObj);
+
+            typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
+            auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
+                {   /* Binding 0 */
+                    auto bufferObj             = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer> (
+                        "WIRE_MESH_INSTANCE_" + std::to_string (i)
+                    );
+                    auto descriptorBufferInfos = std::vector <VkDescriptorBufferInfo> {
+                        descSetObj->createDescriptorBufferInfo (
+                            *bufferObj->getBuffer(),
+                            0,
+                            instances.size() * sizeof (instances[0])
+                        )
+                    };
+                    bindingToBufferInfosMap[0].push_back (
+                        descriptorBufferInfos
+                    );
+                }
+            }
+            for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
+                descSetObj->addWriteDescriptorSet (
+                    0,
+                    1,
+                    0,
+                    VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                    descSetObj->getDescriptorSets()[i],
+                    bindingToBufferInfosMap[0][i],
                     descriptorImageInfos
                 );
             }
@@ -1596,6 +1938,16 @@ namespace SandBox {
 
             collectionObj->addCollectionTypeInstance <Renderer::VKFence> ("DEFAULT_COPY_OPS", fenObj);
         }
+        {   /* Fence            [WIRE_COPY_OPS] */
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto fenObj       = new Renderer::VKFence (logObj, logDeviceObj);
+            fenObj->initFenceInfo (
+                0
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKFence> ("WIRE_COPY_OPS", fenObj);
+        }
         {   /* Fence            [SKY_BOX_COPY_OPS] */
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
             auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
@@ -1688,6 +2040,18 @@ namespace SandBox {
             );
 
             collectionObj->addCollectionTypeInstance <Renderer::VKCmdPool> ("DEFAULT_COPY_OPS", cmdPoolObj);
+        }
+        {   /* Cmd pool         [WIRE_COPY_OPS] */
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto phyDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto cmdPoolObj   = new Renderer::VKCmdPool (logObj, logDeviceObj);
+            cmdPoolObj->initCmdPoolInfo (
+                VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+                phyDeviceObj->getTransferQueueFamilyIdx()
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKCmdPool> ("WIRE_COPY_OPS", cmdPoolObj);
         }
         {   /* Cmd pool         [SKY_BOX_COPY_OPS] */
             auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
@@ -1853,6 +2217,88 @@ namespace SandBox {
                 );
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("DEFAULT_INDEX_STAGING");
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("DEFAULT_VERTEX_STAGING");
+        }
+        {   /* Cmd buffers      [WIRE_COPY_OPS] */
+            auto logObj       = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("DEFAULT");
+            auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("DEFAULT");
+            auto fenObj       = collectionObj->getCollectionTypeInstance <Renderer::VKFence>     ("WIRE_COPY_OPS");
+            auto cmdPoolObj   = collectionObj->getCollectionTypeInstance <Renderer::VKCmdPool>   ("WIRE_COPY_OPS");
+            auto bufferObj    = new Renderer::VKCmdBuffer (logObj, logDeviceObj, cmdPoolObj);
+            bufferObj->initCmdBufferInfo (
+                1,
+                VK_COMMAND_BUFFER_LEVEL_PRIMARY
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKCmdBuffer> ("WIRE_COPY_OPS", bufferObj);
+
+            Renderer::beginCmdBufferRecording (
+                bufferObj->getCmdBuffers()[0],
+                VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+            );
+            {   /* Buffer->Buffer */
+                auto srcBufferObj = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer> (
+                    "WIRE_VERTEX_STAGING"
+                );
+                auto dstBufferObj = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer> (
+                    "WIRE_VERTEX"
+                );
+                auto copyRegions  = std::vector <VkBufferCopy> {};
+                Renderer::copyBufferToBuffer (
+                    bufferObj->getCmdBuffers()[0],
+                    *srcBufferObj->getBuffer(),
+                    *dstBufferObj->getBuffer(),
+                    0,
+                    0,
+                    srcBufferObj->getBufferSize(),
+                    copyRegions
+                );
+            }
+            {   /* Buffer->Buffer */
+                auto srcBufferObj = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer> (
+                    "WIRE_INDEX_STAGING"
+                );
+                auto dstBufferObj = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer> (
+                    "WIRE_INDEX"
+                );
+                auto copyRegions  = std::vector <VkBufferCopy> {};
+                Renderer::copyBufferToBuffer (
+                    bufferObj->getCmdBuffers()[0],
+                    *srcBufferObj->getBuffer(),
+                    *dstBufferObj->getBuffer(),
+                    0,
+                    0,
+                    srcBufferObj->getBufferSize(),
+                    copyRegions
+                );
+            }
+            Renderer::endCmdBufferRecording (
+                bufferObj->getCmdBuffers()[0]
+            );
+
+            auto waitSemaphores   = std::vector <VkSemaphore> {};
+            auto waitStageMasks   = std::vector <VkPipelineStageFlags> {};
+            auto signalSemaphores = std::vector <VkSemaphore> {};
+            auto cmdBuffers       = std::vector {
+                bufferObj->getCmdBuffers()[0]
+            };
+            auto submitInfos      = std::vector <VkSubmitInfo> {};
+            Renderer::submitCmdBuffers (
+                *logDeviceObj->getTransferQueue(),
+                *fenObj->getFence(),
+                cmdBuffers,
+                waitSemaphores,
+                waitStageMasks,
+                signalSemaphores,
+                submitInfos
+            );
+            fenObj->waitForFence();
+            fenObj->resetFence();
+            /* Destroy copy ops temperory resources */
+            collectionObj->removeCollectionTypeInstance <Renderer::VKCmdBuffer> ("WIRE_COPY_OPS");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKCmdPool>   ("WIRE_COPY_OPS");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKFence>     ("WIRE_COPY_OPS");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>    ("WIRE_INDEX_STAGING");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>    ("WIRE_VERTEX_STAGING");
         }
         {   /* Cmd buffers      [SKY_BOX_COPY_OPS] */
             auto texturePool  = skyBoxTexturePoolObj->getTexturePool();
@@ -2141,14 +2587,17 @@ namespace SandBox {
             collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet> ("SKY_BOX_ONE_TIME");
             collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet> ("DEFAULT_ONE_TIME");
             collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet> ("SKY_BOX_PER_FRAME");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet> ("WIRE_PER_FRAME");
             collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet> ("DEFAULT_PER_FRAME");
         }
         {   /* Descriptor pool */
             collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("SKY_BOX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("WIRE");
             collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("DEFAULT");
         }
         {   /* Pipeline */
             collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline> ("SKY_BOX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline> ("WIRE");
             collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline> ("DEFAULT");
         }
         {   /* Frame buffer */
@@ -2192,11 +2641,17 @@ namespace SandBox {
                 );
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
                 collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer> (
+                    "WIRE_MESH_INSTANCE_"     + std::to_string (i)
+                );
+            for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
+                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer> (
                     "DEFAULT_MESH_INSTANCE_"  + std::to_string (i)
                 );
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("SKY_BOX_INDEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("WIRE_INDEX");
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("DEFAULT_INDEX");
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("SKY_BOX_VERTEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("WIRE_VERTEX");
             collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     ("DEFAULT_VERTEX");
         }
         {   /* Swap chain */

@@ -22,13 +22,14 @@ namespace SandBox {
 
     typedef enum {
         TAG_TYPE_DEFAULT,
+        TAG_TYPE_WIRE,
         TAG_TYPE_SKY_BOX
     } e_tagType;
 
     /* Components */
     struct IdComponent {
         public:
-            std::string m_id   = "Unnamed";
+            std::string m_id = "Unnamed";
 
             IdComponent (void) = default;
             IdComponent (const std::string id) {
@@ -49,6 +50,12 @@ namespace SandBox {
             MeshComponent (const std::string modelFilePath, const std::string mtlFileDirPath) {
                 m_modelFilePath  = modelFilePath;
                 m_mtlFileDirPath = mtlFileDirPath;
+            }
+
+            /* Manually populate vertices and indices */
+            MeshComponent (const std::vector <Vertex> vertices, const std::vector <IndexType> indices) {
+                m_vertices = vertices;
+                m_indices  = indices;
             }
     };
 
@@ -306,6 +313,16 @@ namespace SandBox {
                     std::end   (m_LUT),
                     dstTextureIdxLUT
                 );
+            }
+    };
+
+    struct ColorComponent {
+        public:
+            glm::vec4 m_color = glm::vec4 (1.0f);
+
+            ColorComponent (void) = default;
+            ColorComponent (const glm::vec4 color) {
+                m_color = color;
             }
     };
 

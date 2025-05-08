@@ -228,7 +228,7 @@
     |<----------------------:SBRendererType
     |
     \SYMeshBatching
-    \SYLightInstanceBatching
+    \SYDefaultLightInstanceBatching
 
     |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
@@ -236,7 +236,9 @@
     |<----------------------:LGImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
-    |SYMeshInstanceBatching
+    |
+    \SYDefaultMeshInstanceBatching
+    \SYWireMeshInstanceBatching
 
     |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
@@ -281,16 +283,20 @@
     |<----------------------:VKCmdList
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYSkyBoxRendering
+    |
+    \SYWireRendering
+    \SYSkyBoxRendering
 
     |<----------------------:Common
     |<----------------------:SNImpl
     |<----------------------:SYMeshLoading
     |<----------------------:SYMeshBatching
-    |<----------------------:SYMeshInstanceBatching
-    |<----------------------:SYLightInstanceBatching
+    |<----------------------:SYDefaultMeshInstanceBatching
+    |<----------------------:SYWireMeshInstanceBatching
+    |<----------------------:SYDefaultLightInstanceBatching
     |<----------------------:SYCameraController
     |<----------------------:SYDefaultRendering
+    |<----------------------:SYWireRendering
     |<----------------------:SYSkyBoxRendering
     |<----------------------:SBImpl
     |<----------------------:SNType
@@ -322,8 +328,9 @@
     |<----------------------:VKRenderer
     |<----------------------:SBTexturePool
     |<----------------------:SYMeshBatching
-    |<----------------------:SYMeshInstanceBatching
-    |<----------------------:SYLightInstanceBatching
+    |<----------------------:SYDefaultMeshInstanceBatching
+    |<----------------------:SYWireMeshInstanceBatching
+    |<----------------------:SYDefaultLightInstanceBatching
     |<----------------------:SBImpl
     |<----------------------:VKCmdList
     |<----------------------:VKHelper
@@ -338,10 +345,12 @@
     |<----------------------:VKLogDevice
     |<----------------------:VKRenderer
     |<----------------------:SBTexturePool
-    |<----------------------:SYMeshInstanceBatching
-    |<----------------------:SYLightInstanceBatching
+    |<----------------------:SYDefaultMeshInstanceBatching
+    |<----------------------:SYWireMeshInstanceBatching
+    |<----------------------:SYDefaultLightInstanceBatching
     |<----------------------:SYCameraController
     |<----------------------:SYDefaultRendering
+    |<----------------------:SYWireRendering
     |<----------------------:SYSkyBoxRendering
     |<----------------------:SNType
     |<----------------------:SBComponentType
