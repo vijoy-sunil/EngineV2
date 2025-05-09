@@ -473,6 +473,25 @@ namespace SandBox {
                 1
             ));
         }
+        {   /* Entity   [DEBUG_PLANE] */
+            auto entity = sceneObj->addEntity();
+            sceneObj->addComponent (entity, IdComponent (
+                "DEBUG_PLANE"
+            ));
+            sceneObj->addComponent (entity, MeshComponent (
+                "Asset/Model/Debug_Plane.obj",
+                "Asset/Model/"
+            ));
+            sceneObj->addComponent (entity, TransformComponent (
+                { 0.00f, 1.00f, 4.00f},
+                {-1.57f, 0.00f, 0.00f}
+            ));
+            sceneObj->addComponent (entity, TextureIdxLUTComponent());
+            sceneObj->addComponent (entity, RenderComponent (
+                TAG_TYPE_DEFAULT,
+                1
+            ));
+        }
 
         {   /* Run pre-renderer-config systems */
             auto meshLoadingObj                  = sceneObj->getSystem <SYMeshLoading>();

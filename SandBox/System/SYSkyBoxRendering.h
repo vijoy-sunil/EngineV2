@@ -4,7 +4,10 @@
 #include "../../Backend/Scene/SNImpl.h"
 #include "../../Backend/Collection/CNImpl.h"
 #include "../../Backend/Log/LGImpl.h"
+#include "../../Backend/Renderer/VKSwapChain.h"
 #include "../../Backend/Renderer/VKBuffer.h"
+#include "../../Backend/Renderer/VKRenderPass.h"
+#include "../../Backend/Renderer/VKFrameBuffer.h"
 #include "../../Backend/Renderer/VKPipeline.h"
 #include "../../Backend/Renderer/VKDescriptorSet.h"
 #include "../../Backend/Renderer/VKCmdBuffer.h"
@@ -20,9 +23,12 @@ namespace SandBox {
                 struct Resource {
                     Scene::SNImpl* sceneObj;
                     Log::LGImpl* logObj;
+                    Renderer::VKSwapChain* swapChainObj;
                     Renderer::VKBuffer* vertexBufferObj;
                     Renderer::VKBuffer* indexBufferObj;
                     std::vector <Renderer::VKBuffer*> meshInstanceBufferObjs;
+                    Renderer::VKRenderPass* renderPassObj;
+                    std::vector <Renderer::VKFrameBuffer*> frameBufferObjs;
                     Renderer::VKPipeline* pipelineObj;
                     Renderer::VKDescriptorSet* perFrameDescSetObj;
                     Renderer::VKDescriptorSet* oneTimeDescSetObj;
@@ -54,6 +60,9 @@ namespace SandBox {
 
                 auto& resource              = m_skyBoxRenderingInfo.resource;
                 resource.sceneObj           = sceneObj;
+                resource.swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain>     (
+                    "DEFAULT"
+                );
                 resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                     "SKY_BOX_VERTEX"
                 );
@@ -65,6 +74,15 @@ namespace SandBox {
                         "SKY_BOX_MESH_INSTANCE_" + std::to_string (i)
                     );
                     resource.meshInstanceBufferObjs.push_back (bufferObj);
+                }
+                resource.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
+                    "DEFAULT"
+                );
+                for (uint32_t i = 0; i < resource.swapChainObj->getSwapChainImagesCount(); i++) {
+                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
+                        "DEFAULT_" + std::to_string (i)
+                    );
+                    resource.frameBufferObjs.push_back (bufferObj);
                 }
                 resource.pipelineObj        = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
                     "SKY_BOX"
@@ -86,23 +104,49 @@ namespace SandBox {
             void update (const void* meshInstance,
                          const void* activeCamera) {
 
-                auto& resource            = m_skyBoxRenderingInfo.resource;
-                auto& sceneObj            = resource.sceneObj;
-                uint32_t frameInFlightIdx = resource.rendererObj->getFrameInFlightIdx();
-                auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
+                auto& resource             = m_skyBoxRenderingInfo.resource;
+                auto& sceneObj             = resource.sceneObj;
+
+                uint32_t swapChainImageIdx = resource.rendererObj->getSwapChainImageIdx();
+                uint32_t frameInFlightIdx  = resource.rendererObj->getFrameInFlightIdx();
+                auto frameBufferObj        = resource.frameBufferObjs[swapChainImageIdx];
+                auto cmdBuffer             = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
+                /* Define the clear values to use for VK_ATTACHMENT_LOAD_OP_CLEAR. Note that, the order of clear values
+                 * should be identical to the order of your attachments
+                 *
+                 * The range of depths in the depth buffer is 0.0 to 1.0 in Vulkan, where 1.0 lies at the far view plane
+                 * and 0.0 at the near view plane. The initial value at each point in the depth buffer should be the
+                 * furthest possible depth, which is 1.0
+                */
+                auto clearValues           = std::vector {
+                    VkClearValue {                          /* Attachment idx 0 */
+                        {{0.0f, 0.0f, 0.0f, 1.0f}}
+                    },
+                    VkClearValue {                          /* Attachment idx 1 */
+                        {{1.0f, 0}}
+                    }
+                };
 
                 /* Update buffer */
                 resource.meshInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
                     meshInstance,
                     false
                 );
-                /* [.] Continue render pass
+                /* [O] Begin render pass
                  *  .
                  *  .
                  *  .
                  *  .
                  * [.]
                 */
+                Renderer::beginRenderPass (
+                    cmdBuffer,
+                    *resource.renderPassObj->getRenderPass(),
+                    *frameBufferObj->getFrameBuffer(),
+                    {0, 0},
+                    *resource.swapChainObj->getSwapChainExtent(),
+                    clearValues
+                );
                 /* Pipeline */
                 Renderer::bindPipeline (
                     cmdBuffer,
@@ -117,6 +161,28 @@ namespace SandBox {
                     0,
                     sizeof (ActiveCameraPC),
                     activeCamera
+                );
+                /* View ports */
+                auto viewPorts = std::vector <VkViewport> {};
+                Renderer::setViewPorts (
+                    cmdBuffer,
+                    0.0f,
+                    0.0f,
+                    (*resource.swapChainObj->getSwapChainExtent()).width,
+                    (*resource.swapChainObj->getSwapChainExtent()).height,
+                    0.0f,
+                    1.0f,
+                    0,
+                    viewPorts
+                );
+                /* Scissors */
+                auto scissors = std::vector <VkRect2D> {};
+                Renderer::setScissors (
+                    cmdBuffer,
+                    {0, 0},
+                    *resource.swapChainObj->getSwapChainExtent(),
+                    0,
+                    scissors
                 );
                 /* Vertex buffers */
                 auto vertexBuffers       = std::vector <VkBuffer>     {
@@ -167,16 +233,13 @@ namespace SandBox {
                         );
                     }
                 }
-                /* [.]
+                /* [.] Continue render pass
                  *  .
                  *  .
                  *  .
                  *  .
-                 * [O] End render pass
+                 * [.]
                 */
-                Renderer::endRenderPass (
-                    cmdBuffer
-                );
             }
 
             ~SYSkyBoxRendering (void) {

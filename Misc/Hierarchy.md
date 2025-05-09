@@ -257,6 +257,23 @@
     |<----------------------:SNImpl
     |<----------------------:CNImpl
     |<----------------------:LGImpl
+    |<----------------------:VKBuffer
+    |<----------------------:VKPipeline
+    |<----------------------:VKDescriptorSet
+    |<----------------------:VKCmdBuffer
+    |<----------------------:VKRenderer
+    |<----------------------:VKCmdList
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |
+    \SYDefaultRendering
+    \SYWireRendering
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
     |<----------------------:VKSwapChain
     |<----------------------:VKBuffer
     |<----------------------:VKRenderPass
@@ -268,24 +285,7 @@
     |<----------------------:VKCmdList
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |SYDefaultRendering
-
-    |<----------------------:Common
-    |<----------------------|SNSystemBase [PUB]
-    |<----------------------:SNImpl
-    |<----------------------:CNImpl
-    |<----------------------:LGImpl
-    |<----------------------:VKBuffer
-    |<----------------------:VKPipeline
-    |<----------------------:VKDescriptorSet
-    |<----------------------:VKCmdBuffer
-    |<----------------------:VKRenderer
-    |<----------------------:VKCmdList
-    |<----------------------:SBComponentType
-    |<----------------------:SBRendererType
-    |
-    \SYWireRendering
-    \SYSkyBoxRendering
+    |SYSkyBoxRendering
 
     |<----------------------:Common
     |<----------------------:SNImpl

@@ -54,7 +54,7 @@ layout (offset = 144)
     uint lightsCount;
 } lightTypeOffsets;
 
-vec3 createColor (const float reflectionIntensity) {
+vec3 createColor (const float reflectionIntensity, const vec4 specularTexture) {
     /* We calculate a reflection vector around the object's normal vector based on the view direction, which is then used
      * as a direction vector to sample the cube map, returning a color value of the environment. The resulting effect is
      * that the object seems to reflect the sky box
@@ -79,9 +79,9 @@ vec3 createColor (const float reflectionIntensity) {
     vec4 viewDirection = normalize (i_position - i_view);
     vec4 reflection    = reflect   (viewDirection, i_normal);
 
-    return reflectionIntensity                            *
-           vec3 (texture (skyBoxSampler, reflection.rgb)) *
-           vec3 (texture (textureSamplers[i_specularTextureIdx], i_uv));
+    return reflectionIntensity    *
+           vec3 (specularTexture) *
+           vec3 (texture (skyBoxSampler, reflection.rgb));
 
     /* Another form of environment mapping is refraction, where we use the refraction vector to sample from the cube map.
      * Refraction vector is fairly easy to implement using GLSL's built-in refract function that expects a normal vector,
@@ -90,9 +90,13 @@ vec3 createColor (const float reflectionIntensity) {
     */
 }
 
-vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirection) {
+vec3 createColor (const LightInstanceSBO lightInstance,
+                  const vec4 lightDirection,
+                  const vec4 diffuseTexture,
+                  const vec4 specularTexture) {
+
     vec3 ambient            = lightInstance.ambient *
-                              vec3 (texture (textureSamplers[i_diffuseTextureIdx], i_uv));
+                              vec3 (diffuseTexture);
     /* Diffuse lighting gives the object more brightness the closer its fragments are aligned to the light rays from a
      * light source
      *
@@ -112,7 +116,7 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
     float diffuseIntensity  = max (dot (i_normal, lightDirection), 0.0);
     vec3 diffuse            = diffuseIntensity      *
                               lightInstance.diffuse *
-                              vec3 (texture (textureSamplers[i_diffuseTextureIdx], i_uv));
+                              vec3 (diffuseTexture);
     /* Similar to diffuse lighting, specular lighting is based on the light's direction and the object's normal vectors,
      * but this time it is also based on the view direction
      *
@@ -166,7 +170,7 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
     float specularIntensity = pow (max (dot (i_normal, halfwayDirection), 0.0), i_shininess);
     vec3 specular           = specularIntensity      *
                               lightInstance.specular *
-                              vec3 (texture (textureSamplers[i_specularTextureIdx], i_uv));
+                              vec3 (specularTexture);
 
     float distance          = length (vec4 (lightInstance.position, 1.0) - i_position);
     float attenuation       = 1.0 /  (lightInstance.constant  +
@@ -201,28 +205,41 @@ vec3 createColor (const LightInstanceSBO lightInstance, const vec4 lightDirectio
 }
 
 void main (void) {
+    /* Textures */
+    vec4 diffuseTexture                = texture (textureSamplers[i_diffuseTextureIdx],  i_uv);
+    vec4 specularTexture               = texture (textureSamplers[i_specularTextureIdx], i_uv);
+    vec4 emissionTexture               = texture (textureSamplers[i_emissionTextureIdx], i_uv);
     /* Emission */
-    vec3 fragColor                     = vec3 (texture (textureSamplers[i_emissionTextureIdx], i_uv));
+    vec3 fragColor                     = vec3 (emissionTexture);
     /* Environment mapping */
-    fragColor                         += createColor (0.25);
+    fragColor                         += createColor (0.25, specularTexture);
     /* Directional lights */
     for (uint i = lightTypeOffsets.directionalLightsOffset; i < lightTypeOffsets.pointLightsOffset; i++) {
         LightInstanceSBO lightInstance = lightInstanceSBOContainer.instances[i];
         vec4 lightDirection            = normalize   (vec4 (-lightInstance.direction, 0.0));
-        fragColor                     += createColor (lightInstance, lightDirection);
+        fragColor                     += createColor (lightInstance,
+                                                      lightDirection,
+                                                      diffuseTexture,
+                                                      specularTexture);
     }
     /* Point lights */
     for (uint i = lightTypeOffsets.pointLightsOffset; i < lightTypeOffsets.spotLightsOffset; i++) {
         LightInstanceSBO lightInstance = lightInstanceSBOContainer.instances[i];
         vec4 lightDirection            = normalize   (vec4 (lightInstance.position, 1.0) - i_position);
-        fragColor                     += createColor (lightInstance, lightDirection);
+        fragColor                     += createColor (lightInstance,
+                                                      lightDirection,
+                                                      diffuseTexture,
+                                                      specularTexture);
     }
     /* Spot lights */
     for (uint i = lightTypeOffsets.spotLightsOffset; i < lightTypeOffsets.lightsCount; i++) {
         LightInstanceSBO lightInstance = lightInstanceSBOContainer.instances[i];
         vec4 lightDirection            = normalize   (vec4 (lightInstance.position, 1.0) - i_position);
-        fragColor                     += createColor (lightInstance, lightDirection);
+        fragColor                     += createColor (lightInstance,
+                                                      lightDirection,
+                                                      diffuseTexture,
+                                                      specularTexture);
     }
 
-    o_color = vec4 (fragColor, 1.0);
+    o_color = vec4 (fragColor, diffuseTexture.a);
 }
