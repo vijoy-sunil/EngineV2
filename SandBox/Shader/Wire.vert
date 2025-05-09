@@ -4,8 +4,8 @@ layout (location = 0) in  vec3 i_position;
 layout (location = 0) out vec4 o_color;
 
 struct MeshInstanceSBO {
-    mat4 modelMatrix;
     vec4 color;
+    mat4 modelMatrix;
 };
 
 layout (set = 0, binding = 0) readonly buffer MeshInstanceSBOContainer {

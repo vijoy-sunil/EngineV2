@@ -11,8 +11,8 @@ namespace SandBox {
         private:
             /* SBO - Storage buffer object */
             struct MeshInstanceSBO {
-                glm::mat4 modelMatrix;          /* Mat4 must be aligned by 4N (= 16 bytes) */
                 glm::vec4 color;                /* Vec4 must be aligned by 4N (= 16 bytes) */
+                glm::mat4 modelMatrix;          /* Mat4 must be aligned by 4N (= 16 bytes) */
             };
 
             struct WireMeshInstanceBatchingInfo {
@@ -69,8 +69,8 @@ namespace SandBox {
 
                     m_wireMeshInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     MeshInstanceSBO instance;
-                    instance.modelMatrix = transformComponent->createModelMatrix();
                     instance.color       = colorComponent->m_color;
+                    instance.modelMatrix = transformComponent->createModelMatrix();
                     m_wireMeshInstanceBatchingInfo.meta.instances.push_back (instance);
                 }
             }
@@ -80,11 +80,18 @@ namespace SandBox {
                 size_t rowIdx = 0;
 
                 for (auto const& [entity, idx]: m_wireMeshInstanceBatchingInfo.meta.entityToIdxMap) {
-                    auto& modelMatrix = m_wireMeshInstanceBatchingInfo.meta.instances[idx].modelMatrix;
                     auto& color       = m_wireMeshInstanceBatchingInfo.meta.instances[idx].color;
+                    auto& modelMatrix = m_wireMeshInstanceBatchingInfo.meta.instances[idx].modelMatrix;
 
                     LOG_LITE_INFO (logObj)     << entity << std::endl;
                     LOG_LITE_INFO (logObj)     << "{"    << std::endl;
+                    LOG_LITE_INFO (logObj)     << "\t"   << "("
+                                                         << ALIGN_AND_PAD_C (16) << color.r << ", "
+                                                         << ALIGN_AND_PAD_C (16) << color.g << ", "
+                                                         << ALIGN_AND_PAD_C (16) << color.b << ", "
+                                                         << ALIGN_AND_PAD_C (16) << color.a
+                                                         << ")"
+                                                         << std::endl;
                     LOG_LITE_INFO (logObj)     << "\t"   << "[" << std::endl;
                     while (rowIdx < 4) {
                         LOG_LITE_INFO (logObj) << "\t\t" << ALIGN_AND_PAD_C (16) << modelMatrix[rowIdx][0] << ", "
@@ -96,13 +103,6 @@ namespace SandBox {
                     }
                     LOG_LITE_INFO (logObj)     << "\t"   << "]" << std::endl;
                     rowIdx = 0;
-                    LOG_LITE_INFO (logObj)     << "\t"   << "("
-                                                         << ALIGN_AND_PAD_C (16) << color.r << ", "
-                                                         << ALIGN_AND_PAD_C (16) << color.g << ", "
-                                                         << ALIGN_AND_PAD_C (16) << color.b << ", "
-                                                         << ALIGN_AND_PAD_C (16) << color.a
-                                                         << ")"
-                                                         << std::endl;
                     LOG_LITE_INFO (logObj)     << "}"    << std::endl;
                 }
             }
