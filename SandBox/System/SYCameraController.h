@@ -33,6 +33,7 @@ namespace SandBox {
                     float movementSensitivity;
                     float fovSensitivity;
                     float deltaDamp;
+                    float levelDamp;
 
                     ActiveCameraPC activeCamera;
                 } meta;
@@ -40,6 +41,7 @@ namespace SandBox {
                 struct State {
                     e_keyState droneToggle;
                     e_keyState fineToggle;
+                    e_keyState levelToggle;
                     /* When the cursor position binding is called for the first time, the cursor X and Y position is
                      * equal to the location your cursor entered the screen from. This is often a position that is
                      * significantly far away from the center of the screen, resulting in large offsets and thus a large
@@ -49,6 +51,7 @@ namespace SandBox {
                      * coordinates to calculate the offsets
                     */
                     bool firstCursorPositionEvent;
+                    bool levelingDisabled;
                 } state;
 
                 struct Resource {
@@ -122,6 +125,24 @@ namespace SandBox {
                             state.fineToggle  = KEY_STATE_LOCKED;
 
                             setCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
+                        }
+                    }
+                );
+                windowObj->setKeyEventBinding (GLFW_KEY_LEFT_SHIFT,
+                    [this](void) {
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.levelToggle == KEY_STATE_LOCKED) {
+                            state.levelToggle  = KEY_STATE_UNLOCKED;
+
+                            state.levelingDisabled = false;
+                        }
+                    },
+                    [this](void) {
+                        auto& state            = m_cameraControllerInfo.state;
+                        if (state.levelToggle == KEY_STATE_UNLOCKED) {
+                            state.levelToggle  = KEY_STATE_LOCKED;
+
+                            state.levelingDisabled = true;
                         }
                     }
                 );
@@ -232,11 +253,14 @@ namespace SandBox {
                 m_cameraControllerInfo.meta.fovDelta                  = 0.0f;
                 m_cameraControllerInfo.meta.minFov                    = glm::radians (  5.0f);
                 m_cameraControllerInfo.meta.maxFov                    = glm::radians (120.0f);
+                m_cameraControllerInfo.meta.levelDamp                 = 2.5f;
                 m_cameraControllerInfo.meta.activeCamera              = {};
 
                 m_cameraControllerInfo.state.droneToggle              = KEY_STATE_LOCKED;
                 m_cameraControllerInfo.state.fineToggle               = KEY_STATE_LOCKED;
+                m_cameraControllerInfo.state.levelToggle              = KEY_STATE_LOCKED;
                 m_cameraControllerInfo.state.firstCursorPositionEvent = false;
+                m_cameraControllerInfo.state.levelingDisabled         = true;
 
                 m_cameraControllerInfo.resource.sceneObj              = sceneObj;
                 m_cameraControllerInfo.resource.windowObj             =
@@ -258,6 +282,7 @@ namespace SandBox {
 
             void update (const float frameDelta) {
                 auto& meta         = m_cameraControllerInfo.meta;
+                auto& state        = m_cameraControllerInfo.state;
                 auto& activeCamera = meta.activeCamera;
                 auto& sceneObj     = m_cameraControllerInfo.resource.sceneObj;
                 auto& swapChainObj = m_cameraControllerInfo.resource.swapChainObj;
@@ -275,30 +300,30 @@ namespace SandBox {
                      * using this approach it does not matter if you have a very fast or slow pc, the velocity of the
                      * camera will be balanced out accordingly so each user will have the same experience
                     */
-                    {   /* Rotation update      */
-                        auto& pitch = transformComponent->m_rotation.x;
-                        auto& yaw   = transformComponent->m_rotation.y;
-                        auto& roll  = transformComponent->m_rotation.z;
-
-                        pitch      += meta.pitchDelta * frameDelta;
-                        yaw        += meta.yawDelta   * frameDelta;
-                        roll       += meta.rollDelta  * frameDelta;
-
-                        if (pitch >  glm::two_pi <float>())     pitch -= glm::two_pi <float>();
-                        if (pitch < -glm::two_pi <float>())     pitch += glm::two_pi <float>();
-                        if (yaw   >  glm::two_pi <float>())     yaw   -= glm::two_pi <float>();
-                        if (yaw   < -glm::two_pi <float>())     yaw   += glm::two_pi <float>();
-                        if (roll  >  glm::two_pi <float>())     roll  -= glm::two_pi <float>();
-                        if (roll  < -glm::two_pi <float>())     roll  += glm::two_pi <float>();
+                    {   /* Rotation update */
+                        transformComponent->addYaw   (meta.yawDelta   * frameDelta);
+                        transformComponent->addPitch (meta.pitchDelta * frameDelta);
+                        transformComponent->addRoll  (meta.rollDelta  * frameDelta);
 
                         meta.pitchDelta *= meta.deltaDamp;
                         meta.yawDelta   *= meta.deltaDamp;
                         meta.rollDelta  *= meta.deltaDamp;
                     }
-                    {   /* Translation update   */
-                        glm::vec3 forwardVector         = transformComponent->createForwardVector();
-                        glm::vec3 upVector              = glm::vec3      (0.0f, 1.0f, 0.0f);
-                        glm::vec3 rightVector           = glm::normalize (glm::cross (forwardVector, upVector));
+                    {   /* Leveling */
+                        if (!state.levelingDisabled) {
+                            auto& orientation           = transformComponent->m_orientation;
+                            glm::vec3 upVector          = transformComponent->getUpVector();
+                            glm::vec3 targetUpVector    = {0.0f, 1.0f, 0.0f};
+                            glm::vec3 targetAxis        = glm::cross     (upVector, targetUpVector);
+                            float targetAngle           = glm::dot       (upVector, targetUpVector) * meta.levelDamp;
+
+                            glm::quat targetOrientation = glm::angleAxis (targetAngle * frameDelta, targetAxis);
+                            orientation                 = glm::normalize (targetOrientation * orientation);
+                        }
+                    }
+                    {   /* Translation update */
+                        glm::vec3 rightVector           = transformComponent->getRightVector();
+                        glm::vec3 forwardVector         = transformComponent->getForwardVector();
 
                         transformComponent->m_position += (rightVector   * meta.lateralDelta * frameDelta) +
                                                           (forwardVector * meta.axialDelta   * frameDelta);
@@ -306,7 +331,7 @@ namespace SandBox {
                         meta.lateralDelta *= meta.deltaDamp;
                         meta.axialDelta   *= meta.deltaDamp;
                     }
-                    {   /* Fov update           */
+                    {   /* Fov update */
                         /* When the field of view becomes smaller, the scene's projected space gets smaller. This smaller
                          * space is projected over the same NDC, giving the illusion of zooming in
                         */

@@ -132,13 +132,13 @@ namespace SandBox {
             uint32_t instancesCount = 8;
             auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
                 {{-2.0f,  0.5f, -2.0f }, { 0.00f, 0.00f, 0.00f }},      /* Parent transform */
-                {{ 0.0f,  0.5f, -2.0f }, { 0.00f, 0.00f, 1.57f }},      /* Roll             */
-                {{ 2.0f,  0.5f, -2.0f }, { 0.00f, 1.57f, 0.00f }},      /* Yaw              */
-                {{ 2.0f,  0.5f,  0.0f }, { 0.00f, 1.57f, 1.57f }},      /* Roll->Yaw        */
-                {{ 0.0f,  0.5f,  0.0f }, { 1.57f, 0.00f, 0.00f }},      /* Pitch            */
-                {{-2.0f,  0.5f,  0.0f }, { 1.57f, 0.00f, 1.57f }},      /* Roll->Pitch      */
-                {{-2.0f,  0.5f,  2.0f }, { 1.57f, 1.57f, 0.00f }},      /* Pitch->Yaw       */
-                {{ 0.0f,  0.5f,  2.0f }, { 1.57f, 1.57f, 1.57f }}       /* Roll->Pitch->Yaw */
+                {{ 0.0f,  0.5f, -2.0f }, { 0.00f, 1.57f, 0.00f }},      /* Yaw              */
+                {{ 2.0f,  0.5f, -2.0f }, { 1.57f, 0.00f, 0.00f }},      /* Pitch            */
+                {{ 2.0f,  0.5f,  0.0f }, { 0.00f, 0.00f, 1.57f }},      /* Roll             */
+                {{ 0.0f,  0.5f,  0.0f }, { 1.57f, 1.57f, 0.00f }},      /* Yaw->Pitch       */
+                {{-2.0f,  0.5f,  0.0f }, { 0.00f, 1.57f, 1.57f }},      /* Yaw->Roll        */
+                {{-2.0f,  0.5f,  2.0f }, { 1.57f, 0.00f, 1.57f }},      /* Pitch->Roll      */
+                {{ 0.0f,  0.5f,  2.0f }, { 1.57f, 1.57f, 1.57f }}       /* Yaw->Pitch->Roll */
             };
             for (uint32_t i = 0; i < instancesCount; i++) {
                 auto entity = sceneObj->addEntity();

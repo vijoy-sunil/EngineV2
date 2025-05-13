@@ -96,19 +96,11 @@ namespace SandBox {
                     m_defaultLightInstanceBatchingInfo.meta.entityToIdxMap[entity] = loopIdx++;
                     LightInstanceSBO instance;
                     instance.position    = transformComponent->m_position;
-                    instance.direction   = transformComponent->createForwardVector();
+                    instance.direction   = transformComponent->getForwardVector();
 
-                    instance.ambient.x   = lightComponent->m_ambient.x;
-                    instance.ambient.y   = lightComponent->m_ambient.y;
-                    instance.ambient.z   = lightComponent->m_ambient.z;
-
-                    instance.diffuse.x   = lightComponent->m_diffuse.x;
-                    instance.diffuse.y   = lightComponent->m_diffuse.y;
-                    instance.diffuse.z   = lightComponent->m_diffuse.z;
-
-                    instance.specular.x  = lightComponent->m_specular.x;
-                    instance.specular.y  = lightComponent->m_specular.y;
-                    instance.specular.z  = lightComponent->m_specular.z;
+                    instance.ambient     = lightComponent->m_ambient;
+                    instance.diffuse     = lightComponent->m_diffuse;
+                    instance.specular    = lightComponent->m_specular;
 
                     instance.constant    = lightComponent->m_constant;
                     instance.linear      = lightComponent->m_linear;

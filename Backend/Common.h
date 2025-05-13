@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 /* Container */
 #include <set>
 #include <map>

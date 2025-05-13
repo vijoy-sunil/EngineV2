@@ -201,9 +201,20 @@ namespace SandBox {
 
     struct TransformComponent {
         private:
-            glm::vec3 m_xAxis = {1.0f, 0.0f, 0.0f};
-            glm::vec3 m_yAxis = {0.0f, 1.0f, 0.0f};
-            glm::vec3 m_zAxis = {0.0f, 0.0f, 1.0f};
+            /* Global axes */
+            glm::vec3 m_xAxis         = {1.0f, 0.0f, 0.0f};
+            glm::vec3 m_yAxis         = {0.0f, 1.0f, 0.0f};
+            glm::vec3 m_zAxis         = {0.0f, 0.0f, 1.0f};
+            /* Local axes */
+            glm::vec3 m_rightVector   =  m_xAxis;
+            glm::vec3 m_upVector      =  m_yAxis;
+            glm::vec3 m_forwardVector = -m_zAxis;
+
+            void updateLocalAxes (void) {
+                m_rightVector   = glm::normalize (m_orientation *  m_xAxis);
+                m_upVector      = glm::normalize (m_orientation *  m_yAxis);
+                m_forwardVector = glm::normalize (m_orientation * -m_zAxis);
+            }
 
         public:
             /*              +Z                                  +Y
@@ -220,9 +231,9 @@ namespace SandBox {
              * Forward -Z
              * Up      +Y
             */
-            glm::vec3 m_position = {0.0f, 0.0f, 0.0f};
-            glm::vec3 m_rotation = {0.0f, 0.0f, 0.0f};
-            glm::vec3 m_scale    = {1.0f, 1.0f, 1.0f};
+            glm::vec3 m_position    = {0.0f, 0.0f, 0.0f};
+            glm::vec3 m_scale       = {1.0f, 1.0f, 1.0f};
+            glm::quat m_orientation = {1.0f, 0.0f, 0.0f, 0.0f};     /* Identity quaternion */
 
             TransformComponent (void) = default;
             TransformComponent (const glm::vec3 position,
@@ -230,28 +241,47 @@ namespace SandBox {
                                 const glm::vec3 scale = glm::vec3 (1.0f)) {
 
                 m_position = position;
-                m_rotation = rotation;
                 m_scale    = scale;
+                /* Yaw->Pitch->Roll */
+                addYaw   (rotation.y);
+                addPitch (rotation.x);
+                addRoll  (rotation.z);
+            }
+
+            glm::vec3 getRightVector (void) {
+                return m_rightVector;
+            }
+
+            glm::vec3 getUpVector (void) {
+                return m_upVector;
+            }
+
+            glm::vec3 getForwardVector (void) {
+                return m_forwardVector;
+            }
+
+            void addPitch (const float pitchDelta) {
+                glm::quat pitch = glm::angleAxis (pitchDelta, m_rightVector);
+                m_orientation   = glm::normalize (pitch * m_orientation);
+                updateLocalAxes();
+            }
+
+            void addYaw (const float yawDelta) {
+                glm::quat yaw   = glm::angleAxis (yawDelta, m_upVector);
+                m_orientation   = glm::normalize (yaw * m_orientation);
+                updateLocalAxes();
+            }
+
+            void addRoll (const float rollDelta) {
+                glm::quat roll  = glm::angleAxis (rollDelta, m_forwardVector);
+                m_orientation   = glm::normalize (roll * m_orientation);
+                updateLocalAxes();
             }
 
             glm::mat4 createModelMatrix (void) {
-                glm::quat pitch       = glm::angleAxis (m_rotation.x, m_xAxis);
-                glm::quat yaw         = glm::angleAxis (m_rotation.y, m_yAxis);
-                glm::quat roll        = glm::angleAxis (m_rotation.z, m_zAxis);
-                glm::quat orientation = glm::normalize (yaw * pitch * roll);
-
                 return glm::translate (glm::mat4 (1.0f), m_position) *
-                       glm::mat4_cast (orientation)                  *
+                       glm::mat4_cast (m_orientation)                *
                        glm::scale     (glm::mat4 (1.0f), m_scale);
-            }
-
-            glm::vec3 createForwardVector (void) {
-                glm::quat pitch       = glm::angleAxis (m_rotation.x, m_xAxis);
-                glm::quat yaw         = glm::angleAxis (m_rotation.y, m_yAxis);
-                glm::quat roll        = glm::angleAxis (m_rotation.z, m_zAxis);
-                glm::quat orientation = glm::normalize (yaw * pitch * roll);
-                /* An entity with no rotations applied will have its forward vector pointing at -Z axis */
-                return orientation * -m_zAxis;
             }
     };
 
