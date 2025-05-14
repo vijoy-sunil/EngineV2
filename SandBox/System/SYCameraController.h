@@ -128,7 +128,7 @@ namespace SandBox {
                         }
                     }
                 );
-                windowObj->setKeyEventBinding (GLFW_KEY_LEFT_SHIFT,
+                windowObj->setKeyEventBinding (GLFW_KEY_COMMA,
                     [this](void) {
                         auto& state            = m_cameraControllerInfo.state;
                         if (state.levelToggle == KEY_STATE_LOCKED) {
