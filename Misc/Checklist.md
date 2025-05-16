@@ -210,18 +210,16 @@
 
 # MISC
 
-- [ ] `[a-z>]&`                                 use of references
-- [ ] `[a-z]\*`                                 use of pointers
-- [ ] `\) [a-z]`                                no use of C-style casting
-- [ ] `\) &`                                    no use of C-style casting
-- [ ] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with `f`
-- [ ] `static`                                  is it necessary?
-- [ ] `const char*`                             use `const char*` for string literals
-- [ ] `std::string`                             use only if you require `std::string` features like concat, size etc.
-- [ ] `.size()`                                 make sure it is casted from `size_t` to required types
-- [ ] `size_t`                                  only used for size of an object and in fns that accept `size_t`
-- [ ] `#endif  //`                              all `endif`s should have comment
-- [ ] `++`, `--`                                prefer prefix over postfix unless in `for` loop
-- [ ] `::`                                      avoid namespace resolution in the same namespace
-- [ ] `vec4`                                    host shouldn't be handling `vec4`
-- [ ] `[ ]`                                     to do list
+- [x] `\) [a-z]`                                no use of C-style casting
+- [x] `\) &`                                    no use of C-style casting
+- [x] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with `f`
+- [x] `static`                                  is it necessary?
+- [x] `const char*`                             use `const char*` for string literals
+- [x] `std::string`                             use only if you require `std::string` features like concat, size etc.
+- [x] `.size()`                                 make sure it is casted from `size_t` to required types
+- [x] `size_t`                                  only used for size of an object and in fns that accept `size_t`
+- [x] `#endif  //`                              all `endif`s should have comment
+- [x] `++`, `--`                                prefer prefix over postfix unless in `for` loop
+- [x] `::`                                      avoid namespace resolution in the same namespace
+- [x] `vec4`                                    host shouldn't be handling `vec4`
+- [x] `[ ]`                                     to do list
