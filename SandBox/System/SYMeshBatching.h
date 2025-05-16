@@ -133,7 +133,7 @@ namespace SandBox {
                     auto batchedIndices  = meta.tagToBatchedIndicesMap[tag];
 
                     LOG_LITE_INFO (logObj) << tag << std::endl;
-                    LOG_LITE_INFO (logObj) << "{" << std::endl;
+                    LOG_LITE_INFO (logObj) << "[" << std::endl;
 
                     for (auto const& entity: entities) {
                         auto info                          = meta.entityToOffsetInfoMap[entity];
@@ -143,7 +143,7 @@ namespace SandBox {
                         size_t loopIdx                     = 0;
 
                         LOG_LITE_INFO (logObj) << "\t" << entity << std::endl;
-                        LOG_LITE_INFO (logObj) << "\t" << "{"    << std::endl;
+                        LOG_LITE_INFO (logObj) << "\t" << "["    << std::endl;
 
                         for (uint32_t indexIdx = firstIndexIdx; indexIdx < lastIndexIdx; indexIdx++) {
                             auto index  = batchedIndices[indexIdx];
@@ -171,16 +171,16 @@ namespace SandBox {
                                                    << ALIGN_AND_PAD_C (16) << vertex.meta.position.z
                                                    << ")"
                                                    << " "
-                                                   << ALIGN_AND_PAD_S << +vertex.material.diffuseTextureIdx  << ", "
-                                                   << ALIGN_AND_PAD_S << +vertex.material.specularTextureIdx << ", "
-                                                   << ALIGN_AND_PAD_S << +vertex.material.emissionTextureIdx << ", "
+                                                   << ALIGN_AND_PAD_S << +vertex.material.diffuseTextureIdx  << " "
+                                                   << ALIGN_AND_PAD_S << +vertex.material.specularTextureIdx << " "
+                                                   << ALIGN_AND_PAD_S << +vertex.material.emissionTextureIdx << " "
                                                    << ALIGN_AND_PAD_S << vertex.material.shininess
                                                    << std::endl;
                             ++loopIdx;
                         }
-                        LOG_LITE_INFO (logObj) << "\t" << "}" << std::endl;
+                        LOG_LITE_INFO (logObj) << "\t" << "]" << std::endl;
                     }
-                    LOG_LITE_INFO (logObj) << "}" << std::endl;
+                    LOG_LITE_INFO (logObj) << "]" << std::endl;
                 }
             }
 
