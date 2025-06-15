@@ -14,6 +14,7 @@ namespace Renderer {
                     uint32_t width;
                     uint32_t height;
                     uint32_t mipLevels;
+                    uint32_t baseArrayLayer;
                     uint32_t layersCount;
                     VkImageCreateFlags createFlags;
                     VkImageLayout initialLayout;
@@ -126,7 +127,7 @@ namespace Renderer {
 
                 createInfo.subresourceRange.baseMipLevel   = 0;
                 createInfo.subresourceRange.levelCount     = m_imageInfo.meta.mipLevels;
-                createInfo.subresourceRange.baseArrayLayer = 0;
+                createInfo.subresourceRange.baseArrayLayer = m_imageInfo.meta.baseArrayLayer;
                 createInfo.subresourceRange.layerCount     = m_imageInfo.meta.layersCount;
                 createInfo.subresourceRange.aspectMask     = m_imageInfo.meta.aspectFlags;
 
@@ -207,6 +208,7 @@ namespace Renderer {
             void initImageInfo (const uint32_t width,
                                 const uint32_t height,
                                 const uint32_t mipLevels,
+                                const uint32_t baseArrayLayer,
                                 const uint32_t layersCount,
                                 const VkImageCreateFlags createFlags,
                                 const VkImageLayout initialImageLayout,
@@ -222,6 +224,7 @@ namespace Renderer {
                 m_imageInfo.meta.width              = width;
                 m_imageInfo.meta.height             = height;
                 m_imageInfo.meta.mipLevels          = mipLevels;
+                m_imageInfo.meta.baseArrayLayer     = baseArrayLayer;
                 m_imageInfo.meta.layersCount        = layersCount;
                 m_imageInfo.meta.createFlags        = createFlags;
                 m_imageInfo.meta.initialLayout      = initialImageLayout;
@@ -240,6 +243,7 @@ namespace Renderer {
             }
 
             void initImageInfo (const uint32_t mipLevels,
+                                const uint32_t baseArrayLayer,
                                 const uint32_t layersCount,
                                 const VkFormat format,
                                 const VkImageAspectFlags aspectFlags,
@@ -247,6 +251,7 @@ namespace Renderer {
                                 const VkImage image) {
 
                 m_imageInfo.meta.mipLevels        = mipLevels;
+                m_imageInfo.meta.baseArrayLayer   = baseArrayLayer;
                 m_imageInfo.meta.layersCount      = layersCount;
                 m_imageInfo.meta.format           = format;
                 m_imageInfo.meta.aspectFlags      = aspectFlags;
@@ -254,6 +259,10 @@ namespace Renderer {
                 m_imageInfo.state.onlyViewCreated = true;
                 m_imageInfo.resource.image        = image;
                 m_imageInfo.resource.view         = nullptr;
+            }
+
+            VkExtent2D getImageExtent (void) {
+                return {m_imageInfo.meta.width, m_imageInfo.meta.height};
             }
 
             uint32_t getImageMipLevels (void) {

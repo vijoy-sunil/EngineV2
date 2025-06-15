@@ -55,7 +55,7 @@ namespace Renderer {
 
                 createInfo.unnormalizedCoordinates = VK_FALSE;
                 createInfo.compareEnable           = VK_FALSE;
-                createInfo.compareOp               = VK_COMPARE_OP_ALWAYS;
+                createInfo.compareOp               = VK_COMPARE_OP_NEVER;
 
                 auto result = vkCreateSampler (*m_samplerInfo.resource.logDeviceObj->getLogDevice(),
                                                 &createInfo,

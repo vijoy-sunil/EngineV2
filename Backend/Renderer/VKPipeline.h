@@ -350,22 +350,25 @@ namespace Renderer {
             void createRasterizationState (const float lineWidth,
                                            const VkPolygonMode polygonMode,
                                            const VkCullModeFlags cullMode,
-                                           const VkFrontFace frontFace) {
+                                           const VkFrontFace frontFace,
+                                           const VkBool32 depthBiasEnable,
+                                           const float depthBiasConstantFactor,
+                                           const float depthBiasSlopeFactor) {
 
                 VkPipelineRasterizationStateCreateInfo createInfo;
                 createInfo.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
                 createInfo.pNext                   = nullptr;
                 createInfo.flags                   = 0;
-                createInfo.depthClampEnable        = VK_FALSE;
                 createInfo.rasterizerDiscardEnable = VK_FALSE;
                 createInfo.lineWidth               = lineWidth;
                 createInfo.polygonMode             = polygonMode;
                 createInfo.cullMode                = cullMode;
                 createInfo.frontFace               = frontFace;
-                createInfo.depthBiasEnable         = VK_FALSE;
-                createInfo.depthBiasConstantFactor = 0.0f;
+                createInfo.depthClampEnable        = VK_FALSE;
                 createInfo.depthBiasClamp          = 0.0f;
-                createInfo.depthBiasSlopeFactor    = 0.0f;
+                createInfo.depthBiasEnable         = depthBiasEnable;
+                createInfo.depthBiasConstantFactor = depthBiasConstantFactor;
+                createInfo.depthBiasSlopeFactor    = depthBiasSlopeFactor;
 
                 m_pipelineInfo.meta.rasterization  = createInfo;
             }
