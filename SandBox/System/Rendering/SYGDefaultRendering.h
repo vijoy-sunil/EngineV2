@@ -1,25 +1,25 @@
 #pragma once
-#include "../../Backend/Common.h"
-#include "../../Backend/Scene/SNSystemBase.h"
-#include "../../Backend/Scene/SNImpl.h"
-#include "../../Backend/Collection/CNImpl.h"
-#include "../../Backend/Log/LGImpl.h"
-#include "../../Backend/Renderer/VKSwapChain.h"
-#include "../../Backend/Renderer/VKBuffer.h"
-#include "../../Backend/Renderer/VKRenderPass.h"
-#include "../../Backend/Renderer/VKFrameBuffer.h"
-#include "../../Backend/Renderer/VKPipeline.h"
-#include "../../Backend/Renderer/VKDescriptorSet.h"
-#include "../../Backend/Renderer/VKCmdBuffer.h"
-#include "../../Backend/Renderer/VKRenderer.h"
-#include "../../Backend/Renderer/VKCmdList.h"
-#include "../SBComponentType.h"
-#include "../SBRendererType.h"
+#include "../../../Backend/Common.h"
+#include "../../../Backend/Scene/SNSystemBase.h"
+#include "../../../Backend/Scene/SNImpl.h"
+#include "../../../Backend/Collection/CNImpl.h"
+#include "../../../Backend/Log/LGImpl.h"
+#include "../../../Backend/Renderer/VKSwapChain.h"
+#include "../../../Backend/Renderer/VKBuffer.h"
+#include "../../../Backend/Renderer/VKRenderPass.h"
+#include "../../../Backend/Renderer/VKFrameBuffer.h"
+#include "../../../Backend/Renderer/VKPipeline.h"
+#include "../../../Backend/Renderer/VKDescriptorSet.h"
+#include "../../../Backend/Renderer/VKCmdBuffer.h"
+#include "../../../Backend/Renderer/VKRenderer.h"
+#include "../../../Backend/Renderer/VKCmdList.h"
+#include "../../SBComponentType.h"
+#include "../../SBRendererType.h"
 
 namespace SandBox {
-    class SYSkyBoxRendering: public Scene::SNSystemBase {
+    class SYGDefaultRendering: public Scene::SNSystemBase {
         private:
-            struct SkyBoxRenderingInfo {
+            struct GDefaultRenderingInfo {
                 struct Resource {
                     Scene::SNImpl* sceneObj;
                     Log::LGImpl* logObj;
@@ -28,20 +28,20 @@ namespace SandBox {
                     Renderer::VKBuffer* indexBufferObj;
                     std::vector <Renderer::VKBuffer*> meshInstanceBufferObjs;
                     Renderer::VKRenderPass* renderPassObj;
-                    std::vector <Renderer::VKFrameBuffer*> frameBufferObjs;
+                    Renderer::VKFrameBuffer* frameBufferObj;
                     Renderer::VKPipeline* pipelineObj;
                     Renderer::VKDescriptorSet* perFrameDescSetObj;
-                    Renderer::VKDescriptorSet* oneTimeDescSetObj;
+                    Renderer::VKDescriptorSet* otherDescSetObj;
                     Renderer::VKCmdBuffer* cmdBufferObj;
                     Renderer::VKRenderer* rendererObj;
                 } resource;
-            } m_skyBoxRenderingInfo;
+            } m_gDefaultRenderingInfo;
 
         public:
-            SYSkyBoxRendering (void) {
-                m_skyBoxRenderingInfo = {};
+            SYGDefaultRendering (void) {
+                m_gDefaultRenderingInfo = {};
 
-                auto& logObj = m_skyBoxRenderingInfo.resource.logObj;
+                auto& logObj = m_gDefaultRenderingInfo.resource.logObj;
                 logObj       = new Log::LGImpl();
                 logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
                 logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
@@ -49,68 +49,62 @@ namespace SandBox {
                 logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
             }
 
-            void initSkyBoxRenderingInfo (Scene::SNImpl* sceneObj,
-                                          Collection::CNImpl* collectionObj) {
+            void initGDefaultRenderingInfo (Scene::SNImpl* sceneObj,
+                                            Collection::CNImpl* collectionObj) {
 
                 if (sceneObj == nullptr || collectionObj == nullptr) {
-                    LOG_ERROR (m_skyBoxRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                      << std::endl;
+                    LOG_ERROR (m_gDefaultRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
+                                                                        << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
 
-                auto& resource              = m_skyBoxRenderingInfo.resource;
+                auto& resource              = m_gDefaultRenderingInfo.resource;
                 resource.sceneObj           = sceneObj;
                 resource.swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain>     (
-                    "DEFAULT"
+                    "CORE"
                 );
                 resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                    "SKY_BOX_VERTEX"
+                    "S:G_?_VERTEX"
                 );
                 resource.indexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                    "SKY_BOX_INDEX"
+                    "S:G_?_INDEX"
                 );
                 for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                     auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                        "SKY_BOX_MESH_INSTANCE_" + std::to_string (i)
+                        "G_DEFAULT_MESH_INSTANCE_" + std::to_string (i)
                     );
                     resource.meshInstanceBufferObjs.push_back (bufferObj);
                 }
                 resource.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
-                    "DEFAULT"
+                    "G"
                 );
-                for (uint32_t i = 0; i < resource.swapChainObj->getSwapChainImagesCount(); i++) {
-                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
-                        "DEFAULT_" + std::to_string (i)
-                    );
-                    resource.frameBufferObjs.push_back (bufferObj);
-                }
+                resource.frameBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
+                    "G"
+                );
                 resource.pipelineObj        = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
-                    "SKY_BOX"
+                    "G_DEFAULT"
                 );
                 resource.perFrameDescSetObj = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
-                    "SKY_BOX_PER_FRAME"
+                    "G_DEFAULT_PER_FRAME"
                 );
-                resource.oneTimeDescSetObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
-                    "SKY_BOX_ONE_TIME"
+                resource.otherDescSetObj    = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
+                    "G_DEFAULT_OTHER"
                 );
                 resource.cmdBufferObj       = collectionObj->getCollectionTypeInstance <Renderer::VKCmdBuffer>     (
-                    "DEFAULT_DRAW_OPS"
+                    "DRAW_OPS"
                 );
                 resource.rendererObj        = collectionObj->getCollectionTypeInstance <Renderer::VKRenderer>      (
-                    "DEFAULT"
+                    "DRAW_OPS"
                 );
             }
 
-            void update (const void* meshInstance,
+            void update (const void* meshInstances,
                          const void* activeCamera) {
 
-                auto& resource             = m_skyBoxRenderingInfo.resource;
-                auto& sceneObj             = resource.sceneObj;
-
-                uint32_t swapChainImageIdx = resource.rendererObj->getSwapChainImageIdx();
-                uint32_t frameInFlightIdx  = resource.rendererObj->getFrameInFlightIdx();
-                auto frameBufferObj        = resource.frameBufferObjs[swapChainImageIdx];
-                auto cmdBuffer             = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
+                auto& resource            = m_gDefaultRenderingInfo.resource;
+                auto& sceneObj            = resource.sceneObj;
+                uint32_t frameInFlightIdx = resource.rendererObj->getFrameInFlightIdx();
+                auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
                 /* Define the clear values to use for VK_ATTACHMENT_LOAD_OP_CLEAR. Note that, the order of clear values
                  * should be identical to the order of your attachments
                  *
@@ -118,18 +112,30 @@ namespace SandBox {
                  * and 0.0 at the near view plane. The initial value at each point in the depth buffer should be the
                  * furthest possible depth, which is 1.0
                 */
-                auto clearValues           = std::vector {
-                    VkClearValue {                          /* Attachment idx 0 */
+                auto clearValues          = std::vector {
+                    VkClearValue {                              /* Attachment idx 0 */
                         {{0.0f, 0.0f, 0.0f, 1.0f}}
                     },
-                    VkClearValue {                          /* Attachment idx 1 */
+                    VkClearValue {                              /* Attachment idx 1 */
+                        {{0.0f, 0.0f, 0.0f, 1.0f}}
+                    },
+                    VkClearValue {                              /* Attachment idx 2 */
+                        {{0.0f, 0.0f, 0.0f, 1.0f}}
+                    },
+                    VkClearValue {                              /* Attachment idx 3 */
+                        {{0.0f, 0.0f, 0.0f, 1.0f}}
+                    },
+                    VkClearValue {                              /* Attachment idx 4 */
+                        {{0.0f, 0.0f, 0.0f, 1.0f}}
+                    },
+                    VkClearValue {                              /* Attachment idx 5 */
                         {{1.0f, 0}}
                     }
                 };
 
                 /* Update buffer */
                 resource.meshInstanceBufferObjs[frameInFlightIdx]->updateBuffer (
-                    meshInstance,
+                    meshInstances,
                     false
                 );
                 /* [O] Begin render pass
@@ -142,7 +148,7 @@ namespace SandBox {
                 Renderer::beginRenderPass (
                     cmdBuffer,
                     *resource.renderPassObj->getRenderPass(),
-                    *frameBufferObj->getFrameBuffer(),
+                    *resource.frameBufferObj->getFrameBuffer(),
                     {0, 0},
                     *resource.swapChainObj->getSwapChainExtent(),
                     clearValues
@@ -207,7 +213,7 @@ namespace SandBox {
                 /* Descriptor sets */
                 auto descriptorSets = std::vector {
                     resource.perFrameDescSetObj->getDescriptorSets()[frameInFlightIdx],
-                    resource.oneTimeDescSetObj->getDescriptorSets()[0]
+                    resource.otherDescSetObj->getDescriptorSets()[0]
                 };
                 auto dynamicOffsets = std::vector <uint32_t> {};
                 Renderer::bindDescriptorSets (
@@ -222,7 +228,7 @@ namespace SandBox {
                 for (auto const& entity: m_entities) {
                     auto renderComponent = sceneObj->getComponent <RenderComponent> (entity);
 
-                    if (renderComponent->m_tag == TAG_TYPE_SKY_BOX) {
+                    if (renderComponent->m_tagType == TAG_TYPE_STD) {
                         Renderer::drawIndexed (
                             cmdBuffer,
                             renderComponent->m_firstIndexIdx,
@@ -233,17 +239,20 @@ namespace SandBox {
                         );
                     }
                 }
-                /* [.] Continue render pass
+                /* [.]
                  *  .
                  *  .
                  *  .
                  *  .
-                 * [.]
+                 * [O] End render pass
                 */
+                Renderer::endRenderPass (
+                    cmdBuffer
+                );
             }
 
-            ~SYSkyBoxRendering (void) {
-                delete m_skyBoxRenderingInfo.resource.logObj;
+            ~SYGDefaultRendering (void) {
+                delete m_gDefaultRenderingInfo.resource.logObj;
             }
     };
 }   // namespace SandBox
