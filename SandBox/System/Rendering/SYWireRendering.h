@@ -151,16 +151,14 @@ namespace SandBox {
                 for (auto const& entity: m_entities) {
                     auto renderComponent = sceneObj->getComponent <RenderComponent> (entity);
 
-                    if (renderComponent->m_tagType == TAG_TYPE_WIRE) {
-                        Renderer::drawIndexed (
-                            cmdBuffer,
-                            renderComponent->m_firstIndexIdx,
-                            renderComponent->m_indicesCount,
-                            renderComponent->m_vertexOffset,
-                            renderComponent->m_firstInstanceIdx,
-                            renderComponent->m_instancesCount
-                        );
-                    }
+                    Renderer::drawIndexed (
+                        cmdBuffer,
+                        renderComponent->m_firstIndexIdx,
+                        renderComponent->m_indicesCount,
+                        renderComponent->m_vertexOffset,
+                        renderComponent->m_firstInstanceIdx,
+                        renderComponent->m_instancesCount
+                    );
                 }
                 /* [.] Continue render pass
                  *  .
