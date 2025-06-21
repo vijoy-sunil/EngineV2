@@ -1,14 +1,14 @@
 #pragma once
-#include "../../Backend/Common.h"
-#include "../../Backend/Scene/SNSystemBase.h"
-#include "../../Backend/Scene/SNImpl.h"
-#include "../../Backend/Collection/CNImpl.h"
-#include "../../Backend/Log/LGImpl.h"
-#include "../../Backend/Renderer/VKWindow.h"
-#include "../../Backend/Renderer/VKSwapChain.h"
-#include "SYEnum.h"
-#include "../SBComponentType.h"
-#include "../SBRendererType.h"
+#include "../../../Backend/Common.h"
+#include "../../../Backend/Scene/SNSystemBase.h"
+#include "../../../Backend/Scene/SNImpl.h"
+#include "../../../Backend/Collection/CNImpl.h"
+#include "../../../Backend/Log/LGImpl.h"
+#include "../../../Backend/Renderer/VKWindow.h"
+#include "../../../Backend/Renderer/VKSwapChain.h"
+#include "../SYEnum.h"
+#include "../../SBComponentType.h"
+#include "../../SBRendererType.h"
 
 namespace SandBox {
     class SYCameraController: public Scene::SNSystemBase {
@@ -265,11 +265,11 @@ namespace SandBox {
                 m_cameraControllerInfo.resource.sceneObj              = sceneObj;
                 m_cameraControllerInfo.resource.windowObj             =
                 collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    (
-                    "DEFAULT"
+                    "CORE"
                 );
                 m_cameraControllerInfo.resource.swapChainObj          =
                 collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> (
-                    "DEFAULT"
+                    "CORE"
                 );
 
                 setCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
@@ -282,8 +282,8 @@ namespace SandBox {
 
             void update (const float frameDelta) {
                 auto& meta         = m_cameraControllerInfo.meta;
-                auto& state        = m_cameraControllerInfo.state;
                 auto& activeCamera = meta.activeCamera;
+                auto& state        = m_cameraControllerInfo.state;
                 auto& sceneObj     = m_cameraControllerInfo.resource.sceneObj;
                 auto& swapChainObj = m_cameraControllerInfo.resource.swapChainObj;
 
