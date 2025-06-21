@@ -81,56 +81,51 @@ namespace SandBox {
             }
 
             void addTextureToPool (const std::string imageFilePath) {
-                auto& pathToIdxMap      = m_texturePoolInfo.meta.pathToIdxMap;
-                auto& idxToImageInfoMap = m_texturePoolInfo.meta.idxToImageInfoMap;
-                auto& nextAvailableIdx  = m_texturePoolInfo.meta.nextAvailableIdx;
+                auto& meta = m_texturePoolInfo.meta;
                 /* Return if texture has already been added to the pool */
-                if (pathToIdxMap.find (imageFilePath) != pathToIdxMap.end())
+                if (meta.pathToIdxMap.find (imageFilePath) != meta.pathToIdxMap.end())
                     return;
 
-                pathToIdxMap.insert (
-                    {
-                        imageFilePath,
-                        nextAvailableIdx
-                    }
-                );
-                idxToImageInfoMap[nextAvailableIdx] = loadImage (
+                meta.pathToIdxMap.insert ({
+                    imageFilePath,
+                    meta.nextAvailableIdx
+                });
+                meta.idxToImageInfoMap[meta.nextAvailableIdx] = loadImage (
                     imageFilePath.c_str()
                 );
-                ++nextAvailableIdx;
+                ++meta.nextAvailableIdx;
             }
 
             void destroyImage (const TextureIdxType textureIdx) {
-                auto& idxToImageInfoMap = m_texturePoolInfo.meta.idxToImageInfoMap;
-                if (idxToImageInfoMap.find (textureIdx) == idxToImageInfoMap.end()) {
+                auto& meta = m_texturePoolInfo.meta;
+                if (meta.idxToImageInfoMap.find (textureIdx) == meta.idxToImageInfoMap.end()) {
                     LOG_ERROR (m_texturePoolInfo.resource.logObj) << "Image info does not exist"
                                                                   << " "
                                                                   << "[" << textureIdx << "]"
                                                                   << std::endl;
                     throw std::runtime_error ("Image info does not exist");
                 }
-                auto imageInfo = idxToImageInfoMap[textureIdx];
+                auto imageInfo = meta.idxToImageInfoMap[textureIdx];
                 stbi_image_free (imageInfo.resource.data);
             }
 
             void generateReport (void) {
+                auto& meta   = m_texturePoolInfo.meta;
                 auto& logObj = m_texturePoolInfo.resource.logObj;
 
-                LOG_LITE_INFO (logObj) << "{" << std::endl;
-                for (auto const& [path, idx]: m_texturePoolInfo.meta.pathToIdxMap) {
-                    auto imageInfo = m_texturePoolInfo.meta.idxToImageInfoMap[idx];
-
-                    LOG_LITE_INFO (logObj) << "\t";
+                LOG_LITE_INFO (logObj)     << "{"                     << std::endl;
+                for (auto const& [path, idx]: meta.pathToIdxMap) {
+                    auto imageInfo = meta.idxToImageInfoMap[idx];
                     /* Promote to a type printable as a number, regardless of type. This works as long as the type
                      * provides a unary + operator with ordinary semantics
                     */
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << +idx                         << ", ";
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << imageInfo.meta.width         << ", ";
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << imageInfo.meta.height        << ", ";
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << imageInfo.meta.channelsCount << ", ";
-                    LOG_LITE_INFO (logObj) << path            << std::endl;
+                    LOG_LITE_INFO (logObj) << "\t" << ALIGN_AND_PAD_S << +idx                         << " "
+                                                   << ALIGN_AND_PAD_S << imageInfo.meta.width         << " "
+                                                   << ALIGN_AND_PAD_S << imageInfo.meta.height        << " "
+                                                   << ALIGN_AND_PAD_S << imageInfo.meta.channelsCount << " "
+                                                   << path            << std::endl;
                 }
-                LOG_LITE_INFO (logObj) << "}" << std::endl;
+                LOG_LITE_INFO (logObj)     << "}"                     << std::endl;
             }
 
             ~SBTexturePool (void) {
