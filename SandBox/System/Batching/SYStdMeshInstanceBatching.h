@@ -116,11 +116,12 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj)     << "["                              << std::endl;
 
                     for (auto const& entity: entities) {
-                        auto metaComponent  = sceneObj->getComponent <MetaComponent> (entity);
-                        size_t idx          = meta.entityToIdxMap[entity];
-                        auto& modelMatrix   = instances[idx].modelMatrix;
-                        auto& normalMatrix  = instances[idx].normalMatrix;
-                        auto& textureIdxLUT = instances[idx].textureIdxLUT;
+                        auto metaComponent          = sceneObj->getComponent <MetaComponent>          (entity);
+                        auto textureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (entity);
+                        size_t idx                  = meta.entityToIdxMap[entity];
+                        auto& modelMatrix           = instances[idx].modelMatrix;
+                        auto& normalMatrix          = instances[idx].normalMatrix;
+                        auto& textureIdxLUT         = instances[idx].textureIdxLUT;
 
                         LOG_LITE_INFO (logObj) << "\t"     << metaComponent->m_id  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t"     << "{"                  << std::endl;
@@ -147,19 +148,21 @@ namespace SandBox {
                         rowIdx = 0;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "]"                  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "["                  << std::endl;
-                        while (rowIdx < 8) {
-                        LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_C (12) << textureIdxLUT[0]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[1]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[2]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[3]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[4]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[5]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[6]        << ", "
-                                                           << ALIGN_AND_PAD_C (12) << textureIdxLUT[7]
+                        for (size_t packetIdx = 0; packetIdx < 64; packetIdx++) {
+                        /* Split packet into texture indices */
+                        uint32_t packet     = textureIdxLUT[packetIdx];
+                        auto newTextureIdx0 = textureIdxLUTComponent->decodeTextureIdx  (packet & 0x000000FF);
+                        auto newTextureIdx1 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0x0000FF00) >>  8);
+                        auto newTextureIdx2 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0x00FF0000) >> 16);
+                        auto newTextureIdx3 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0xFF000000) >> 24);
+
+                        LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_C (3)  << packetIdx               << ": "
+                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx0         << ", "
+                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx1         << ", "
+                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx2         << ", "
+                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx3
                                                            << std::endl;
-                        ++rowIdx;
                         }
-                        rowIdx = 0;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "]"                  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t"     << "}"                  << std::endl;
                     }
