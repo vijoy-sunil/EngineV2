@@ -17,21 +17,13 @@ namespace SandBox {
         } meta;
 
         struct Material {
-            /* The diffuse texture idx defines the color of the surface under diffuse lighting. The diffuse color is
-             * (just like ambient lighting) set to the desired surface's color. The specular texture idx sets the color
-             * of the specular highlight on the surface (or possibly even reflect a surface-specific color). The emission
-             * texture idx defines the colors an object may emit as if it contains a light source itself; this way an
-             * object can glow regardless of the light conditions
-            */
             TextureIdxType diffuseTextureIdx;
             TextureIdxType specularTextureIdx;
             TextureIdxType emissionTextureIdx;
-            /* Shininess impacts the scattering/radius of the specular highlight. The table in the following link
-             * http://devernay.free.fr/cours/opengl/materials.html shows a list of material properties that simulate
-             * real materials found in the outside world
-             *
-             * Note that, the higher the shininess value, the more it properly reflects the light instead of scattering
-             * it all around and thus the smaller the highlight becomes
+            /* Shininess impacts the scattering/radius of the specular highlight. The table in the following link shows a
+             * list of material properties that simulate real materials found in the outside world. Note that, the higher
+             * the shininess value, the more it properly reflects the light instead of scattering it all around and thus
+             * the smaller the highlight becomes http://devernay.free.fr/cours/opengl/materials.html
             */
             uint32_t shininess;
         } material;
@@ -53,16 +45,22 @@ namespace SandBox {
     };
 
     /* PC - Push constant */
+    struct ActiveLightPC {
+        glm::vec3 position;                 /* Vec3 must be aligned by 4N   (= 16 bytes) */
+        float farPlane;                     /* Scalars must be aligned by N (= 4 bytes given 32 bit floats) */
+        glm::mat4 viewMatrix;               /* Mat4 must be aligned by 4N   (= 16 bytes) */
+        glm::mat4 projectionMatrix;
+    };
+
     struct ActiveCameraPC {
-        glm::vec3 position;                 /* Vec3 must be aligned by 4N (= 16 bytes) */
-        alignas (16) glm::mat4 viewMatrix;  /* Mat4 must be aligned by 4N (= 16 bytes) */
+        glm::vec3 position;
+        alignas (16) glm::mat4 viewMatrix;
         glm::mat4 projectionMatrix;
     };
 
     struct LightTypeOffsetsPC {
-        uint32_t directionalLightsOffset;   /* Scalars must be aligned by N (= 4 bytes given 32 bit floats) */
-        uint32_t pointLightsOffset;
         uint32_t spotLightsOffset;
+        uint32_t pointLightsOffset;
         uint32_t lightsCount;
     };
 }   // namespace SandBox

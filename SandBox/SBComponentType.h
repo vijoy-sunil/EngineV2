@@ -3,17 +3,11 @@
 #include "SBRendererType.h"
 
 namespace SandBox {
-    /* Enums */
     typedef enum {
-        LIGHT_TYPE_DIRECTIONAL,
-        LIGHT_TYPE_POINT,
-        LIGHT_TYPE_SPOT
+        LIGHT_TYPE_SUN,
+        LIGHT_TYPE_SPOT,
+        LIGHT_TYPE_POINT
     } e_lightType;
-
-    typedef enum {
-        CAMERA_TYPE_DEBUG,
-        CAMERA_TYPE_SCENE
-    } e_cameraType;
 
     typedef enum {
         PROJECTION_TYPE_PERSPECTIVE,
@@ -21,19 +15,51 @@ namespace SandBox {
     } e_projectionType;
 
     typedef enum {
-        TAG_TYPE_DEFAULT,
+        TAG_TYPE_NONE,
+        TAG_TYPE_STD,
+        TAG_TYPE_STD_ALPHA,
         TAG_TYPE_WIRE,
         TAG_TYPE_SKY_BOX
     } e_tagType;
 
-    /* Components */
-    struct IdComponent {
-        public:
-            std::string m_id = "Unnamed";
+    const char* getLightTypeString (const e_lightType lightType) {
+        switch (lightType) {
+            case LIGHT_TYPE_SUN:                    return "LIGHT_TYPE_SUN";
+            case LIGHT_TYPE_SPOT:                   return "LIGHT_TYPE_SPOT";
+            case LIGHT_TYPE_POINT:                  return "LIGHT_TYPE_POINT";
+            default:                                return "UNDEFINED";
+        }
+    }
 
-            IdComponent (void) = default;
-            IdComponent (const std::string id) {
-                m_id = id;
+    const char* getProjectionTypeString (const e_projectionType projectionType) {
+        switch (projectionType) {
+            case PROJECTION_TYPE_PERSPECTIVE:       return "PROJECTION_TYPE_PERSPECTIVE";
+            case PROJECTION_TYPE_ORTHOGRAPHIC:      return "PROJECTION_TYPE_ORTHOGRAPHIC";
+            default:                                return "UNDEFINED";
+        }
+    }
+
+    const char* getTagTypeString (const e_tagType tagType) {
+        switch (tagType) {
+            case TAG_TYPE_NONE:                     return "TAG_TYPE_NONE";
+            case TAG_TYPE_STD:                      return "TAG_TYPE_STD";
+            case TAG_TYPE_STD_ALPHA:                return "TAG_TYPE_STD_ALPHA";
+            case TAG_TYPE_WIRE:                     return "TAG_TYPE_WIRE";
+            case TAG_TYPE_SKY_BOX:                  return "TAG_TYPE_SKY_BOX";
+            default:                                return "UNDEFINED";
+        }
+    }
+
+    /* Components */
+    struct MetaComponent {
+        public:
+            std::string m_id     = "UNDEFINED";
+            e_tagType m_tagType  = TAG_TYPE_NONE;
+
+            MetaComponent (void) = default;
+            MetaComponent (const std::string id, const e_tagType tagType) {
+                m_id             = id;
+                m_tagType        = tagType;
             }
     };
 
@@ -54,14 +80,16 @@ namespace SandBox {
 
             /* Manually populate vertices and indices */
             MeshComponent (const std::vector <Vertex> vertices, const std::vector <IndexType> indices) {
-                m_vertices = vertices;
-                m_indices  = indices;
+                m_modelFilePath  = "";
+                m_mtlFileDirPath = "";
+                m_vertices       = vertices;
+                m_indices        = indices;
             }
     };
 
     struct LightComponent {
         public:
-            e_lightType m_type = LIGHT_TYPE_DIRECTIONAL;
+            e_lightType m_lightType = LIGHT_TYPE_SUN;
             /* The major building blocks of the Phong lighting model consist of 3 components:
              *
              * Ambient:  Even when it is dark there is usually still some light somewhere in the world, so objects are
@@ -99,7 +127,7 @@ namespace SandBox {
              * first column specifies the distance a light  will cover with the given terms. These values are good
              * starting points for most lights
              *
-             * Note that, we do not set attenuation parameters for directional light
+             * Note that, we do not set attenuation parameters for sun light
             */
             float m_constant  = 1.0f;
             float m_linear    = 0.0f;
@@ -117,6 +145,9 @@ namespace SandBox {
             */
             float m_innerRadius = glm::cos (glm::radians (180.0f));
             float m_outerRadius = glm::cos (glm::radians (180.0f));
+            float m_nearPlane   =  0.01f;
+            float m_farPlane    = 100.0f;
+            float m_scale       =   5.0f;
 
             LightComponent (void) = default;
             LightComponent (const e_lightType lightType,
@@ -127,9 +158,11 @@ namespace SandBox {
                             const float       linear,
                             const float       quadratic,
                             const float       innerRadius,
-                            const float       outerRadius) {
+                            const float       outerRadius,
+                            const float       nearPlane,
+                            const float       farPlane) {
 
-                m_type        = lightType;
+                m_lightType   = lightType;
                 m_ambient     = ambient;
                 m_diffuse     = diffuse;
                 m_specular    = specular;
@@ -140,61 +173,123 @@ namespace SandBox {
 
                 m_innerRadius = glm::cos (innerRadius);
                 m_outerRadius = glm::cos (outerRadius);
+                m_nearPlane   = nearPlane;
+                m_farPlane    = farPlane;
+            }
+
+            /*  Coordinate systems
+             *  +---------------+---------------+---------------+---------------+---------------+---------------+
+             *  |     Model     |     World     |     View      |     Clip      |     NDC       |     Window    |
+             *  |     space     |     space     |     space     |     space     |               |     space     |
+             *  +-------:-------+-------:-------+-------:-------+-------:-------+-------:-------+-------:-------+
+             *          :               :               :               :               :               :
+             *          :------->-------:------->-------:------->-------:------->-------:------->-------:
+             *                  Model           View            Projection      Cliiping +      View port
+             *                  matrix          matrix          matrix          Perspective     transformation
+             *                                                                  divide
+             *
+             * Note that, the clipping and perspective divide operations are fixed function (hardwired) operations. Each
+             * graphics API specifies the coordinate systems in which these happen. All we need to do is create the model,
+             * view and projection matrices to get our vertex data "correctly into clip space"
+             *
+             * With opengl, the fixed function parts of the pipeline all use left-handed coordinate systems. If we stick
+             * with the common conventions of using a right-handed set of coordinate systems for model, world and view
+             * space, then the transformation from view space to clip space must flip the handedness of the coordinate
+             * system somehow
+             *
+             * The glm::perspective method not only performs the perspective projection transform but it also bakes in
+             * the flip from right-handed coordinates to left-handed coordinates by flipping the z axis and using -z as
+             * the w component causing the change in handedness
+             *
+             * Conversely to opengl, the fixed function coordinate systems used in vulkan remain as right-handed as shown
+             * below. Note that, even though z increases into the distance and y is increasing down, it is still in fact
+             * a right-handed coordinate system
+             *
+             *              +Y                                      +Z
+             *              |                                      /
+             *              |   View                              /   Clip
+             *              |   space                            /    space
+             *             (o)-----------| +X                  (o)-----------| +X
+             *             /                                    |
+             *            /                                     |
+             *           /                                      |
+             *           +Z                                     +Y
+             *
+             * We need to reorient our coordinate axes from view space (x-right, y-up, looking down the -z axis) to the
+             * vulkan clip space (x-right, y-down, looking down the +z axis), which can be achieved by flipping both the
+             * z (baked in glm::perspective) and y axes, or, perform a rotation of 180 degrees about the x axis
+            */
+            glm::mat4 createProjectionMatrix (const float aspectRatio) {
+                glm::mat4 projectionMatrix;
+                switch (m_lightType) {
+                    case LIGHT_TYPE_SUN:
+                        projectionMatrix = glm::ortho       (-m_scale * aspectRatio,
+                                                              m_scale * aspectRatio,
+                                                             -m_scale,
+                                                              m_scale,
+                                                              m_nearPlane,
+                                                              m_farPlane);
+                        break;
+                    case LIGHT_TYPE_SPOT:
+                        projectionMatrix = glm::perspective (2.0f * glm::acos (m_outerRadius),
+                                                             aspectRatio,
+                                                             m_nearPlane,
+                                                             m_farPlane);
+                        break;
+                    case LIGHT_TYPE_POINT:
+                        projectionMatrix = glm::perspective (glm::radians (90.0f),
+                                                             aspectRatio,
+                                                             m_nearPlane,
+                                                             m_farPlane);
+                        break;
+                };
+                projectionMatrix[1][1] *= -1.0f;
+                return projectionMatrix;
             }
     };
 
     struct CameraComponent {
         public:
-            e_cameraType m_cameraType         = CAMERA_TYPE_DEBUG;
             e_projectionType m_projectionType = PROJECTION_TYPE_PERSPECTIVE;
             bool m_active                     = true;
             float m_fov                       = glm::radians (60.0f);
-            float m_nearPlane                 =   0.1f;
+            float m_nearPlane                 =  0.01f;
             float m_farPlane                  = 100.0f;
             float m_scale                     =   5.0f;
 
             CameraComponent (void) = default;
-            CameraComponent (const e_cameraType cameraType,
-                             const e_projectionType projectionType,
+            CameraComponent (const e_projectionType projectionType,
                              const bool active,
                              const float fov,
                              const float nearPlane,
-                             const float farPlane,
-                             const float scale) {
+                             const float farPlane) {
 
-                m_cameraType     = cameraType;
                 m_projectionType = projectionType;
                 m_active         = active;
                 m_fov            = fov;
                 m_nearPlane      = nearPlane;
                 m_farPlane       = farPlane;
-                m_scale          = scale;
             }
 
             glm::mat4 createProjectionMatrix (const float aspectRatio) {
                 glm::mat4 projectionMatrix;
-
-                if (m_projectionType == PROJECTION_TYPE_PERSPECTIVE)
-                    projectionMatrix = glm::perspective (
-                        m_fov,
-                        aspectRatio,
-                        m_nearPlane,
-                        m_farPlane
-                    );
-                if (m_projectionType == PROJECTION_TYPE_ORTHOGRAPHIC)
-                    projectionMatrix = glm::ortho (
-                        -m_scale * aspectRatio,
-                         m_scale * aspectRatio,
-                        -m_scale,
-                         m_scale,
-                         m_nearPlane,
-                         m_farPlane
-                    );
-                /* GLM was originally designed for OpenGL, where the Y coordinate of the clip coordinates are inverted.
-                 * The easiest way to compensate for that is to flip the sign on the scaling factor of the Y axis in the
-                 * projection matrix. If you don't do this, then the image will be rendered upside down
-                */
-                projectionMatrix[1][1] *= -1;
+                switch (m_projectionType) {
+                    case PROJECTION_TYPE_PERSPECTIVE:
+                        projectionMatrix = glm::perspective (m_fov,
+                                                             aspectRatio,
+                                                             m_nearPlane,
+                                                             m_farPlane);
+                        break;
+                    case PROJECTION_TYPE_ORTHOGRAPHIC:
+                        projectionMatrix = glm::ortho       (-m_scale * aspectRatio,
+                                                              m_scale * aspectRatio,
+                                                             -m_scale,
+                                                              m_scale,
+                                                              m_nearPlane,
+                                                              m_farPlane);
+                        break;
+                };
+                projectionMatrix[1][1] *= -1.0f;
                 return projectionMatrix;
             }
     };
@@ -217,7 +312,8 @@ namespace SandBox {
             }
 
         public:
-            /*              +Z                                  +Y
+            /* Right-handed coordinate system
+             *              +Z                                  +Y
              *              |                                   |
              *              | Blender                           |  /Camera view direction -Z
              *              |                                   | /
@@ -225,15 +321,15 @@ namespace SandBox {
              *             /                                   /
              *            /                                   /
              *           /                                   /
-             *         -Y                                 +Z
+             *           -Y                                  +Z
              *
              * Export settings
              * Forward -Z
              * Up      +Y
             */
             glm::vec3 m_position    = {0.0f, 0.0f, 0.0f};
-            glm::vec3 m_scale       = {1.0f, 1.0f, 1.0f};
             glm::quat m_orientation = {1.0f, 0.0f, 0.0f, 0.0f};     /* Identity quaternion */
+            glm::vec3 m_scale       = {1.0f, 1.0f, 1.0f};
 
             TransformComponent (void) = default;
             TransformComponent (const glm::vec3 position,
@@ -260,20 +356,20 @@ namespace SandBox {
                 return m_forwardVector;
             }
 
-            void addPitch (const float pitchDelta) {
-                glm::quat pitch = glm::angleAxis (pitchDelta, m_rightVector);
+            void addPitch (const float val) {
+                glm::quat pitch = glm::angleAxis (val, m_rightVector);
                 m_orientation   = glm::normalize (pitch * m_orientation);
                 updateLocalAxes();
             }
 
-            void addYaw (const float yawDelta) {
-                glm::quat yaw   = glm::angleAxis (yawDelta, m_upVector);
+            void addYaw (const float val) {
+                glm::quat yaw   = glm::angleAxis (val, m_upVector);
                 m_orientation   = glm::normalize (yaw * m_orientation);
                 updateLocalAxes();
             }
 
-            void addRoll (const float rollDelta) {
-                glm::quat roll  = glm::angleAxis (rollDelta, m_forwardVector);
+            void addRoll (const float val) {
+                glm::quat roll  = glm::angleAxis (val, m_forwardVector);
                 m_orientation   = glm::normalize (roll * m_orientation);
                 updateLocalAxes();
             }
@@ -290,7 +386,7 @@ namespace SandBox {
             /* Note that, we will be limiting the texture idx range to [0, 255]. This allows us to pack a total of 256
              * texture indices in 256 bytes of data in the LUT array as shown below
              *
-             *      0        1        2       3              63 => write index
+             *     0        1        2        3              63 => write idx
              * |--------|--------|--------|--------|     |--------|
              * |   32b  |   32b  |   32b  |   32b  |.....|   32b  |
              * |--------|--------|--------|--------|     |--------|
@@ -301,28 +397,28 @@ namespace SandBox {
              *          |--------|--------|--------|--------|
              *          |   8b   |   8b   |   8b   |   8b   |
              *          |--------|--------|--------|--------|
-             *             idx 7    idx 6    idx 5    idx 4 => texture index
+             *             idx 7    idx 6    idx 5    idx 4 => texture idx
             */
             uint32_t m_LUT[64] = {};
 
             TextureIdxLUTComponent (void) = default;
             void encodeTextureIdx  (const TextureIdxType oldTextureIdx, const TextureIdxType newTextureIdx) {
-                uint32_t writeIdx = oldTextureIdx / 4;
-                uint32_t offset   = oldTextureIdx % 4;
-                uint32_t mask     = UINT8_MAX << offset * 8;
+                size_t writeIdx = oldTextureIdx / 4;
+                uint32_t offset = oldTextureIdx % 4;
+                uint32_t mask   = UINT8_MAX << offset * 8;
 
-                auto& packet      = m_LUT[writeIdx];
-                packet            = packet & ~mask;
-                packet            = packet | (newTextureIdx << offset * 8);
+                auto& packet    = m_LUT[writeIdx];
+                packet          = packet & ~mask;
+                packet          = packet | (newTextureIdx << offset * 8);
             }
 
             TextureIdxType decodeTextureIdx (const TextureIdxType oldTextureIdx) {
-                uint32_t readIdx = oldTextureIdx / 4;
-                uint32_t offset  = oldTextureIdx % 4;
-                uint32_t mask    = UINT8_MAX << offset * 8;
+                size_t readIdx  = oldTextureIdx / 4;
+                uint32_t offset = oldTextureIdx % 4;
+                uint32_t mask   = UINT8_MAX << offset * 8;
 
-                uint32_t packet  = m_LUT[readIdx];
-                packet           = packet & mask;
+                uint32_t packet = m_LUT[readIdx];
+                packet          = packet & mask;
                 return packet >> offset * 8;
             }
 
@@ -358,7 +454,6 @@ namespace SandBox {
 
     struct RenderComponent {
         public:
-            e_tagType m_tag             = TAG_TYPE_DEFAULT;
             uint32_t m_firstIndexIdx    = 0;
             uint32_t m_indicesCount     = 0;
             int32_t  m_vertexOffset     = 0;
@@ -366,9 +461,28 @@ namespace SandBox {
             uint32_t m_instancesCount   = 1;
 
             RenderComponent (void) = default;
-            RenderComponent (const e_tagType tag, const uint32_t instancesCount) {
-                m_tag            = tag;
+            RenderComponent (const uint32_t instancesCount) {
                 m_instancesCount = instancesCount;
             }
+    };
+
+    struct StdTagComponent {
+        public:
+            StdTagComponent (void) = default;
+    };
+
+    struct StdAlphaTagComponent {
+        public:
+            StdAlphaTagComponent (void) = default;
+    };
+
+    struct WireTagComponent {
+        public:
+            WireTagComponent (void) = default;
+    };
+
+    struct SkyBoxTagComponent {
+        public:
+            SkyBoxTagComponent (void) = default;
     };
 }   // namespace SandBox
