@@ -29,9 +29,7 @@ namespace SandBox {
                 ) +  newRange.first;
             }
 
-            void loadOBJModel (const char* modelFilePath,
-                               const char* mtlFileDirPath,
-                               MeshComponent* meshComponent,
+            void loadOBJModel (MeshComponent* meshComponent,
                                TextureIdxLUTComponent* textureIdxLUTComponent) {
 
                 auto& texturePoolObj = m_meshLoadingInfo.resource.texturePoolObj;
@@ -40,15 +38,15 @@ namespace SandBox {
                 tinyobj::ObjReaderConfig readerConfig;
                 tinyobj::ObjReader reader;
                 /* Config */
-                readerConfig.mtl_search_path = mtlFileDirPath;
+                readerConfig.mtl_search_path = meshComponent->m_mtlFileDirPath;
                 readerConfig.triangulate     = true;
 
-                if (!reader.ParseFromFile (modelFilePath, readerConfig)) {
+                if (!reader.ParseFromFile (meshComponent->m_modelFilePath, readerConfig)) {
                     if (!reader.Error().empty()) {
                         std::string msg = reader.Error().substr (0, reader.Error().size() - 1);
                         LOG_ERROR (m_meshLoadingInfo.resource.logObj) << msg
                                                                       << " "
-                                                                      << "[" << modelFilePath << "]"
+                                                                      << "[" << meshComponent->m_modelFilePath << "]"
                                                                       << std::endl;
                         throw std::runtime_error (msg);
                     }
@@ -57,7 +55,7 @@ namespace SandBox {
                     std::string msg = reader.Warning().substr (0, reader.Warning().size() - 1);
                     LOG_WARNING (m_meshLoadingInfo.resource.logObj)   << msg
                                                                       << " "
-                                                                      << "[" << modelFilePath << "]"
+                                                                      << "[" << meshComponent->m_modelFilePath << "]"
                                                                       << std::endl;
                 }
 
@@ -275,12 +273,7 @@ namespace SandBox {
                     meshComponent->m_indices.clear();
                     textureIdxLUTComponent->fillTextureIdxLUT (0);
 
-                    loadOBJModel (
-                        meshComponent->m_modelFilePath.c_str(),
-                        meshComponent->m_mtlFileDirPath.c_str(),
-                        meshComponent,
-                        textureIdxLUTComponent
-                    );
+                    loadOBJModel (meshComponent, textureIdxLUTComponent);
                 }
             }
 
