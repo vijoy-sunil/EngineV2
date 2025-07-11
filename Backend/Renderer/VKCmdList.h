@@ -44,6 +44,17 @@ namespace Renderer {
                             scissors.data());
     }
 
+    void setDepthBias (const VkCommandBuffer cmdBuffer,
+                       const float depthBiasConstantFactor,
+                       const float depthBiasSlopeFactor,
+                       const float depthBiasClamp) {
+
+        vkCmdSetDepthBias (cmdBuffer,
+                           depthBiasConstantFactor,
+                           depthBiasClamp,
+                           depthBiasSlopeFactor);
+    }
+
     void bindVertexBuffers (const VkCommandBuffer cmdBuffer,
                             const uint32_t firstBindingIdx,
                             const std::vector <VkBuffer>& buffers,

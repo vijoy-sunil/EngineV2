@@ -269,6 +269,10 @@ namespace Renderer {
                 return m_imageInfo.meta.mipLevels;
             }
 
+            uint32_t getImageLayersCount (void) {
+                return m_imageInfo.meta.layersCount;
+            }
+
             VkFormat getImageFormat (void) {
                 return m_imageInfo.meta.format;
             }
