@@ -274,24 +274,25 @@ namespace Renderer {
                 auto renderDoneSemObj     = resource.renderDoneSemObjs[frameIdx];
                 auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameIdx];
                 endCmdBufferRecording (cmdBuffer);
+
+                auto cmdBuffers           = std::vector {
+                    cmdBuffer
+                };
+                auto waitSemaphores       = std::vector {
+                    *imageAvailableSemObj->getSemaphore()
+                };
                 /* We want to wait with writing colors to the image until it's available, so we're specifying the stage
                  * of the graphics pipeline that writes to the color attachment. Note that, this means theoretically the
                  * implementation can already start executing our vertex shader and such while the image is not yet
                  * available
                 */
-                auto waitSemaphores   = std::vector {
-                    *imageAvailableSemObj->getSemaphore()
-                };
-                auto waitStageMasks   = std::vector <VkPipelineStageFlags> {
+                auto waitStageMasks       = std::vector <VkPipelineStageFlags> {
                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
                 };
-                auto signalSemaphores = std::vector {
+                auto signalSemaphores     = std::vector {
                     *renderDoneSemObj->getSemaphore()
                 };
-                auto cmdBuffers       = std::vector {
-                    cmdBuffer
-                };
-                auto submitInfos      = std::vector <VkSubmitInfo> {};
+                auto submitInfos          = std::vector <VkSubmitInfo> {};
                 submitCmdBuffers (*resource.logDeviceObj->getGraphicsQueue(),
                                   *inFlightFenObj->getFence(),
                                   cmdBuffers,

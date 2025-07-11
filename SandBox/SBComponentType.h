@@ -145,6 +145,11 @@ namespace SandBox {
             */
             float m_innerRadius = glm::cos (glm::radians (180.0f));
             float m_outerRadius = glm::cos (glm::radians (180.0f));
+            /* Note that, because a projection matrix indirectly determines the range of what is visible (or, what is not
+             * clipped) you want to make sure the size of the projection frustum correctly contains the objects you want
+             * to be in the shadow image. When objects or fragments are not included in the frustum they will not produce
+             * shadows. In short, you want to match the projection frustum more closely with your attenuated light volume
+            */
             float m_nearPlane   =  0.01f;
             float m_farPlane    = 100.0f;
             float m_scale       =   5.0f;
@@ -237,6 +242,10 @@ namespace SandBox {
                                                              m_farPlane);
                         break;
                     case LIGHT_TYPE_POINT:
+                        /* Note that, we set the fov to 90 degrees to make sure the viewing field is exactly large enough
+                         * to fill a single face of the cube map such that all faces align correctly to each other at the
+                         * edges
+                        */
                         projectionMatrix = glm::perspective (glm::radians (90.0f),
                                                              aspectRatio,
                                                              m_nearPlane,

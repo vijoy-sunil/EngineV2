@@ -64,10 +64,10 @@ namespace SandBox {
                     "CORE"
                 );
                 resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                    "S:G_?_VERTEX"
+                    "S_DEFAULT_VERTEX"
                 );
                 resource.indexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                    "S:G_?_INDEX"
+                    "S_DEFAULT_INDEX"
                 );
                 for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                     auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (

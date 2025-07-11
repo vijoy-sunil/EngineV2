@@ -61,10 +61,10 @@ namespace SandBox {
                 auto& resource              = m_shadowCubeRenderingInfo.resource;
                 resource.sceneObj           = sceneObj;
                 resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                    "S:G_?_VERTEX"
+                    "S_DEFAULT_VERTEX"
                 );
                 resource.indexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
-                    "S:G_?_INDEX"
+                    "S_DEFAULT_INDEX"
                 );
                 for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                     auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
@@ -73,7 +73,7 @@ namespace SandBox {
                     resource.meshInstanceBufferObjs.push_back (bufferObj);
                 }
                 resource.depthImageObj      = collectionObj->getCollectionTypeInstance <Renderer::VKImage>         (
-                    "S:F_?_DEPTH_CUBE_0"    /* Use the first depth (cube) image */
+                    "F_LIGHT_DEPTH_CUBE_0"  /* Use the first depth (cube) image */
                 );
                 resource.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
                     "S"

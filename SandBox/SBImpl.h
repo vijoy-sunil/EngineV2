@@ -44,14 +44,13 @@ namespace SandBox {
                 } resource;
             } m_sandBoxInfo;
 
-            void configScene          (void);
-            void configRendererCore   (void);
-            void configRendererCommon (void);
-            void configRendererSPass  (void);   /* Shadow   (S) pass */
-            void configRendererGPass  (void);   /* Geometry (G) pass */
-            void configRendererFPass  (void);   /* Forward  (F) pass */
-            void configRendererOps    (void);
-            void destroyRenderer      (void);
+            void configScene         (void);
+            void configRendererCore  (void);
+            void configRendererSPass (void);    /* Shadow   (S) pass */
+            void configRendererGPass (void);    /* Geometry (G) pass */
+            void configRendererFPass (void);    /* Forward  (F) pass */
+            void configRendererOps   (void);
+            void destroyRenderer     (void);
 
         public:
             SBImpl (void) {
@@ -97,16 +96,15 @@ namespace SandBox {
             }
 
             void initSandBoxInfo (void) {
-                /* Note that, larger the resolution of the shadow/depth image, the higher the quality of shadows. But of
-                 * course this comes with an additional computing cost, so you need to balance quality and performance for
-                 * your particular target
+                /* Note that, larger the resolution of the shadow image, the higher the quality of shadows. But of course
+                 * this comes with an additional computing cost, so you need to balance quality and performance for your
+                 * particular target
                 */
                 m_sandBoxInfo.meta.shadowImageWidth  = 512;
                 m_sandBoxInfo.meta.shadowImageHeight = 512;
                 /* Configs */
                 configScene();
                 configRendererCore();
-                configRendererCommon();
                 configRendererSPass();
                 configRendererGPass();
                 configRendererFPass();

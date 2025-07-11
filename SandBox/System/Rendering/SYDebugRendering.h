@@ -9,7 +9,7 @@
 #include "../../../Backend/Renderer/VKRenderer.h"
 #include "../../../Backend/Renderer/VKCmdList.h"
 
-#define ENABLE_DEBUG_RENDERING      (true)
+#define ENABLE_DEBUG_RENDERING      (false)
 
 namespace SandBox {
     class SYDebugRendering: public Scene::SNSystemBase {

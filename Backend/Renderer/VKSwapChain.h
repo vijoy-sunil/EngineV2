@@ -14,7 +14,6 @@ namespace Renderer {
             struct SwapChainInfo {
                 struct Meta {
                     uint32_t imagesCount;
-                    uint32_t layersCount;
                     VkExtent2D extent;
                     VkImageUsageFlags usages;
                     VkSurfaceFormatKHR surfaceFormat;
@@ -200,7 +199,7 @@ namespace Renderer {
                 createInfo.pNext                     = nullptr;
                 createInfo.flags                     = 0;
                 createInfo.minImageCount             = getSwapChainMinImagesCount();
-                createInfo.imageArrayLayers          = m_swapChainInfo.meta.layersCount;
+                createInfo.imageArrayLayers          = 1;
                 createInfo.imageExtent               = m_swapChainInfo.meta.extent;
                 createInfo.imageUsage                = m_swapChainInfo.meta.usages;
                 createInfo.imageFormat               = m_swapChainInfo.meta.surfaceFormat.format;
@@ -295,7 +294,6 @@ namespace Renderer {
                                     const std::vector <uint32_t> queueFamilyIndices) {
 
                 m_swapChainInfo.meta.imagesCount                  = 0;
-                m_swapChainInfo.meta.layersCount                  = 1;
                 m_swapChainInfo.meta.extent                       = getSwapChainExtentEXT();
                 m_swapChainInfo.meta.usages                       = imageUsages;
 
