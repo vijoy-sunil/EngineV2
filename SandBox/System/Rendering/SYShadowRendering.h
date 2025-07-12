@@ -20,6 +20,11 @@ namespace SandBox {
     class SYShadowRendering: public Scene::SNSystemBase {
         private:
             struct ShadowRenderingInfo {
+                struct Meta {
+                    float depthBiasConstantFactor;
+                    float depthBiasSlopeFactor;
+                } meta;
+
                 struct Resource {
                     Scene::SNImpl* sceneObj;
                     Log::LGImpl* logObj;
@@ -52,30 +57,35 @@ namespace SandBox {
                                           Scene::SNImpl* sceneObj,
                                           Collection::CNImpl* collectionObj) {
 
+                auto& meta                   = m_shadowRenderingInfo.meta;
+                auto& resource               = m_shadowRenderingInfo.resource;
+
+                meta.depthBiasConstantFactor = 0.0f;
+                meta.depthBiasSlopeFactor    = 0.0f;
+
                 if (sceneObj == nullptr || collectionObj == nullptr) {
                     LOG_ERROR (m_shadowRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                       << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
 
-                auto& resource              = m_shadowRenderingInfo.resource;
-                resource.sceneObj           = sceneObj;
-                resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                resource.sceneObj            = sceneObj;
+                resource.vertexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                     "S_DEFAULT_VERTEX"
                 );
-                resource.indexBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                resource.indexBufferObj      = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                     "S_DEFAULT_INDEX"
                 );
                 for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
-                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                    auto bufferObj           = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                         "S_DEFAULT_MESH_INSTANCE_" + std::to_string (i)
                     );
                     resource.meshInstanceBufferObjs.push_back (bufferObj);
                 }
-                resource.depthImageObj      = collectionObj->getCollectionTypeInstance <Renderer::VKImage>         (
-                    "S_DEFAULT_DEPTH_0"     /* Use the first depth image */
+                resource.depthImageObj       = collectionObj->getCollectionTypeInstance <Renderer::VKImage>         (
+                    "S_DEFAULT_DEPTH_0"      /* Use the first depth image */
                 );
-                resource.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
+                resource.renderPassObj       = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
                     "S"
                 );
                 /*  Frame buffers
@@ -91,29 +101,38 @@ namespace SandBox {
                  * ease of indexing
                 */
                 for (uint32_t i = 0; i < activeLightsCount; i++) {
-                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
+                    auto bufferObj           = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
                         "S_"                       + std::to_string (i)
                     );
                     resource.frameBufferObjs.push_back (bufferObj);
                 }
-                resource.pipelineObj        = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
+                resource.pipelineObj         = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
                     "S_DEFAULT"
                 );
-                resource.perFrameDescSetObj = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
+                resource.perFrameDescSetObj  = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorSet> (
                     "S_DEFAULT_PER_FRAME"
                 );
-                resource.cmdBufferObj       = collectionObj->getCollectionTypeInstance <Renderer::VKCmdBuffer>     (
+                resource.cmdBufferObj        = collectionObj->getCollectionTypeInstance <Renderer::VKCmdBuffer>     (
                     "DRAW_OPS"
                 );
-                resource.rendererObj        = collectionObj->getCollectionTypeInstance <Renderer::VKRenderer>      (
+                resource.rendererObj         = collectionObj->getCollectionTypeInstance <Renderer::VKRenderer>      (
                     "DRAW_OPS"
                 );
+            }
+
+            void setDepthBiasConstantFactor (const float val) {
+                m_shadowRenderingInfo.meta.depthBiasConstantFactor = val;
+            }
+
+            void setDepthBiasSlopeFactor (const float val) {
+                m_shadowRenderingInfo.meta.depthBiasSlopeFactor = val;
             }
 
             void update (const uint32_t activeLightIdx,
                          const void* meshInstances,
                          const void* activeLight) {
 
+                auto& meta                = m_shadowRenderingInfo.meta;
                 auto& resource            = m_shadowRenderingInfo.resource;
                 auto& sceneObj            = resource.sceneObj;
                 uint32_t frameInFlightIdx = resource.rendererObj->getFrameInFlightIdx();
@@ -185,8 +204,8 @@ namespace SandBox {
                 /* Depth bias */
                 Renderer::setDepthBias (
                     cmdBuffer,
-                    4.0f,
-                    1.5f,
+                    meta.depthBiasConstantFactor,
+                    meta.depthBiasSlopeFactor,
                     0.0f
                 );
                 /* Vertex buffers */

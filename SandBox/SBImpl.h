@@ -164,6 +164,9 @@ namespace SandBox {
                 skyBoxRenderingObj->initSkyBoxRenderingInfo         (sceneObj, collectionObj);
                 fDefaultRenderingObj->initFDefaultRenderingInfo     (sceneObj, collectionObj);
                 debugRenderingObj->initDebugRenderingInfo           (          collectionObj);
+                /* Set depth bias factors */
+                shadowRenderingObj->setDepthBiasConstantFactor      (4.0f);
+                shadowRenderingObj->setDepthBiasSlopeFactor         (1.5f);
 
                 auto windowObj    = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    ("CORE");
                 auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
