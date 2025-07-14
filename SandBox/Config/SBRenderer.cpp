@@ -3508,38 +3508,14 @@ namespace SandBox {
                     pipelineObj->createVertexAttributeDescription (
                         0,
                         1,
-                        offsetof (Vertex, meta.normal),
-                        VK_FORMAT_R32G32B32_SFLOAT
-                    ),
-                    pipelineObj->createVertexAttributeDescription (
-                        0,
-                        2,
                         offsetof (Vertex, meta.position),
                         VK_FORMAT_R32G32B32_SFLOAT
                     ),
                     pipelineObj->createVertexAttributeDescription (
                         0,
-                        3,
+                        2,
                         offsetof (Vertex, material.diffuseTextureIdx),
                         VK_FORMAT_R8_UINT
-                    ),
-                    pipelineObj->createVertexAttributeDescription (
-                        0,
-                        4,
-                        offsetof (Vertex, material.specularTextureIdx),
-                        VK_FORMAT_R8_UINT
-                    ),
-                    pipelineObj->createVertexAttributeDescription (
-                        0,
-                        5,
-                        offsetof (Vertex, material.emissionTextureIdx),
-                        VK_FORMAT_R8_UINT
-                    ),
-                    pipelineObj->createVertexAttributeDescription (
-                        0,
-                        6,
-                        offsetof (Vertex, material.shininess),
-                        VK_FORMAT_R32_UINT
                     )
                 };
                 pipelineObj->createVertexInputState (

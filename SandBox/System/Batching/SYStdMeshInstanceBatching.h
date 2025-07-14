@@ -10,7 +10,7 @@ namespace SandBox {
     class SYStdMeshInstanceBatching: public Scene::SNSystemBase {
         private:
             /* SBO - Storage buffer object */
-            struct MeshInstanceSBOLite {
+            struct MeshInstanceLiteSBO {
                 glm::mat4 modelMatrix;
             };
 
@@ -26,7 +26,7 @@ namespace SandBox {
                     std::unordered_map <Scene::Entity, size_t> entityToIdxMap;
                     std::unordered_map <e_tagType, std::vector <Scene::Entity>> tagTypeToEntitiesMap;
 
-                    std::unordered_map <e_tagType, std::vector <MeshInstanceSBOLite>> tagTypeToInstancesLiteMap;
+                    std::unordered_map <e_tagType, std::vector <MeshInstanceLiteSBO>> tagTypeToInstancesLiteMap;
                     std::unordered_map <e_tagType, std::vector <MeshInstanceSBO>> tagTypeToInstancesMap;
                 } meta;
 
@@ -62,7 +62,7 @@ namespace SandBox {
                 m_stdMeshInstanceBatchingInfo.resource.sceneObj = sceneObj;
             }
 
-            std::vector <MeshInstanceSBOLite>& getBatchedMeshInstancesLite (const e_tagType tagType) {
+            std::vector <MeshInstanceLiteSBO>& getBatchedMeshInstancesLite (const e_tagType tagType) {
                 return m_stdMeshInstanceBatchingInfo.meta.tagTypeToInstancesLiteMap[tagType];
             }
 
@@ -91,7 +91,7 @@ namespace SandBox {
                     meta.entityToIdxMap[entity] = loopIdx++;
                     meta.tagTypeToEntitiesMap[tagType].push_back (entity);
 
-                    MeshInstanceSBOLite instanceLite;
+                    MeshInstanceLiteSBO instanceLite;
                     instanceLite.modelMatrix    = modelMatrix;
                     meta.tagTypeToInstancesLiteMap[tagType].push_back (instanceLite);
 
