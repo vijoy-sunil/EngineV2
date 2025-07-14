@@ -12,7 +12,7 @@ layout (set = 0, binding = 0) uniform MeshInstanceUBOContainer {
 } meshInstanceUBOContainer;
 
 layout (push_constant) uniform ActiveCameraPC {
-    vec3 position;  /* Not used */
+    vec3 position;          /* Unused */
     mat4 viewMatrix;
     mat4 projectionMatrix;
 } activeCamera;
@@ -37,4 +37,6 @@ void main (void) {
      * as input to sample a samplerCube
     */
     o_uv            = i_position;
+    /* Transform cube map coordinates into vulkan coordinate space */
+    o_uv.x         *= -1.0;
 }

@@ -1,10 +1,10 @@
 #version 450
 
 layout (location = 0) in  vec3 i_position;
-layout (location = 0) out vec4 o_color;
+layout (location = 0) out vec3 o_color;
 
 struct MeshInstanceSBO {
-    vec4 color;
+    vec3 color;
     mat4 modelMatrix;
 };
 
@@ -13,7 +13,7 @@ layout (set = 0, binding = 0) readonly buffer MeshInstanceSBOContainer {
 } meshInstanceSBOContainer;
 
 layout (push_constant) uniform ActiveCameraPC {
-    vec3 position;  /* Not used */
+    vec3 position;          /* Unused */
     mat4 viewMatrix;
     mat4 projectionMatrix;
 } activeCamera;
