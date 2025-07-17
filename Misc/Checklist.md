@@ -52,12 +52,16 @@
 - [x] Class object name ends with `Obj`
 - [x] global member objects indicated by `g_`
 - [x] enums indicated by `e_`
+- [ ] enums should be named as `XXX_TYPE_YYY`, `XXX_STATE_YYY` etc.
+- [ ] enum vars should be named in full as `xxxType`, `xxxState` etc.
 - [x] private member vars indicated by `m_`
+- [x] Ternary operator should be formatted as `A ? B: C`
 - [x] function bindings will be called `?Binding`
 - [x] Check if `nullptr` before running a binding
 - [x] vector names end with `s`
 - [x] count variables name should be suffixed with `sCount`
 - [x] Index naming should be `idx`
+- [ ] Indices like `loopIdx` etc. should be `size_t`
 - [x] `Offset` shouldn't be suffixed with `idx`
 - [x] Check if `uint32_t`, `int32_t` etc. can be replaced with `using ?Type` (search `int`)
 - [x] `using` alias begins with upper case
@@ -118,6 +122,8 @@
 - [x] output vars begin with `o_`
 - [x] constants are capitalized
 - [x] array names end with `s` (search `[`)
+- [x] prefer casting via `.rgb`, `.xyz` etc.
+- [x] Check usage of `vec2`, `vec3`, `vec4` for variables
 
 # METHODS
 
@@ -219,6 +225,7 @@
 - [x] `.size()`                                 make sure it is casted from `size_t` to required types
 - [x] `size_t`                                  only used for size of an object and in fns that accept `size_t`
 - [x] `#endif  //`                              all `endif`s should have comment
+- [x] `Vector`, ` vector`                       shouldn't be suffixed unless its forward/up/right/reflection/unit/normal
 - [x] `++`, `--`                                prefer prefix over postfix unless in `for` loop
 - [x] `::`                                      avoid namespace resolution in the same namespace
 - [x] `vec4`                                    host shouldn't be handling `vec4`
