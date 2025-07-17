@@ -88,7 +88,7 @@ namespace SandBox {
                     auto renderComponent                = sceneObj->getComponent <RenderComponent> (entity);
                     auto& tagType                       = metaComponent->m_tagType;
                     auto& counters                      = tagTypeToCountersMap[tagType];
-                    uint32_t verticesCountPerPrimitive  = tagType == TAG_TYPE_WIRE ? 2:3;
+                    uint32_t verticesCountPerPrimitive  = tagType == TAG_TYPE_WIRE ? 2: 3;
                     /* Populate render component */
                     renderComponent->m_firstIndexIdx    = static_cast <uint32_t> (counters.indices);
                     renderComponent->m_indicesCount     = static_cast <uint32_t> (meshComponent->m_indices.size());
