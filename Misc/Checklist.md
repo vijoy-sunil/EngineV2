@@ -52,8 +52,8 @@
 - [x] Class object name ends with `Obj`
 - [x] global member objects indicated by `g_`
 - [x] enums indicated by `e_`
-- [ ] enums should be named as `XXX_TYPE_YYY`, `XXX_STATE_YYY` etc.
-- [ ] enum vars should be named in full as `xxxType`, `xxxState` etc.
+- [x] enums should be named as `XXX_TYPE_YYY`, `XXX_STATE_YYY` etc.
+- [x] enum vars should be named in full as `xxxType`, `xxxState` etc.
 - [x] private member vars indicated by `m_`
 - [x] Ternary operator should be formatted as `A ? B: C`
 - [x] function bindings will be called `?Binding`
@@ -61,7 +61,7 @@
 - [x] vector names end with `s`
 - [x] count variables name should be suffixed with `sCount`
 - [x] Index naming should be `idx`
-- [ ] Indices like `loopIdx` etc. should be `size_t`
+- [x] Indices like `loopIdx` etc. should be `size_t`
 - [x] `Offset` shouldn't be suffixed with `idx`
 - [x] Check if `uint32_t`, `int32_t` etc. can be replaced with `using ?Type` (search `int`)
 - [x] `using` alias begins with upper case
@@ -182,6 +182,13 @@
     create, if creating a struct/object
     get,    if returning an already created (elsewhere) struct/object, OR, simple fns like string gen
     add,    if creating + saving to a list
+}
+```
+- [x] Update vs set naming
+```
+{
+    update, if the function is used to re-initialize or called periodically/more than once to update an object
+    set,    if the function is used to initialize an object preferably once
 }
 ```
 - [x] Functions should be named long; even if it is self explanatory
