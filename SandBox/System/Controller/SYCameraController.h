@@ -62,7 +62,7 @@ namespace SandBox {
                 } resource;
             } m_cameraControllerInfo;
 
-            void setCameraControllerSensitivity (const e_sensitivityType sensitivityType) {
+            void updateCameraControllerSensitivity (const e_sensitivityType sensitivityType) {
                 auto& meta = m_cameraControllerInfo.meta;
                 if (sensitivityType         == SENSITIVITY_TYPE_FINE) {
                     meta.cursorSensitivity   = 0.03f;
@@ -116,7 +116,7 @@ namespace SandBox {
                         if (state.fineToggle == KEY_STATE_LOCKED) {
                             state.fineToggle  = KEY_STATE_UNLOCKED;
 
-                            setCameraControllerSensitivity (SENSITIVITY_TYPE_FINE);
+                            updateCameraControllerSensitivity (SENSITIVITY_TYPE_FINE);
                         }
                     },
                     [this](void) {
@@ -124,7 +124,7 @@ namespace SandBox {
                         if (state.fineToggle == KEY_STATE_UNLOCKED) {
                             state.fineToggle  = KEY_STATE_LOCKED;
 
-                            setCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
+                            updateCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
                         }
                     }
                 );
@@ -272,7 +272,7 @@ namespace SandBox {
                     "CORE"
                 );
 
-                setCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
+                updateCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
                 setCameraControllerBindings();
             }
 

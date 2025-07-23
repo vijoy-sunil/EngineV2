@@ -71,8 +71,8 @@ namespace Scene {
                 auto componentType   = m_sceneInfo.resource.componentMgrObj->getComponentType <T>();
                 entitySignature.set (componentType, true);
 
-                m_sceneInfo.resource.entityMgrObj->setEntitySignature (entity, entitySignature);
-                m_sceneInfo.resource.systemMgrObj->updateEntity       (entity, entitySignature);
+                m_sceneInfo.resource.entityMgrObj->updateEntitySignature (entity, entitySignature);
+                m_sceneInfo.resource.systemMgrObj->updateEntity          (entity, entitySignature);
             }
 
             template <typename T>
@@ -83,8 +83,8 @@ namespace Scene {
                 auto componentType   = m_sceneInfo.resource.componentMgrObj->getComponentType <T>();
                 entitySignature.set (componentType, false);
 
-                m_sceneInfo.resource.entityMgrObj->setEntitySignature (entity, entitySignature);
-                m_sceneInfo.resource.systemMgrObj->updateEntity       (entity, entitySignature);
+                m_sceneInfo.resource.entityMgrObj->updateEntitySignature (entity, entitySignature);
+                m_sceneInfo.resource.systemMgrObj->updateEntity          (entity, entitySignature);
             }
 
             template <typename T>

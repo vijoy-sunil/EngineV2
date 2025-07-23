@@ -55,7 +55,7 @@ namespace Scene {
                 m_entityMgrInfo.meta.entitiesCount = 0;
             }
 
-            void setEntitySignature (const Entity entity, const Signature entitySignature) {
+            void updateEntitySignature (const Entity entity, const Signature entitySignature) {
                 if (entity >= g_maxEntities) {
                     LOG_ERROR (m_entityMgrInfo.resource.logObj) << "Invalid entity"
                                                                 << " "

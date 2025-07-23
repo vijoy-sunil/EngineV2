@@ -120,11 +120,11 @@ namespace SandBox {
                 );
             }
 
-            void setDepthBiasConstantFactor (const float val) {
+            void updateDepthBiasConstantFactor (const float val) {
                 m_shadowRenderingInfo.meta.depthBiasConstantFactor = val;
             }
 
-            void setDepthBiasSlopeFactor (const float val) {
+            void updateDepthBiasSlopeFactor (const float val) {
                 m_shadowRenderingInfo.meta.depthBiasSlopeFactor = val;
             }
 
