@@ -70,7 +70,7 @@ namespace SandBox {
                 /* Populate texture pool */
                 for (auto const& material: materials) {
                     if (!material.diffuse_texname.empty()) {
-                        texturePoolObj->addTextureToPool (
+                        texturePoolObj->addTexture (
                             material.diffuse_texname
                         );
                         textureIdxLUTComponent->encodeTextureIdx (
@@ -79,7 +79,7 @@ namespace SandBox {
                         );
                     }
                     if (!material.specular_texname.empty()) {
-                        texturePoolObj->addTextureToPool (
+                        texturePoolObj->addTexture (
                             material.specular_texname
                         );
                         textureIdxLUTComponent->encodeTextureIdx (
@@ -88,7 +88,7 @@ namespace SandBox {
                         );
                     }
                     if (!material.emissive_texname.empty()) {
-                        texturePoolObj->addTextureToPool (
+                        texturePoolObj->addTexture (
                             material.emissive_texname
                         );
                         textureIdxLUTComponent->encodeTextureIdx (
@@ -243,10 +243,10 @@ namespace SandBox {
 
                 auto& logObj = m_meshLoadingInfo.resource.logObj;
                 logObj       = new Log::LGImpl();
-                logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
-                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->initLogInfo     ("Build/Log/SandBox",     __FILE__);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_INFO,    Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
             }
 
             /* Note that, system constructors DO NOT take in any arguments, as a result dependencies are passed in here */

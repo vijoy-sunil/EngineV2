@@ -86,10 +86,10 @@ namespace SandBox {
         }
         {   /* Log              [CORE] */
             auto logObj = new Log::LGImpl();
-            logObj->initLogInfo     ("Build/Log/Renderer",   __FILE__);
-            logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-            logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-            logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+            logObj->initLogInfo     ("Build/Log/Renderer",    __FILE__);
+            logObj->updateLogConfig (Log::LEVEL_TYPE_INFO,    Log::SINK_TYPE_FILE);
+            logObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
+            logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
 
             collectionObj->addCollectionTypeInstance <Log::LGImpl> ("CORE", logObj);
         }
@@ -454,7 +454,7 @@ namespace SandBox {
             renderPassObj->initRenderPassInfo();
 
             /* Depth attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 imageObj->getImageFormat(),
                 imageObj->getImageSamplesCount(),
@@ -572,26 +572,26 @@ namespace SandBox {
                 nullptr
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {
-                    pipelineObj->createVertexBindingDescription (
+                vertexInputBindings   = {
+                    pipelineObj->createVertexInputBinding (
                         0,
                         sizeof (Vertex),
                         VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 };
-                vertexAttributeDescriptions = {
-                    pipelineObj->createVertexAttributeDescription (
+                vertexInputAttributes = {
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         0,
                         offsetof (Vertex, meta.position),
@@ -599,8 +599,8 @@ namespace SandBox {
                     )
                 };
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -830,26 +830,26 @@ namespace SandBox {
                 *basePipelineObj->getPipeline()
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {
-                    pipelineObj->createVertexBindingDescription (
+                vertexInputBindings   = {
+                    pipelineObj->createVertexInputBinding (
                         0,
                         sizeof (Vertex),
                         VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 };
-                vertexAttributeDescriptions = {
-                    pipelineObj->createVertexAttributeDescription (
+                vertexInputAttributes = {
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         0,
                         offsetof (Vertex, meta.position),
@@ -857,8 +857,8 @@ namespace SandBox {
                     )
                 };
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -1330,7 +1330,7 @@ namespace SandBox {
             renderPassObj->initRenderPassInfo();
 
             /* Normal attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 normalImageObj->getImageFormat(),
                 normalImageObj->getImageSamplesCount(),
@@ -1342,7 +1342,7 @@ namespace SandBox {
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             );
             /* Position attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 positionImageObj->getImageFormat(),
                 positionImageObj->getImageSamplesCount(),
@@ -1354,7 +1354,7 @@ namespace SandBox {
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             );
             /* Color-0 attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 color0ImageObj->getImageFormat(),
                 color0ImageObj->getImageSamplesCount(),
@@ -1366,7 +1366,7 @@ namespace SandBox {
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             );
             /* Color-1 attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 color1ImageObj->getImageFormat(),
                 color1ImageObj->getImageSamplesCount(),
@@ -1378,7 +1378,7 @@ namespace SandBox {
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             );
             /* Color-2 attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 color2ImageObj->getImageFormat(),
                 color2ImageObj->getImageSamplesCount(),
@@ -1390,7 +1390,7 @@ namespace SandBox {
                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             );
             /* Depth attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 depthImageObj->getImageFormat(),
                 depthImageObj->getImageSamplesCount(),
@@ -1489,64 +1489,64 @@ namespace SandBox {
                 nullptr
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
-            auto otherBindingFlags           = std::vector <VkDescriptorBindingFlags> {};
-            auto otherLayoutBindings         = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto otherBindingFlags      = std::vector <VkDescriptorBindingFlags> {};
+            auto otherLayoutBindings    = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {
-                    pipelineObj->createVertexBindingDescription (
+                vertexInputBindings   = {
+                    pipelineObj->createVertexInputBinding (
                         0,
                         sizeof (Vertex),
                         VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 };
-                vertexAttributeDescriptions = {
-                    pipelineObj->createVertexAttributeDescription (
+                vertexInputAttributes = {
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         0,
                         offsetof (Vertex, meta.uv),
                         VK_FORMAT_R32G32_SFLOAT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         1,
                         offsetof (Vertex, meta.normal),
                         VK_FORMAT_R32G32B32_SFLOAT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         2,
                         offsetof (Vertex, meta.position),
                         VK_FORMAT_R32G32B32_SFLOAT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         3,
                         offsetof (Vertex, material.diffuseTextureIdx),
                         VK_FORMAT_R8_UINT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         4,
                         offsetof (Vertex, material.specularTextureIdx),
                         VK_FORMAT_R8_UINT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         5,
                         offsetof (Vertex, material.emissionTextureIdx),
                         VK_FORMAT_R8_UINT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         6,
                         offsetof (Vertex, material.shininess),
@@ -1554,8 +1554,8 @@ namespace SandBox {
                     )
                 };
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -2318,7 +2318,7 @@ namespace SandBox {
             renderPassObj->initRenderPassInfo();
 
             /* Color attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 swapChainObj->getSwapChainFormat(),
                 VK_SAMPLE_COUNT_1_BIT,
@@ -2330,7 +2330,7 @@ namespace SandBox {
                 VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
             );
             /* Depth attachment */
-            renderPassObj->addRenderPassAttachment (
+            renderPassObj->addAttachment (
                 0,
                 depthImageObj->getImageFormat(),
                 depthImageObj->getImageSamplesCount(),
@@ -2447,24 +2447,24 @@ namespace SandBox {
                 nullptr
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
-            auto otherBindingFlags           = std::vector <VkDescriptorBindingFlags> {};
-            auto otherLayoutBindings         = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto otherBindingFlags      = std::vector <VkDescriptorBindingFlags> {};
+            auto otherLayoutBindings    = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {};
-                vertexAttributeDescriptions = {};
+                vertexInputBindings   = {};
+                vertexInputAttributes = {};
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -2954,26 +2954,26 @@ namespace SandBox {
                 *basePipelineObj->getPipeline()
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {
-                    pipelineObj->createVertexBindingDescription (
+                vertexInputBindings   = {
+                    pipelineObj->createVertexInputBinding (
                         0,
                         sizeof (glm::vec3),
                         VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 };
-                vertexAttributeDescriptions = {
-                    pipelineObj->createVertexAttributeDescription (
+                vertexInputAttributes = {
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         0,
                         0,
@@ -2981,8 +2981,8 @@ namespace SandBox {
                     )
                 };
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -3189,28 +3189,28 @@ namespace SandBox {
                 *basePipelineObj->getPipeline()
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
-            auto otherBindingFlags           = std::vector <VkDescriptorBindingFlags> {};
-            auto otherLayoutBindings         = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto otherBindingFlags      = std::vector <VkDescriptorBindingFlags> {};
+            auto otherLayoutBindings    = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {
-                    pipelineObj->createVertexBindingDescription (
+                vertexInputBindings   = {
+                    pipelineObj->createVertexInputBinding (
                         0,
                         sizeof (glm::vec3),
                         VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 };
-                vertexAttributeDescriptions = {
-                    pipelineObj->createVertexAttributeDescription (
+                vertexInputAttributes = {
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         0,
                         0,
@@ -3218,8 +3218,8 @@ namespace SandBox {
                     )
                 };
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -3478,40 +3478,40 @@ namespace SandBox {
                 *basePipelineObj->getPipeline()
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto perFrameBindingFlags        = std::vector <VkDescriptorBindingFlags> {};
-            auto perFrameLayoutBindings      = std::vector <VkDescriptorSetLayoutBinding> {};
-            auto otherBindingFlags           = std::vector <VkDescriptorBindingFlags> {};
-            auto otherLayoutBindings         = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings    = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes  = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments  = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants    = std::vector <float> {};
+            auto dynamicStates          = std::vector <VkDynamicState> {};
+            auto viewPorts              = std::vector <VkViewport> {};
+            auto scissors               = std::vector <VkRect2D> {};
+            auto perFrameBindingFlags   = std::vector <VkDescriptorBindingFlags> {};
+            auto perFrameLayoutBindings = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto otherBindingFlags      = std::vector <VkDescriptorBindingFlags> {};
+            auto otherLayoutBindings    = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {
-                    pipelineObj->createVertexBindingDescription (
+                vertexInputBindings   = {
+                    pipelineObj->createVertexInputBinding (
                         0,
                         sizeof (Vertex),
                         VK_VERTEX_INPUT_RATE_VERTEX
                     )
                 };
-                vertexAttributeDescriptions = {
-                    pipelineObj->createVertexAttributeDescription (
+                vertexInputAttributes = {
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         0,
                         offsetof (Vertex, meta.uv),
                         VK_FORMAT_R32G32_SFLOAT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         1,
                         offsetof (Vertex, meta.position),
                         VK_FORMAT_R32G32B32_SFLOAT
                     ),
-                    pipelineObj->createVertexAttributeDescription (
+                    pipelineObj->createVertexInputAttribute (
                         0,
                         2,
                         offsetof (Vertex, material.diffuseTextureIdx),
@@ -3519,8 +3519,8 @@ namespace SandBox {
                     )
                 };
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */
@@ -3790,22 +3790,22 @@ namespace SandBox {
                 *basePipelineObj->getPipeline()
             );
 
-            auto vertexBindingDescriptions   = std::vector <VkVertexInputBindingDescription> {};
-            auto vertexAttributeDescriptions = std::vector <VkVertexInputAttributeDescription> {};
-            auto colorBlendAttachments       = std::vector <VkPipelineColorBlendAttachmentState> {};
-            auto colorBlendConstants         = std::vector <float> {};
-            auto dynamicStates               = std::vector <VkDynamicState> {};
-            auto viewPorts                   = std::vector <VkViewport> {};
-            auto scissors                    = std::vector <VkRect2D> {};
-            auto otherBindingFlags           = std::vector <VkDescriptorBindingFlags> {};
-            auto otherLayoutBindings         = std::vector <VkDescriptorSetLayoutBinding> {};
+            auto vertexInputBindings   = std::vector <VkVertexInputBindingDescription> {};
+            auto vertexInputAttributes = std::vector <VkVertexInputAttributeDescription> {};
+            auto colorBlendAttachments = std::vector <VkPipelineColorBlendAttachmentState> {};
+            auto colorBlendConstants   = std::vector <float> {};
+            auto dynamicStates         = std::vector <VkDynamicState> {};
+            auto viewPorts             = std::vector <VkViewport> {};
+            auto scissors              = std::vector <VkRect2D> {};
+            auto otherBindingFlags     = std::vector <VkDescriptorBindingFlags> {};
+            auto otherLayoutBindings   = std::vector <VkDescriptorSetLayoutBinding> {};
 
             {   /* Vertex input */
-                vertexBindingDescriptions   = {};
-                vertexAttributeDescriptions = {};
+                vertexInputBindings   = {};
+                vertexInputAttributes = {};
                 pipelineObj->createVertexInputState (
-                    vertexBindingDescriptions,
-                    vertexAttributeDescriptions
+                    vertexInputBindings,
+                    vertexInputAttributes
                 );
             }
             {   /* Input assembly */

@@ -68,9 +68,9 @@ namespace SandBox {
                 auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
                 auto& skyBoxTexturePoolObj = m_sandBoxInfo.resource.skyBoxTexturePoolObj;
                 /* Add default textures */
-                stdTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Empty.png");    /* Texture idx 0 */
-                stdTexturePoolObj->addTextureToPool ("Asset/Texture/[S]_Empty.png");    /* Texture idx 1 */
-                stdTexturePoolObj->addTextureToPool ("Asset/Texture/[E]_Empty.png");    /* Texture idx 2 */
+                stdTexturePoolObj->addTexture ("Asset/Texture/[D]_Empty.png");          /* Texture idx 0 */
+                stdTexturePoolObj->addTexture ("Asset/Texture/[S]_Empty.png");          /* Texture idx 1 */
+                stdTexturePoolObj->addTexture ("Asset/Texture/[E]_Empty.png");          /* Texture idx 2 */
                 /* Add sky box textures. The textures that make up the sky box are laid out in the below pattern. If you
                  * fold the 6 sides into a cube you'd get the completely textured cube that simulates a large landscape
                  *                              +-----------+
@@ -87,12 +87,12 @@ namespace SandBox {
                  *                              |           |
                  *                              +-----------+
                 */
-                skyBoxTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Sky_Box_PX.png");
-                skyBoxTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Sky_Box_NX.png");
-                skyBoxTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Sky_Box_PY.png");
-                skyBoxTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Sky_Box_NY.png");
-                skyBoxTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Sky_Box_PZ.png");
-                skyBoxTexturePoolObj->addTextureToPool ("Asset/Texture/[D]_Sky_Box_NZ.png");
+                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PX.png");
+                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NX.png");
+                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PY.png");
+                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NY.png");
+                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PZ.png");
+                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NZ.png");
             }
 
             void initSandBoxInfo (void) {

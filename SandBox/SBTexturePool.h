@@ -60,10 +60,10 @@ namespace SandBox {
 
                 auto& logObj = m_texturePoolInfo.resource.logObj;
                 logObj       = new Log::LGImpl();
-                logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
-                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->initLogInfo     ("Build/Log/SandBox",     __FILE__);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_INFO,    Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
             }
 
             void initTexturePoolInfo (void) {
@@ -80,7 +80,7 @@ namespace SandBox {
                 return m_texturePoolInfo.meta.idxToImageInfoMap;
             }
 
-            void addTextureToPool (const std::string imageFilePath) {
+            void addTexture (const std::string imageFilePath) {
                 auto& meta = m_texturePoolInfo.meta;
                 /* Return if texture has already been added to the pool */
                 if (meta.pathToIdxMap.find (imageFilePath) != meta.pathToIdxMap.end())

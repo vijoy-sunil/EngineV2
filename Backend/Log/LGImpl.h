@@ -4,25 +4,25 @@
 
 /* 1-line log macros */
 #define LOG_LITE(obj, level)            obj->getReference()                                     \
-                                            << obj->setActiveSinks (level)
+                                            << obj->updateActiveSinkTypes (level)
 #define LOG(obj, level)                 obj->getReference()                                     \
-                                            << obj->setActiveSinks (level)                      \
-                                            << "[" << obj->getTimeStamp()            << "]"     \
+                                            << obj->updateActiveSinkTypes (level)               \
+                                            << "[" << obj->getTimeStamp()             << "]"    \
                                             << " "                                              \
-                                            << "[" << obj->getLogLevelString (level) << "]"     \
+                                            << "[" << obj->getLevelTypeString (level) << "]"    \
                                             << " "                                              \
                                             << ALIGN_AND_PAD_L << __FUNCTION__                  \
                                             << " "                                              \
                                             << ALIGN_AND_PAD_S << __LINE__                      \
                                             << " "
 
-#define LOG_LITE_INFO(obj)              LOG_LITE (obj, Log::LOG_LEVEL_INFO)
-#define LOG_LITE_WARNING(obj)           LOG_LITE (obj, Log::LOG_LEVEL_WARNING)
-#define LOG_LITE_ERROR(obj)             LOG_LITE (obj, Log::LOG_LEVEL_ERROR)
+#define LOG_LITE_INFO(obj)              LOG_LITE (obj, Log::LEVEL_TYPE_INFO)
+#define LOG_LITE_WARNING(obj)           LOG_LITE (obj, Log::LEVEL_TYPE_WARNING)
+#define LOG_LITE_ERROR(obj)             LOG_LITE (obj, Log::LEVEL_TYPE_ERROR)
 
-#define LOG_INFO(obj)                   LOG      (obj, Log::LOG_LEVEL_INFO)
-#define LOG_WARNING(obj)                LOG      (obj, Log::LOG_LEVEL_WARNING)
-#define LOG_ERROR(obj)                  LOG      (obj, Log::LOG_LEVEL_ERROR)
+#define LOG_INFO(obj)                   LOG      (obj, Log::LEVEL_TYPE_INFO)
+#define LOG_WARNING(obj)                LOG      (obj, Log::LEVEL_TYPE_WARNING)
+#define LOG_ERROR(obj)                  LOG      (obj, Log::LEVEL_TYPE_ERROR)
 
 #define ALIGN_AND_PAD_S                 std::right << std::setw (8)
 #define ALIGN_AND_PAD_M                 std::right << std::setw (32)
@@ -35,33 +35,33 @@
 
 namespace Log {
     typedef enum {
-        LOG_LEVEL_INFO      = 1,
-        LOG_LEVEL_WARNING   = 2,
-        LOG_LEVEL_ERROR     = 4,
-    } e_logLevel;
+        LEVEL_TYPE_INFO    = 1,
+        LEVEL_TYPE_WARNING = 2,
+        LEVEL_TYPE_ERROR   = 4,
+    } e_levelType;
 
     typedef enum {
-        LOG_SINK_NONE       = 0,
-        LOG_SINK_CONSOLE    = 1,
-        LOG_SINK_FILE       = 2
-    } e_logSink;
+        SINK_TYPE_NONE     = 0,
+        SINK_TYPE_CONSOLE  = 1,
+        SINK_TYPE_FILE     = 2
+    } e_sinkType;
 
-    inline e_logSink operator | (const e_logSink sinkA, const e_logSink sinkB) {
-        return static_cast <e_logSink> (static_cast <int> (sinkA) | static_cast <int> (sinkB));
+    inline e_sinkType operator | (const e_sinkType sinkTypeA, const e_sinkType sinkTypeB) {
+        return static_cast <e_sinkType> (static_cast <int> (sinkTypeA) | static_cast <int> (sinkTypeB));
     }
 
     class LGImpl: public Collection::CNTypeInstanceBase {
         private:
             struct LogInfo {
                 struct Meta {
-                    std::unordered_map <e_logLevel, e_logSink> configs;
+                    std::unordered_map <e_levelType, e_sinkType> configs;
                     std::string saveFileDirPath;
                     std::string saveFileName;
                     const char* saveFileExtension;
                 } meta;
 
                 struct State {
-                    e_logSink activeSinks;
+                    e_sinkType activeSinkTypes;
                 } state;
 
                 struct Resource {
@@ -87,26 +87,26 @@ namespace Log {
                 saveFileName      = saveFileName.substr (stripStart, stripEnd - stripStart);
 
                 /* Default log configs */
-                m_logInfo.meta.configs[LOG_LEVEL_INFO]    = LOG_SINK_CONSOLE;
-                m_logInfo.meta.configs[LOG_LEVEL_WARNING] = LOG_SINK_CONSOLE;
-                m_logInfo.meta.configs[LOG_LEVEL_ERROR]   = LOG_SINK_CONSOLE;
+                m_logInfo.meta.configs[LEVEL_TYPE_INFO]    = SINK_TYPE_CONSOLE;
+                m_logInfo.meta.configs[LEVEL_TYPE_WARNING] = SINK_TYPE_CONSOLE;
+                m_logInfo.meta.configs[LEVEL_TYPE_ERROR]   = SINK_TYPE_CONSOLE;
 
-                m_logInfo.meta.saveFileDirPath            = saveFileDirPath;
-                m_logInfo.meta.saveFileName               = saveFileName;
-                m_logInfo.meta.saveFileExtension          = saveFileExtension;
-                m_logInfo.state.activeSinks               = LOG_SINK_NONE;
-            }
-
-            void updateLogConfig (const e_logLevel level, const e_logSink sink) {
-                m_logInfo.meta.configs[level] = sink;
+                m_logInfo.meta.saveFileDirPath             = saveFileDirPath;
+                m_logInfo.meta.saveFileName                = saveFileName;
+                m_logInfo.meta.saveFileExtension           = saveFileExtension;
+                m_logInfo.state.activeSinkTypes            = SINK_TYPE_NONE;
             }
 
             LGImpl& getReference (void) {
                 return *this;
             }
 
-            const char* setActiveSinks (const e_logLevel level) {
-                m_logInfo.state.activeSinks = m_logInfo.meta.configs[level];
+            void updateLogConfig (const e_levelType levelType, const e_sinkType sinkType) {
+                m_logInfo.meta.configs[levelType] = sinkType;
+            }
+
+            const char* updateActiveSinkTypes (const e_levelType levelType) {
+                m_logInfo.state.activeSinkTypes = m_logInfo.meta.configs[levelType];
                 return "";
             }
 
@@ -119,11 +119,11 @@ namespace Log {
                 return stream.str();
             }
 
-            const char* getLogLevelString (const e_logLevel level) {
-                switch (level) {
-                    case LOG_LEVEL_INFO:        return "INFO";
-                    case LOG_LEVEL_WARNING:     return "WARN";
-                    case LOG_LEVEL_ERROR:       return "ERRO";
+            const char* getLevelTypeString (const e_levelType levelType) {
+                switch (levelType) {
+                    case LEVEL_TYPE_INFO:       return "INFO";
+                    case LEVEL_TYPE_WARNING:    return "WARN";
+                    case LEVEL_TYPE_ERROR:      return "ERRO";
                     default:                    return "UNDF";
                 }
             }
@@ -132,10 +132,10 @@ namespace Log {
             */
             template <typename T>
             LGImpl& operator << (const T& data) {
-                if (m_logInfo.state.activeSinks & LOG_SINK_CONSOLE)
+                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_CONSOLE)
                     std::cout << data;
 
-                if (m_logInfo.state.activeSinks & LOG_SINK_FILE) {
+                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_FILE) {
                     m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
                                                   m_logInfo.meta.saveFileName    +
                                                   m_logInfo.meta.saveFileExtension, std::ios::app);
@@ -146,10 +146,10 @@ namespace Log {
             }
 
             LGImpl& operator << (EndlType endl) {
-                if (m_logInfo.state.activeSinks & LOG_SINK_CONSOLE)
+                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_CONSOLE)
                     std::cout << endl;
 
-                if (m_logInfo.state.activeSinks & LOG_SINK_FILE) {
+                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_FILE) {
                     m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
                                                   m_logInfo.meta.saveFileName    +
                                                   m_logInfo.meta.saveFileExtension, std::ios::app);

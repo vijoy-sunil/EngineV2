@@ -236,44 +236,44 @@ namespace Renderer {
             }
 
             /* Binding describes the spacing between data and whether the data is per-vertex or per-instance */
-            VkVertexInputBindingDescription createVertexBindingDescription (const uint32_t bindingNumber,
-                                                                            const uint32_t stride,
-                                                                            const VkVertexInputRate inputRate) {
-                VkVertexInputBindingDescription bindingDescription;
-                bindingDescription.binding   = bindingNumber;
-                bindingDescription.stride    = stride;
-                bindingDescription.inputRate = inputRate;
+            VkVertexInputBindingDescription createVertexInputBinding (const uint32_t bindingNumber,
+                                                                      const uint32_t stride,
+                                                                      const VkVertexInputRate inputRate) {
+                VkVertexInputBindingDescription binding;
+                binding.binding   = bindingNumber;
+                binding.stride    = stride;
+                binding.inputRate = inputRate;
 
-                return bindingDescription;
+                return binding;
             }
 
             /* Attribute describes the type of the attribute passed to the vertex shader, which binding to load them
              * from and at which offset
             */
-            VkVertexInputAttributeDescription createVertexAttributeDescription (const uint32_t bindingNumber,
-                                                                                const uint32_t location,
-                                                                                const uint32_t offset,
-                                                                                const VkFormat format) {
-                VkVertexInputAttributeDescription attributeDescription;
-                attributeDescription.binding  = bindingNumber;
-                attributeDescription.location = location;
-                attributeDescription.offset   = offset;
-                attributeDescription.format   = format;
+            VkVertexInputAttributeDescription createVertexInputAttribute (const uint32_t bindingNumber,
+                                                                          const uint32_t location,
+                                                                          const uint32_t offset,
+                                                                          const VkFormat format) {
+                VkVertexInputAttributeDescription attribute;
+                attribute.binding  = bindingNumber;
+                attribute.location = location;
+                attribute.offset   = offset;
+                attribute.format   = format;
 
-                return attributeDescription;
+                return attribute;
             }
 
-            void createVertexInputState (const std::vector <VkVertexInputBindingDescription>&   bindingDescriptions,
-                                         const std::vector <VkVertexInputAttributeDescription>& attributeDescriptions) {
+            void createVertexInputState (const std::vector <VkVertexInputBindingDescription>&   bindings,
+                                         const std::vector <VkVertexInputAttributeDescription>& attributes) {
 
                 VkPipelineVertexInputStateCreateInfo createInfo;
                 createInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
                 createInfo.pNext                           = nullptr;
                 createInfo.flags                           = 0;
-                createInfo.vertexBindingDescriptionCount   = static_cast <uint32_t> (bindingDescriptions.size());
-                createInfo.pVertexBindingDescriptions      = bindingDescriptions.data();
-                createInfo.vertexAttributeDescriptionCount = static_cast <uint32_t> (attributeDescriptions.size());
-                createInfo.pVertexAttributeDescriptions    = attributeDescriptions.data();
+                createInfo.vertexBindingDescriptionCount   = static_cast <uint32_t> (bindings.size());
+                createInfo.pVertexBindingDescriptions      = bindings.data();
+                createInfo.vertexAttributeDescriptionCount = static_cast <uint32_t> (attributes.size());
+                createInfo.pVertexAttributeDescriptions    = attributes.data();
 
                 m_pipelineInfo.meta.vertexInput            = createInfo;
             }

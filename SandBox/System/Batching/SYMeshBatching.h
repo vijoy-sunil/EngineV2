@@ -39,10 +39,10 @@ namespace SandBox {
 
                 auto& logObj = m_meshBatchingInfo.resource.logObj;
                 logObj       = new Log::LGImpl();
-                logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
-                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->initLogInfo     ("Build/Log/SandBox",     __FILE__);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_INFO,    Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
             }
 
             void initMeshBatchingInfo (Scene::SNImpl* sceneObj) {

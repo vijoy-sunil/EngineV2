@@ -57,35 +57,39 @@ namespace Renderer {
                 return VK_FALSE;
             }
 
-            void populateDebugUtilsMessengerInfo (VkDebugUtilsMessengerCreateInfoEXT* createInfo) {
-                createInfo->sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-                createInfo->pNext           = nullptr;
-                createInfo->flags           = 0;
-                createInfo->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT   |
-                                              VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT   |
-                                              VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-                createInfo->messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT       |
-                                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT    |
-                                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-                createInfo->pfnUserCallback = debugCallback;
-                createInfo->pUserData       = nullptr;
+            VkDebugUtilsMessengerCreateInfoEXT createDebugUtilsMessengerEXT (void) {
+                VkDebugUtilsMessengerCreateInfoEXT createInfo;
+                createInfo.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+                createInfo.pNext           = nullptr;
+                createInfo.flags           = 0;
+                createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+                createInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT     |
+                                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT  |
+                                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+                createInfo.pfnUserCallback = debugCallback;
+                createInfo.pUserData       = nullptr;
+
+                return createInfo;
             }
 
             void createDebugUtilsMessenger (void) {
                 if (isValidationLayersDisabled())
                     return;
 
-                VkDebugUtilsMessengerCreateInfoEXT createInfo;
-                populateDebugUtilsMessengerInfo (&createInfo);
+                auto createInfo = createDebugUtilsMessengerEXT();
+                auto binding    = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
+                    m_instanceInfo.resource.instance,
+                    "vkCreateDebugUtilsMessengerEXT"
+                );
+                auto result     = binding != nullptr ? binding (
+                    m_instanceInfo.resource.instance,
+                    &createInfo,
+                    nullptr,
+                    &m_instanceInfo.resource.debugUtilsMessenger
+                ):  VK_ERROR_EXTENSION_NOT_PRESENT;
 
-                auto binding = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
-                                                                    m_instanceInfo.resource.instance,
-                                                                    "vkCreateDebugUtilsMessengerEXT");
-                auto result  = binding != nullptr ? binding (m_instanceInfo.resource.instance,
-                                                             &createInfo,
-                                                             nullptr,
-                                                             &m_instanceInfo.resource.debugUtilsMessenger):
-                                                    VK_ERROR_EXTENSION_NOT_PRESENT;
                 if (result != VK_SUCCESS) {
                     LOG_ERROR (m_instanceInfo.resource.logObj) << "[?] Debug utils messenger"
                                                                << " "
@@ -213,9 +217,7 @@ namespace Renderer {
                  * calls. It requires you to simply pass a pointer to a VkDebugUtilsMessengerCreateInfoEXT struct in the
                  * pNext extension field of VkInstanceCreateInfo
                 */
-                VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo;
-                populateDebugUtilsMessengerInfo (&debugUtilsCreateInfo);
-
+                auto debugUtilsCreateInfo          = createDebugUtilsMessengerEXT();
                 auto validationLayers              = getValidationLayers();
 
                 VkApplicationInfo appInfo;
@@ -301,10 +303,10 @@ namespace Renderer {
                 }
 
                 m_validationLogObj = new Log::LGImpl();
-                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",   "Validation");
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_NONE);
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-                m_validationLogObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_NONE);
+                m_validationLogObj->initLogInfo     ("Build/Log/Renderer",    "Validation");
+                m_validationLogObj->updateLogConfig (Log::LEVEL_TYPE_INFO,    Log::SINK_TYPE_NONE);
+                m_validationLogObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
+                m_validationLogObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_NONE);
             }
 
             void initInstanceInfo (const std::vector <const char*> validationLayers,

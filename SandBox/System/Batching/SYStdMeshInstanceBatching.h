@@ -42,10 +42,10 @@ namespace SandBox {
 
                 auto& logObj = m_stdMeshInstanceBatchingInfo.resource.logObj;
                 logObj       = new Log::LGImpl();
-                logObj->initLogInfo     ("Build/Log/SandBox",    __FILE__);
-                logObj->updateLogConfig (Log::LOG_LEVEL_INFO,    Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_WARNING, Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
-                logObj->updateLogConfig (Log::LOG_LEVEL_ERROR,   Log::LOG_SINK_CONSOLE | Log::LOG_SINK_FILE);
+                logObj->initLogInfo     ("Build/Log/SandBox",     __FILE__);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_INFO,    Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
+                logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
             }
 
             void initStdMeshInstanceBatchingInfo (Scene::SNImpl* sceneObj) {
@@ -148,15 +148,15 @@ namespace SandBox {
                         rowIdx = 0;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "]"                  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "["                  << std::endl;
-                        for (size_t packetIdx = 0; packetIdx < 64; packetIdx++) {
+                        for (size_t readIdx = 0; readIdx < 64; readIdx++) {
                         /* Split packet into texture indices */
-                        uint32_t packet     = textureIdxLUT[packetIdx];
+                        uint32_t packet     = textureIdxLUT[readIdx];
                         auto newTextureIdx0 = textureIdxLUTComponent->decodeTextureIdx  (packet & 0x000000FF);
                         auto newTextureIdx1 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0x0000FF00) >>  8);
                         auto newTextureIdx2 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0x00FF0000) >> 16);
                         auto newTextureIdx3 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0xFF000000) >> 24);
 
-                        LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_C (3)  << packetIdx               << ": "
+                        LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_C (3)  << readIdx                 << ": "
                                                            << ALIGN_AND_PAD_C (3)  << +newTextureIdx0         << ", "
                                                            << ALIGN_AND_PAD_C (3)  << +newTextureIdx1         << ", "
                                                            << ALIGN_AND_PAD_C (3)  << +newTextureIdx2         << ", "

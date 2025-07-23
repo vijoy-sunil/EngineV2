@@ -94,15 +94,15 @@ namespace Renderer {
                 m_renderPassInfo.resource.renderPass = nullptr;
             }
 
-            void addRenderPassAttachment (const VkAttachmentDescriptionFlags flags,
-                                          const VkFormat format,
-                                          const VkSampleCountFlagBits samplesCount,
-                                          const VkAttachmentLoadOp loadOp,
-                                          const VkAttachmentStoreOp storeOp,
-                                          const VkAttachmentLoadOp stencilLoadOp,
-                                          const VkAttachmentStoreOp stencilStoreOp,
-                                          const VkImageLayout initialImageLayout,
-                                          const VkImageLayout finalImageLayout) {
+            void addAttachment (const VkAttachmentDescriptionFlags flags,
+                                const VkFormat format,
+                                const VkSampleCountFlagBits samplesCount,
+                                const VkAttachmentLoadOp loadOp,
+                                const VkAttachmentStoreOp storeOp,
+                                const VkAttachmentLoadOp stencilLoadOp,
+                                const VkAttachmentStoreOp stencilStoreOp,
+                                const VkImageLayout initialImageLayout,
+                                const VkImageLayout finalImageLayout) {
 
                 VkAttachmentDescription attachment;
                 attachment.flags          = flags;
