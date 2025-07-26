@@ -1,7 +1,7 @@
 # Blender 4.3.0
 # www.blender.org
-mtllib Debug_Plane.mtl
-o Debug_Plane
+mtllib World_Border.mtl
+o World_Border
 v -0.500000 0.000000 0.500000
 v 0.500000 0.000000 0.500000
 v -0.500000 0.000000 -0.500000
@@ -12,5 +12,5 @@ vt 1.000000 0.000000
 vt 1.000000 1.000000
 vt 0.000000 1.000000
 s 0
-usemtl Material_Composite_[O]_[X]_[X]_Plane
+usemtl Material_Composite_[O]_[X]_[X]_World_Border
 f 1/1/1 2/2/1 4/3/1 3/4/1
