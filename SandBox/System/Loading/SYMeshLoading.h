@@ -145,21 +145,21 @@ namespace SandBox {
 
                     for (size_t faceIdx = 0; faceIdx < shapes[shapeIdx].mesh.num_face_vertices.size(); faceIdx++) {
                         int materialIdx        = shapes[shapeIdx].mesh.material_ids[faceIdx];
-                        size_t verticesPerFace = size_t (shapes[shapeIdx].mesh.num_face_vertices[faceIdx]);
+                        size_t verticesPerFace = static_cast <size_t> (shapes[shapeIdx].mesh.num_face_vertices[faceIdx]);
 
                         for (size_t vertexIdx = 0; vertexIdx < verticesPerFace; vertexIdx++) {
                             auto idx = shapes[shapeIdx].mesh.indices[idxOffset + vertexIdx];
 
-                            auto tx  = attribute.texcoords[2 * size_t (idx.texcoord_index) + 0];
-                            auto ty  = attribute.texcoords[2 * size_t (idx.texcoord_index) + 1];
+                            auto tx  = attribute.texcoords[2 * static_cast <size_t> (idx.texcoord_index) + 0];
+                            auto ty  = attribute.texcoords[2 * static_cast <size_t> (idx.texcoord_index) + 1];
 
-                            auto nx  = attribute.normals  [3 * size_t (idx.normal_index)   + 0];
-                            auto ny  = attribute.normals  [3 * size_t (idx.normal_index)   + 1];
-                            auto nz  = attribute.normals  [3 * size_t (idx.normal_index)   + 2];
+                            auto nx  = attribute.normals  [3 * static_cast <size_t> (idx.normal_index)   + 0];
+                            auto ny  = attribute.normals  [3 * static_cast <size_t> (idx.normal_index)   + 1];
+                            auto nz  = attribute.normals  [3 * static_cast <size_t> (idx.normal_index)   + 2];
 
-                            auto px  = attribute.vertices [3 * size_t (idx.vertex_index)   + 0];
-                            auto py  = attribute.vertices [3 * size_t (idx.vertex_index)   + 1];
-                            auto pz  = attribute.vertices [3 * size_t (idx.vertex_index)   + 2];
+                            auto px  = attribute.vertices [3 * static_cast <size_t> (idx.vertex_index)   + 0];
+                            auto py  = attribute.vertices [3 * static_cast <size_t> (idx.vertex_index)   + 1];
+                            auto pz  = attribute.vertices [3 * static_cast <size_t> (idx.vertex_index)   + 2];
 
                             Vertex vertex;
                             /* The OBJ format assumes a coordinate system where a vertical coordinate of 0 means the

@@ -106,12 +106,14 @@ namespace Renderer {
                     return;
 
                 auto binding = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
-                                                                     m_instanceInfo.resource.instance,
-                                                                     "vkDestroyDebugUtilsMessengerEXT");
-                if (binding != nullptr)
-                    binding (m_instanceInfo.resource.instance,
-                             m_instanceInfo.resource.debugUtilsMessenger,
-                             nullptr);
+                    m_instanceInfo.resource.instance,
+                    "vkDestroyDebugUtilsMessengerEXT"
+                );
+                if (binding != nullptr) binding (
+                    m_instanceInfo.resource.instance,
+                    m_instanceInfo.resource.debugUtilsMessenger,
+                    nullptr
+                );
                 LOG_INFO (m_instanceInfo.resource.logObj) << "[X] Debug utils messenger"
                                                           << std::endl;
             }
