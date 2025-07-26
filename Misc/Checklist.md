@@ -225,7 +225,7 @@
 
 - [x] `\) [a-z]`                                no use of C-style casting
 - [x] `\) &`                                    no use of C-style casting
-- [x] `[0-9]\.[0-9], [0-9]\.[0-9][0-9]`         float values end with `f`
+- [x] `\b\d+\.\d+(?!f)\b`                       float values end with `f`
 - [x] `static`                                  is it necessary?
 - [x] `const char*`                             use `const char*` for string literals
 - [x] `std::string`                             use only if you require `std::string` features like concat, size etc.
