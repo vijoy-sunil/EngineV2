@@ -66,7 +66,6 @@ namespace SandBox {
                 /* Encode texture indices for default textures */
                 textureIdxLUTComponent->encodeTextureIdx (0, 0);
                 textureIdxLUTComponent->encodeTextureIdx (1, 1);
-                textureIdxLUTComponent->encodeTextureIdx (2, 2);
                 /* Populate texture pool */
                 for (auto const& material: materials) {
                     if (!material.diffuse_texname.empty()) {
@@ -201,7 +200,7 @@ namespace SandBox {
                                       1:
                                       texturePoolObj->getTextureIdx (material.specular_texname);
                                 vertex.material.emissionTextureIdx = material.emissive_texname == "" ?
-                                      2:
+                                      1:
                                       texturePoolObj->getTextureIdx (material.emissive_texname);
                                 vertex.material.shininess          = transformToRange (
                                     material.shininess,
@@ -212,7 +211,7 @@ namespace SandBox {
                             else {
                                 vertex.material.diffuseTextureIdx  = 0;
                                 vertex.material.specularTextureIdx = 1;
-                                vertex.material.emissionTextureIdx = 2;
+                                vertex.material.emissionTextureIdx = 1;
                                 vertex.material.shininess          = 32;
                             }
                             /* To take advantage of the index buffer, we should keep only the unique vertices and use the

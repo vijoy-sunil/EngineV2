@@ -34,6 +34,7 @@ namespace SandBox {
                     uint32_t shadowImageWidth;
                     uint32_t shadowImageHeight;
                     Scene::Entity skyBoxEntity;
+                    std::map <Scene::Entity, std::vector <Scene::Entity>> entityFamilyInfoPool;
                 } meta;
 
                 struct Resource {
@@ -68,9 +69,8 @@ namespace SandBox {
                 auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
                 auto& skyBoxTexturePoolObj = m_sandBoxInfo.resource.skyBoxTexturePoolObj;
                 /* Add default textures */
-                stdTexturePoolObj->addTexture ("Asset/Texture/[D]_Empty.png");          /* Texture idx 0 */
-                stdTexturePoolObj->addTexture ("Asset/Texture/[S]_Empty.png");          /* Texture idx 1 */
-                stdTexturePoolObj->addTexture ("Asset/Texture/[E]_Empty.png");          /* Texture idx 2 */
+                stdTexturePoolObj->addTexture ("Asset/Texture/[D]_Simple_#FF00FF.png");         /* Texture idx 0 */
+                stdTexturePoolObj->addTexture ("Asset/Texture/[S]_Simple_#000000.png");         /* Texture idx 1 */
                 /* Add sky box textures. The textures that make up the sky box are laid out in the below pattern. If you
                  * fold the 6 sides into a cube you'd get the completely textured cube that simulates a large landscape
                  *                              +-----------+
