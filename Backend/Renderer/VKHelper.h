@@ -98,10 +98,10 @@ namespace Renderer {
     /* Take a list of candidate formats in order from most desirable to least desirable, and return the first one that
      * supports desired format features and tiling mode
     */
-    VkFormat getSupportedFormat (const VkPhysicalDevice phyDevice,
-                                 const std::vector <VkFormat> formatCandidates,
-                                 const VkFormatFeatureFlags formatFeatures,
-                                 const VkImageTiling tiling) {
+    VkFormat getSupportedImageFormat (const VkPhysicalDevice phyDevice,
+                                      const std::vector <VkFormat> formatCandidates,
+                                      const VkFormatFeatureFlags formatFeatures,
+                                      const VkImageTiling tiling) {
 
         for (auto const& format: formatCandidates) {
             VkFormatProperties properties;

@@ -340,7 +340,7 @@ namespace SandBox {
 
             for (uint32_t i = 0; i < otherLightsCount; i++) {
                 auto imageObj    = new Renderer::VKImage (logObj, phyDeviceObj, logDeviceObj);
-                auto imageFormat = Renderer::getSupportedFormat (
+                auto imageFormat = Renderer::getSupportedImageFormat (
                     *phyDeviceObj->getPhyDevice(),
                     {
                         VK_FORMAT_D32_SFLOAT,
@@ -383,7 +383,7 @@ namespace SandBox {
 
             for (uint32_t i = 0; i < pointLightsCount; i++) {
                 auto imageObj    = new Renderer::VKImage (logObj, phyDeviceObj, logDeviceObj);
-                auto imageFormat = Renderer::getSupportedFormat (
+                auto imageFormat = Renderer::getSupportedImageFormat (
                     *phyDeviceObj->getPhyDevice(),
                     {
                         VK_FORMAT_D32_SFLOAT,
@@ -1228,7 +1228,7 @@ namespace SandBox {
         }
         {   /* Image            [G_DEFAULT_DEPTH] */
             auto imageObj    = new Renderer::VKImage (logObj, phyDeviceObj, logDeviceObj);
-            auto imageFormat = Renderer::getSupportedFormat (
+            auto imageFormat = Renderer::getSupportedImageFormat (
                 *phyDeviceObj->getPhyDevice(),
                 {
                     VK_FORMAT_D32_SFLOAT,
