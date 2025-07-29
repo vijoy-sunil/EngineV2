@@ -6,7 +6,6 @@ namespace SandBox {
      * vertices. Additionally, you have to specify the correct type when binding the index buffer
     */
     using IndexType                    = uint32_t;
-    using TextureIdxType               = uint8_t;
     const uint32_t g_maxFramesInFlight = 2;
 
     struct Vertex {
@@ -17,9 +16,9 @@ namespace SandBox {
         } meta;
 
         struct Material {
-            TextureIdxType diffuseTextureIdx;
-            TextureIdxType specularTextureIdx;
-            TextureIdxType emissionTextureIdx;
+            uint32_t diffuseTextureIdx;
+            uint32_t specularTextureIdx;
+            uint32_t emissionTextureIdx;
             /* Shininess impacts the scattering/radius of the specular highlight. The table in the following link shows a
              * list of material properties that simulate real materials found in the outside world. Note that, the higher
              * the shininess value, the more it properly reflects the light instead of scattering it all around and thus
@@ -70,13 +69,13 @@ namespace std {
     struct hash <SandBox::Vertex> {
         /* https://stackoverflow.com/questions/1646807/quick-and-simple-hash-code-combinations/1646913#1646913 */
         size_t operator () (const SandBox::Vertex& vertex) const {
-            size_t h1   = hash <glm::vec2>              () (vertex.meta.uv);
-            size_t h2   = hash <glm::vec3>              () (vertex.meta.normal);
-            size_t h3   = hash <glm::vec3>              () (vertex.meta.position);
-            size_t h4   = hash <SandBox::TextureIdxType>() (vertex.material.diffuseTextureIdx);
-            size_t h5   = hash <SandBox::TextureIdxType>() (vertex.material.specularTextureIdx);
-            size_t h6   = hash <SandBox::TextureIdxType>() (vertex.material.emissionTextureIdx);
-            size_t h7   = hash <uint32_t>               () (vertex.material.shininess);
+            size_t h1   = hash <glm::vec2>() (vertex.meta.uv);
+            size_t h2   = hash <glm::vec3>() (vertex.meta.normal);
+            size_t h3   = hash <glm::vec3>() (vertex.meta.position);
+            size_t h4   = hash <uint32_t> () (vertex.material.diffuseTextureIdx);
+            size_t h5   = hash <uint32_t> () (vertex.material.specularTextureIdx);
+            size_t h6   = hash <uint32_t> () (vertex.material.emissionTextureIdx);
+            size_t h7   = hash <uint32_t> () (vertex.material.shininess);
 
             size_t hash = 17;
             hash        = hash * 31 + h1;

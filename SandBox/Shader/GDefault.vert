@@ -19,7 +19,7 @@ layout (location = 6) out uint o_shininess;
 struct MeshInstanceSBO {
     mat4 modelMatrix;
     mat4 normalMatrix;
-    uint textureIdxLUT[64];
+    int textureIdxOffsets[3];
 };
 
 layout (set = 0, binding = 0) readonly buffer MeshInstanceSBOContainer {
@@ -31,16 +31,6 @@ layout (push_constant) uniform ActiveCameraPC {
     mat4 viewMatrix;
     mat4 projectionMatrix;
 } activeCamera;
-
-uint decodeTextureIdx (const uint oldTextureIdx) {
-    uint readIdx = oldTextureIdx / 4;
-    uint offset  = oldTextureIdx % 4;
-    uint mask    = 255 << offset * 8;
-
-    uint packet  = meshInstanceSBOContainer.instances[gl_InstanceIndex].textureIdxLUT[readIdx];
-    packet       = packet & mask;
-    return packet >> offset * 8;
-}
 
 void main (void) {
     gl_Position          = activeCamera.projectionMatrix *
@@ -75,8 +65,11 @@ void main (void) {
     */
     o_position           = meshInstanceSBOContainer.instances[gl_InstanceIndex].modelMatrix *
                            vec4 (i_position, 1.0);
-    o_diffuseTextureIdx  = decodeTextureIdx (i_diffuseTextureIdx);
-    o_specularTextureIdx = decodeTextureIdx (i_specularTextureIdx);
-    o_emissionTextureIdx = decodeTextureIdx (i_emissionTextureIdx);
+    o_diffuseTextureIdx  = i_diffuseTextureIdx  +
+                           meshInstanceSBOContainer.instances[gl_InstanceIndex].textureIdxOffsets[0];
+    o_specularTextureIdx = i_specularTextureIdx +
+                           meshInstanceSBOContainer.instances[gl_InstanceIndex].textureIdxOffsets[1];
+    o_emissionTextureIdx = i_emissionTextureIdx +
+                           meshInstanceSBOContainer.instances[gl_InstanceIndex].textureIdxOffsets[2];
     o_shininess          = i_shininess;
 }

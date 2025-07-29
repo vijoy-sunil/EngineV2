@@ -3,7 +3,6 @@
 #include "../Backend/Common.h"
 #include "../Backend/Log/LGImpl.h"
 #include "../Dependency/stb/stb_image.h"
-#include "SBRendererType.h"
 
 namespace SandBox {
     class SBTexturePool {
@@ -22,9 +21,9 @@ namespace SandBox {
 
             struct TexturePoolInfo {
                 struct Meta {
-                    std::unordered_map <std::string, TextureIdxType> pathToIdxMap;
-                    std::map <TextureIdxType, ImageInfo> idxToImageInfoMap;
-                    TextureIdxType nextAvailableIdx;
+                    std::unordered_map <std::string, uint32_t> pathToIdxMap;
+                    std::map <uint32_t, ImageInfo> idxToImageInfoMap;
+                    uint32_t nextAvailableIdx;
                 } meta;
 
                 struct Resource {
@@ -72,11 +71,11 @@ namespace SandBox {
                 m_texturePoolInfo.meta.nextAvailableIdx  = 0;
             }
 
-            TextureIdxType getTextureIdx (const std::string imageFilePath) {
+            uint32_t getTextureIdx (const std::string imageFilePath) {
                 return m_texturePoolInfo.meta.pathToIdxMap[imageFilePath];
             }
 
-            std::map <TextureIdxType, ImageInfo>& getTexturePool (void) {
+            std::map <uint32_t, ImageInfo>& getTexturePool (void) {
                 return m_texturePoolInfo.meta.idxToImageInfoMap;
             }
 
@@ -96,7 +95,7 @@ namespace SandBox {
                 ++meta.nextAvailableIdx;
             }
 
-            void destroyImage (const TextureIdxType textureIdx) {
+            void destroyImage (const uint32_t textureIdx) {
                 auto& meta = m_texturePoolInfo.meta;
                 if (meta.idxToImageInfoMap.find (textureIdx) == meta.idxToImageInfoMap.end()) {
                     LOG_ERROR (m_texturePoolInfo.resource.logObj) << "Image info does not exist"
@@ -116,10 +115,8 @@ namespace SandBox {
                 LOG_LITE_INFO (logObj)     << "{"                     << std::endl;
                 for (auto const& [path, idx]: meta.pathToIdxMap) {
                     auto imageInfo = meta.idxToImageInfoMap[idx];
-                    /* Promote to a type printable as a number, regardless of type. This works as long as the type
-                     * provides a unary + operator with ordinary semantics
-                    */
-                    LOG_LITE_INFO (logObj) << "\t" << ALIGN_AND_PAD_S << +idx                         << " "
+
+                    LOG_LITE_INFO (logObj) << "\t" << ALIGN_AND_PAD_S << idx                          << " "
                                                    << ALIGN_AND_PAD_S << imageInfo.meta.width         << " "
                                                    << ALIGN_AND_PAD_S << imageInfo.meta.height        << " "
                                                    << ALIGN_AND_PAD_S << imageInfo.meta.channelsCount << " "

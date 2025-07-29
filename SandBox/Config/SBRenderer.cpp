@@ -1532,19 +1532,19 @@ namespace SandBox {
                         0,
                         3,
                         offsetof (Vertex, material.diffuseTextureIdx),
-                        VK_FORMAT_R8_UINT
+                        VK_FORMAT_R32_UINT
                     ),
                     pipelineObj->createVertexInputAttribute (
                         0,
                         4,
                         offsetof (Vertex, material.specularTextureIdx),
-                        VK_FORMAT_R8_UINT
+                        VK_FORMAT_R32_UINT
                     ),
                     pipelineObj->createVertexInputAttribute (
                         0,
                         5,
                         offsetof (Vertex, material.emissionTextureIdx),
-                        VK_FORMAT_R8_UINT
+                        VK_FORMAT_R32_UINT
                     ),
                     pipelineObj->createVertexInputAttribute (
                         0,
@@ -3515,7 +3515,7 @@ namespace SandBox {
                         0,
                         2,
                         offsetof (Vertex, material.diffuseTextureIdx),
-                        VK_FORMAT_R8_UINT
+                        VK_FORMAT_R32_UINT
                     )
                 };
                 pipelineObj->createVertexInputState (

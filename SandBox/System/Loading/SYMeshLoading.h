@@ -29,9 +29,7 @@ namespace SandBox {
                 ) +  newRange.first;
             }
 
-            void loadOBJModel (MeshComponent* meshComponent,
-                               TextureIdxLUTComponent* textureIdxLUTComponent) {
-
+            void loadOBJModel (MeshComponent* meshComponent) {
                 auto& texturePoolObj = m_meshLoadingInfo.resource.texturePoolObj;
 
                 std::unordered_map <Vertex, IndexType> uniqueVertices;
@@ -63,38 +61,17 @@ namespace SandBox {
                 auto shapes    = reader.GetShapes();
                 auto materials = reader.GetMaterials();
 
-                /* Encode texture indices for default textures */
-                textureIdxLUTComponent->encodeTextureIdx (0, 0);
-                textureIdxLUTComponent->encodeTextureIdx (1, 1);
                 /* Populate texture pool */
                 for (auto const& material: materials) {
-                    if (!material.diffuse_texname.empty()) {
-                        texturePoolObj->addTexture (
-                            material.diffuse_texname
-                        );
-                        textureIdxLUTComponent->encodeTextureIdx (
-                            texturePoolObj->getTextureIdx (material.diffuse_texname),
-                            texturePoolObj->getTextureIdx (material.diffuse_texname)
-                        );
-                    }
-                    if (!material.specular_texname.empty()) {
-                        texturePoolObj->addTexture (
-                            material.specular_texname
-                        );
-                        textureIdxLUTComponent->encodeTextureIdx (
-                            texturePoolObj->getTextureIdx (material.specular_texname),
-                            texturePoolObj->getTextureIdx (material.specular_texname)
-                        );
-                    }
-                    if (!material.emissive_texname.empty()) {
-                        texturePoolObj->addTexture (
-                            material.emissive_texname
-                        );
-                        textureIdxLUTComponent->encodeTextureIdx (
-                            texturePoolObj->getTextureIdx (material.emissive_texname),
-                            texturePoolObj->getTextureIdx (material.emissive_texname)
-                        );
-                    }
+                    if (!material.diffuse_texname.empty())  texturePoolObj->addTexture (
+                         material.diffuse_texname
+                    );
+                    if (!material.specular_texname.empty()) texturePoolObj->addTexture (
+                         material.specular_texname
+                    );
+                    if (!material.emissive_texname.empty()) texturePoolObj->addTexture (
+                         material.emissive_texname
+                    );
                 }
                 /* attrib_t contains single and linear array of vertex data (vertices, normals and texcoords)
                  *
@@ -265,14 +242,15 @@ namespace SandBox {
                 auto& sceneObj = m_meshLoadingInfo.resource.sceneObj;
 
                 for (auto const& entity: m_entities) {
-                    auto meshComponent          = sceneObj->getComponent <MeshComponent>          (entity);
-                    auto textureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (entity);
+                    auto meshComponent = sceneObj->getComponent <MeshComponent> (entity);
+                    /* Skip entities with manually populated mesh component */
+                    if (!meshComponent->m_loadPending)
+                        continue;
                     /* Clear previous loaded data */
                     meshComponent->m_vertices.clear();
                     meshComponent->m_indices.clear();
-                    textureIdxLUTComponent->fillTextureIdxLUT (0);
 
-                    loadOBJModel (meshComponent, textureIdxLUTComponent);
+                    loadOBJModel (meshComponent);
                 }
             }
 

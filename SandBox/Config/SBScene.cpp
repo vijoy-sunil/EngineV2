@@ -32,15 +32,13 @@ namespace SandBox {
         auto& sceneObj             = m_sandBoxInfo.resource.sceneObj;
         auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
 
-        std::vector <Scene::Entity> srcTextureIdxLUTComponentEntities;
-
         {   /* Register components */
             sceneObj->registerComponent <MetaComponent>();
             sceneObj->registerComponent <MeshComponent>();
             sceneObj->registerComponent <LightComponent>();
             sceneObj->registerComponent <CameraComponent>();
             sceneObj->registerComponent <TransformComponent>();
-            sceneObj->registerComponent <TextureIdxLUTComponent>();
+            sceneObj->registerComponent <TextureIdxOffsetComponent>();
             sceneObj->registerComponent <ColorComponent>();
             sceneObj->registerComponent <RenderComponent>();
             sceneObj->registerComponent <StdTagComponent>();
@@ -69,7 +67,6 @@ namespace SandBox {
 
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <MeshComponent>());
-                systemSignature.set (sceneObj->getComponentType <TextureIdxLUTComponent>());
 
                 sceneObj->setSystemSignature <SYMeshLoading> (systemSignature);
             }
@@ -89,7 +86,7 @@ namespace SandBox {
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <MetaComponent>());
                 systemSignature.set (sceneObj->getComponentType <TransformComponent>());
-                systemSignature.set (sceneObj->getComponentType <TextureIdxLUTComponent>());
+                systemSignature.set (sceneObj->getComponentType <TextureIdxOffsetComponent>());
 
                 sceneObj->setSystemSignature <SYStdMeshInstanceBatching> (systemSignature);
             }
@@ -214,12 +211,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent());
                     sceneObj->addComponent (entity, RenderComponent (
@@ -247,12 +243,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/Debug_Sphere.obj",
@@ -313,7 +308,7 @@ namespace SandBox {
                 "Asset/Model/"
             ));
             sceneObj->addComponent (entity, TransformComponent());
-            sceneObj->addComponent (entity, TextureIdxLUTComponent());
+            sceneObj->addComponent (entity, TextureIdxOffsetComponent());
             sceneObj->addComponent (entity, RenderComponent());
             sceneObj->addComponent (entity, StdTagComponent());
             /* No children */
@@ -333,7 +328,7 @@ namespace SandBox {
                 {16.0f, 0.3f, 36.0f},
                 { 0.0f, 0.0f,  0.0f}
             ));
-            sceneObj->addComponent (entity, TextureIdxLUTComponent());
+            sceneObj->addComponent (entity, TextureIdxOffsetComponent());
             sceneObj->addComponent (entity, RenderComponent());
             sceneObj->addComponent (entity, StdTagComponent());
             /* No children */
@@ -358,12 +353,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/Tire.obj",
@@ -395,12 +389,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/Low_Ramp.obj",
@@ -431,12 +424,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/Med_Ramp.obj",
@@ -467,12 +459,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/High_Ramp.obj",
@@ -503,12 +494,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/Speed_Bump.obj",
@@ -564,12 +554,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/Traffic_Cone.obj",
@@ -922,12 +911,11 @@ namespace SandBox {
                     instanceTransforms[i].first,
                     instanceTransforms[i].second
                 ));
-                sceneObj->addComponent (entity, TextureIdxLUTComponent());
+                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
 
                 if (i == 0) {   /* Parent entity */
                     parentEntity = entity;
                     entityFamilyInfoPool[parentEntity] = {};
-                    srcTextureIdxLUTComponentEntities.push_back (parentEntity);
 
                     sceneObj->addComponent (entity, MeshComponent (
                         "Asset/Model/World_Border.obj",
@@ -952,17 +940,6 @@ namespace SandBox {
 
             {   /* Mesh loading system */
                 meshLoadingObj->update();
-                /* Populate texture idx LUT component for child entities */
-                for (auto const& srcEntity: srcTextureIdxLUTComponentEntities) {
-                for (auto const& dstEntity: entityFamilyInfoPool[srcEntity])   {
-
-                    auto srcTextureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (srcEntity);
-                    auto dstTextureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (dstEntity);
-                    srcTextureIdxLUTComponent->copyToTextureIdxLUT (
-                        dstTextureIdxLUTComponent->m_LUT
-                    );
-                }
-                }
             }
             {   /* Mesh batching system */
                 meshBatchingObj->update();

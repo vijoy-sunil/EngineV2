@@ -10,7 +10,7 @@ layout (location = 1) out uint o_diffuseTextureIdx;
 struct MeshInstanceSBO {
     mat4 modelMatrix;
     mat4 normalMatrix;      /* Unused */
-    uint textureIdxLUT[64];
+    int textureIdxOffsets[3];
 };
 
 layout (set = 0, binding = 0) readonly buffer MeshInstanceSBOContainer {
@@ -23,16 +23,6 @@ layout (push_constant) uniform ActiveCameraPC {
     mat4 projectionMatrix;
 } activeCamera;
 
-uint decodeTextureIdx (const uint oldTextureIdx) {
-    uint readIdx = oldTextureIdx / 4;
-    uint offset  = oldTextureIdx % 4;
-    uint mask    = 255 << offset * 8;
-
-    uint packet  = meshInstanceSBOContainer.instances[gl_InstanceIndex].textureIdxLUT[readIdx];
-    packet       = packet & mask;
-    return packet >> offset * 8;
-}
-
 void main (void) {
     gl_Position         = activeCamera.projectionMatrix *
                           activeCamera.viewMatrix       *
@@ -40,5 +30,6 @@ void main (void) {
                           vec4 (i_position, 1.0);
 
     o_uv                = i_uv;
-    o_diffuseTextureIdx = decodeTextureIdx (i_diffuseTextureIdx);
+    o_diffuseTextureIdx = i_diffuseTextureIdx +
+                          meshInstanceSBOContainer.instances[gl_InstanceIndex].textureIdxOffsets[0];
 }

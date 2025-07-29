@@ -15,9 +15,9 @@ namespace SandBox {
             };
 
             struct MeshInstanceSBO {
-                glm::mat4 modelMatrix;
+                alignas (16) glm::mat4 modelMatrix;
                 glm::mat4 normalMatrix;
-                uint32_t textureIdxLUT[64];
+                int32_t textureIdxOffsets[3];
             };
 
             struct StdMeshInstanceBatchingInfo {
@@ -81,12 +81,12 @@ namespace SandBox {
 
                 std::unordered_map <e_tagType, size_t> tagTypeToLoopIdxMap;
                 for (auto const& entity: m_entities) {
-                    auto metaComponent          = sceneObj->getComponent <MetaComponent>          (entity);
-                    auto transformComponent     = sceneObj->getComponent <TransformComponent>     (entity);
-                    auto textureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (entity);
-                    auto& tagType               = metaComponent->m_tagType;
-                    auto& loopIdx               = tagTypeToLoopIdxMap[tagType];
-                    glm::mat4 modelMatrix       = transformComponent->createModelMatrix();
+                    auto metaComponent             = sceneObj->getComponent <MetaComponent>             (entity);
+                    auto transformComponent        = sceneObj->getComponent <TransformComponent>        (entity);
+                    auto textureIdxOffsetComponent = sceneObj->getComponent <TextureIdxOffsetComponent> (entity);
+                    auto& tagType                  = metaComponent->m_tagType;
+                    auto& loopIdx                  = tagTypeToLoopIdxMap[tagType];
+                    glm::mat4 modelMatrix          = transformComponent->createModelMatrix();
 
                     meta.entityToIdxMap[entity] = loopIdx++;
                     meta.tagTypeToEntitiesMap[tagType].push_back (entity);
@@ -98,7 +98,7 @@ namespace SandBox {
                     MeshInstanceSBO instance;
                     instance.modelMatrix        = modelMatrix;
                     instance.normalMatrix       = glm::mat4 (glm::transpose (glm::inverse (glm::mat3 (modelMatrix))));
-                    textureIdxLUTComponent->copyToTextureIdxLUT (instance.textureIdxLUT);
+                    textureIdxOffsetComponent->copyTo (instance.textureIdxOffsets);
                     meta.tagTypeToInstancesMap[tagType].push_back (instance);
                 }
             }
@@ -116,12 +116,11 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj)     << "["                              << std::endl;
 
                     for (auto const& entity: entities) {
-                        auto metaComponent          = sceneObj->getComponent <MetaComponent>          (entity);
-                        auto textureIdxLUTComponent = sceneObj->getComponent <TextureIdxLUTComponent> (entity);
-                        size_t idx                  = meta.entityToIdxMap[entity];
-                        auto& modelMatrix           = instances[idx].modelMatrix;
-                        auto& normalMatrix          = instances[idx].normalMatrix;
-                        auto& textureIdxLUT         = instances[idx].textureIdxLUT;
+                        auto metaComponent      = sceneObj->getComponent <MetaComponent> (entity);
+                        size_t idx              = meta.entityToIdxMap[entity];
+                        auto& modelMatrix       = instances[idx].modelMatrix;
+                        auto& normalMatrix      = instances[idx].normalMatrix;
+                        auto& textureIdxOffsets = instances[idx].textureIdxOffsets;
 
                         LOG_LITE_INFO (logObj) << "\t"     << metaComponent->m_id  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t"     << "{"                  << std::endl;
@@ -148,21 +147,10 @@ namespace SandBox {
                         rowIdx = 0;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "]"                  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "["                  << std::endl;
-                        for (size_t readIdx = 0; readIdx < 64; readIdx++) {
-                        /* Split packet into texture indices */
-                        uint32_t packet     = textureIdxLUT[readIdx];
-                        auto newTextureIdx0 = textureIdxLUTComponent->decodeTextureIdx  (packet & 0x000000FF);
-                        auto newTextureIdx1 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0x0000FF00) >>  8);
-                        auto newTextureIdx2 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0x00FF0000) >> 16);
-                        auto newTextureIdx3 = textureIdxLUTComponent->decodeTextureIdx ((packet & 0xFF000000) >> 24);
-
-                        LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_C (3)  << readIdx                 << ": "
-                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx0         << ", "
-                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx1         << ", "
-                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx2         << ", "
-                                                           << ALIGN_AND_PAD_C (3)  << +newTextureIdx3
+                        LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_S      << textureIdxOffsets[0]    << ", "
+                                                           << ALIGN_AND_PAD_S      << textureIdxOffsets[1]    << ", "
+                                                           << ALIGN_AND_PAD_S      << textureIdxOffsets[2]
                                                            << std::endl;
-                        }
                         LOG_LITE_INFO (logObj) << "\t\t"   << "]"                  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t"     << "}"                  << std::endl;
                     }

@@ -65,6 +65,7 @@ namespace SandBox {
 
     struct MeshComponent {
         public:
+            bool m_loadPending                 = true;
             /* The paths indicate the model file this mesh belongs to */
             std::string m_modelFilePath        = "Asset/Model/Debug_Cube.obj";
             std::string m_mtlFileDirPath       = "Asset/Model/";
@@ -80,6 +81,7 @@ namespace SandBox {
 
             /* Manually populate vertices and indices */
             MeshComponent (const std::vector <Vertex> vertices, const std::vector <IndexType> indices) {
+                m_loadPending    = false;
                 m_modelFilePath  = "";
                 m_mtlFileDirPath = "";
                 m_vertices       = vertices;
@@ -390,63 +392,26 @@ namespace SandBox {
             }
     };
 
-    struct TextureIdxLUTComponent {
+    struct TextureIdxOffsetComponent {
         public:
-            /* Note that, we will be limiting the texture idx range to [0, 255]. This allows us to pack a total of 256
-             * texture indices in 256 bytes of data in the LUT array as shown below
-             *
-             *     0        1        2        3              63 => write idx
-             * |--------|--------|--------|--------|     |--------|
-             * |   32b  |   32b  |   32b  |   32b  |.....|   32b  |
-             * |--------|--------|--------|--------|     |--------|
-             *              |
-             *              |
-             *              v
-             *              3        2        1        0 => offset
-             *          |--------|--------|--------|--------|
-             *          |   8b   |   8b   |   8b   |   8b   |
-             *          |--------|--------|--------|--------|
-             *             idx 7    idx 6    idx 5    idx 4 => texture idx
-            */
-            uint32_t m_LUT[64] = {};
+            /* Note that, the offsets are intended for meshes with only one material */
+            int32_t m_offsets[3] = {0, 0, 0};
 
-            TextureIdxLUTComponent (void) = default;
-            void encodeTextureIdx  (const TextureIdxType oldTextureIdx, const TextureIdxType newTextureIdx) {
-                size_t writeIdx = oldTextureIdx / 4;
-                uint32_t offset = oldTextureIdx % 4;
-                uint32_t mask   = UINT8_MAX << offset * 8;
+            TextureIdxOffsetComponent (void) = default;
+            TextureIdxOffsetComponent (const int32_t diffuseTextureIdxOffset,
+                                       const int32_t specularTextureIdxOffset,
+                                       const int32_t emissionTextureIdxOffset) {
 
-                auto& packet    = m_LUT[writeIdx];
-                packet          = packet & ~mask;
-                packet          = packet | (newTextureIdx << offset * 8);
+                m_offsets[0] = diffuseTextureIdxOffset;
+                m_offsets[1] = specularTextureIdxOffset;
+                m_offsets[2] = emissionTextureIdxOffset;
             }
 
-            TextureIdxType decodeTextureIdx (const TextureIdxType oldTextureIdx) {
-                size_t readIdx  = oldTextureIdx / 4;
-                uint32_t offset = oldTextureIdx % 4;
-                uint32_t mask   = UINT8_MAX << offset * 8;
-
-                uint32_t packet = m_LUT[readIdx];
-                packet          = packet & mask;
-                return packet >> offset * 8;
-            }
-
-            void fillTextureIdxLUT (const TextureIdxType newTextureIdx) {
-                uint32_t packet = newTextureIdx | (newTextureIdx << 8)  |
-                                                  (newTextureIdx << 16) |
-                                                  (newTextureIdx << 24);
-                std::fill (
-                    std::begin (m_LUT),
-                    std::end   (m_LUT),
-                    packet
-                );
-            }
-
-            void copyToTextureIdxLUT (uint32_t* dstTextureIdxLUT) {
+            void copyTo (int32_t* dstOffsets) {
                 std::copy (
-                    std::begin (m_LUT),
-                    std::end   (m_LUT),
-                    dstTextureIdxLUT
+                    std::begin (m_offsets),
+                    std::end   (m_offsets),
+                    dstOffsets
                 );
             }
     };

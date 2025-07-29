@@ -167,11 +167,11 @@ namespace SandBox {
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.position.z
                                                              << ")"
                                                              << " "
-                                                             << ALIGN_AND_PAD_S      << +vertex.material.diffuseTextureIdx
+                                                             << ALIGN_AND_PAD_S      << vertex.material.diffuseTextureIdx
                                                              << " "
-                                                             << ALIGN_AND_PAD_S      << +vertex.material.specularTextureIdx
+                                                             << ALIGN_AND_PAD_S      << vertex.material.specularTextureIdx
                                                              << " "
-                                                             << ALIGN_AND_PAD_S      << +vertex.material.emissionTextureIdx
+                                                             << ALIGN_AND_PAD_S      << vertex.material.emissionTextureIdx
                                                              << " "
                                                              << ALIGN_AND_PAD_S      << vertex.material.shininess
                                                              << std::endl;
