@@ -234,7 +234,7 @@ namespace SandBox {
 
         {   /* Buffer           [S_DEFAULT_VERTEX_STAGING] */
             auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
-            auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD);
+            auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
                 vertices.size() * sizeof (Vertex),
@@ -254,7 +254,7 @@ namespace SandBox {
         }
         {   /* Buffer           [S_DEFAULT_INDEX_STAGING] */
             auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
-            auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD);
+            auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
                 indices.size() * sizeof (IndexType),
@@ -274,7 +274,7 @@ namespace SandBox {
         }
         {   /* Buffer           [S_DEFAULT_VERTEX] */
             auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
-            auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD);
+            auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
                 vertices.size() * sizeof (Vertex),
@@ -291,7 +291,7 @@ namespace SandBox {
         }
         {   /* Buffer           [S_DEFAULT_INDEX] */
             auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
-            auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD);
+            auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
                 indices.size() * sizeof (IndexType),
@@ -308,7 +308,7 @@ namespace SandBox {
         }
         {   /* Buffer           [S_DEFAULT_MESH_INSTANCE_?] */
             auto batchingObj = sceneObj->getSystem <SYStdMeshInstanceBatching>();
-            auto instances   = batchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD);
+            auto instances   = batchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD_NO_ALPHA);
             /* We should have multiple buffers, because multiple frames may be in flight at the same time and we don't
              * want to update the buffer in preparation of the next frame while a previous one is still reading from it.
              * Thus, we need to have as many buffers as we have frames in flight, and write to a buffer that is not
@@ -1060,7 +1060,7 @@ namespace SandBox {
 
         {   /* Buffer           [G_DEFAULT_MESH_INSTANCE_?] */
             auto batchingObj = sceneObj->getSystem <SYStdMeshInstanceBatching>();
-            auto instances   = batchingObj->getBatchedMeshInstances (TAG_TYPE_STD);
+            auto instances   = batchingObj->getBatchedMeshInstances (TAG_TYPE_STD_NO_ALPHA);
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);

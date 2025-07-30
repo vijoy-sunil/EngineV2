@@ -16,7 +16,7 @@ namespace SandBox {
 
     typedef enum {
         TAG_TYPE_NONE,
-        TAG_TYPE_STD,
+        TAG_TYPE_STD_NO_ALPHA,
         TAG_TYPE_STD_ALPHA,
         TAG_TYPE_WIRE,
         TAG_TYPE_SKY_BOX
@@ -42,7 +42,7 @@ namespace SandBox {
     const char* getTagTypeString (const e_tagType tagType) {
         switch (tagType) {
             case TAG_TYPE_NONE:                     return "TAG_TYPE_NONE";
-            case TAG_TYPE_STD:                      return "TAG_TYPE_STD";
+            case TAG_TYPE_STD_NO_ALPHA:             return "TAG_TYPE_STD_NO_ALPHA";
             case TAG_TYPE_STD_ALPHA:                return "TAG_TYPE_STD_ALPHA";
             case TAG_TYPE_WIRE:                     return "TAG_TYPE_WIRE";
             case TAG_TYPE_SKY_BOX:                  return "TAG_TYPE_SKY_BOX";
@@ -440,9 +440,9 @@ namespace SandBox {
             }
     };
 
-    struct StdTagComponent {
+    struct StdNoAlphaTagComponent {
         public:
-            StdTagComponent (void) = default;
+            StdNoAlphaTagComponent (void) = default;
     };
 
     struct StdAlphaTagComponent {

@@ -41,7 +41,7 @@ namespace SandBox {
             sceneObj->registerComponent <TextureIdxOffsetComponent>();
             sceneObj->registerComponent <ColorComponent>();
             sceneObj->registerComponent <RenderComponent>();
-            sceneObj->registerComponent <StdTagComponent>();
+            sceneObj->registerComponent <StdNoAlphaTagComponent>();
             sceneObj->registerComponent <StdAlphaTagComponent>();
             sceneObj->registerComponent <WireTagComponent>();
             sceneObj->registerComponent <SkyBoxTagComponent>();
@@ -123,7 +123,7 @@ namespace SandBox {
 
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <RenderComponent>());
-                systemSignature.set (sceneObj->getComponentType <StdTagComponent>());
+                systemSignature.set (sceneObj->getComponentType <StdNoAlphaTagComponent>());
 
                 sceneObj->setSystemSignature <SYShadowRendering> (systemSignature);
             }
@@ -132,7 +132,7 @@ namespace SandBox {
 
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <RenderComponent>());
-                systemSignature.set (sceneObj->getComponentType <StdTagComponent>());
+                systemSignature.set (sceneObj->getComponentType <StdNoAlphaTagComponent>());
 
                 sceneObj->setSystemSignature <SYShadowCubeRendering> (systemSignature);
             }
@@ -141,7 +141,7 @@ namespace SandBox {
 
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <RenderComponent>());
-                systemSignature.set (sceneObj->getComponentType <StdTagComponent>());
+                systemSignature.set (sceneObj->getComponentType <StdNoAlphaTagComponent>());
 
                 sceneObj->setSystemSignature <SYGDefaultRendering> (systemSignature);
             }
@@ -205,7 +205,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "DEBUG_CUBE_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -221,7 +221,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -237,7 +237,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "DEBUG_SPHERE_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -256,7 +256,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -301,7 +301,7 @@ namespace SandBox {
             auto entity = sceneObj->addEntity();
             sceneObj->addComponent (entity, MetaComponent (
                 "GROUND_PLANE",
-                TAG_TYPE_STD
+                TAG_TYPE_STD_NO_ALPHA
             ));
             sceneObj->addComponent (entity, MeshComponent (
                 "Asset/Model/Ground_Plane.obj",
@@ -310,7 +310,7 @@ namespace SandBox {
             sceneObj->addComponent (entity, TransformComponent());
             sceneObj->addComponent (entity, TextureIdxOffsetComponent());
             sceneObj->addComponent (entity, RenderComponent());
-            sceneObj->addComponent (entity, StdTagComponent());
+            sceneObj->addComponent (entity, StdNoAlphaTagComponent());
             /* No children */
             entityFamilyInfoPool[entity] = {};
         }
@@ -318,7 +318,7 @@ namespace SandBox {
             auto entity = sceneObj->addEntity();
             sceneObj->addComponent (entity, MetaComponent (
                 "CHASSIS",
-                TAG_TYPE_STD
+                TAG_TYPE_STD_NO_ALPHA
             ));
             sceneObj->addComponent (entity, MeshComponent (
                 "Asset/Model/Chassis.obj",
@@ -330,7 +330,7 @@ namespace SandBox {
             ));
             sceneObj->addComponent (entity, TextureIdxOffsetComponent());
             sceneObj->addComponent (entity, RenderComponent());
-            sceneObj->addComponent (entity, StdTagComponent());
+            sceneObj->addComponent (entity, StdNoAlphaTagComponent());
             /* No children */
             entityFamilyInfoPool[entity] = {};
         }
@@ -347,7 +347,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "TIRE_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -366,7 +366,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -383,7 +383,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "LOW_RAMP_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -402,7 +402,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -418,7 +418,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "MED_RAMP_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -437,7 +437,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -453,7 +453,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "HIGH_RAMP_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -472,7 +472,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -488,7 +488,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "SPEED_BUMP_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -507,7 +507,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);
@@ -548,7 +548,7 @@ namespace SandBox {
 
                 sceneObj->addComponent (entity, MetaComponent (
                     "TRAFFIC_CONE_" + std::to_string (i),
-                    TAG_TYPE_STD
+                    TAG_TYPE_STD_NO_ALPHA
                 ));
                 sceneObj->addComponent (entity, TransformComponent (
                     instanceTransforms[i].first,
@@ -567,7 +567,7 @@ namespace SandBox {
                     sceneObj->addComponent (entity, RenderComponent (
                         static_cast <uint32_t> (instanceTransforms.size())
                     ));
-                    sceneObj->addComponent (entity, StdTagComponent());
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
                 }
                 else
                     entityFamilyInfoPool[parentEntity].push_back (entity);

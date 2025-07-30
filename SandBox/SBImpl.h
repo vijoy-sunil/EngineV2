@@ -194,7 +194,7 @@ namespace SandBox {
                             for (uint32_t i = 0; i < otherLightsCount; i++) {
                                 shadowRenderingObj->update (
                                     static_cast <uint32_t> (activeLightIdx),
-                                    stdMeshInstanceBatchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD).data(),
+                                    stdMeshInstanceBatchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD_NO_ALPHA).data(),
                                     &lightInstanceBatchingObj->getBatchedActiveLights()[activeLightIdx]
                                 );
                                 ++activeLightIdx;
@@ -203,7 +203,7 @@ namespace SandBox {
                             for (uint32_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++) {
                                 shadowCubeRenderingObj->update (
                                     static_cast <uint32_t> (activeLightIdx),
-                                    stdMeshInstanceBatchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD).data(),
+                                    stdMeshInstanceBatchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD_NO_ALPHA).data(),
                                     &lightInstanceBatchingObj->getBatchedActiveLights()[activeLightIdx]
                                 );
                                 ++activeLightIdx;
@@ -212,7 +212,7 @@ namespace SandBox {
                         }
                         {   /* G pass */
                             gDefaultRenderingObj->update (
-                                stdMeshInstanceBatchingObj->getBatchedMeshInstances (TAG_TYPE_STD).data(),
+                                stdMeshInstanceBatchingObj->getBatchedMeshInstances (TAG_TYPE_STD_NO_ALPHA).data(),
                                 cameraControllerObj->getActiveCamera()
                             );
                         }
