@@ -4,3 +4,7 @@
 [submodule "Dependency/tinyobjloader"]
 	path = Dependency/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
+[submodule "Dependency/imgui"]
+	path = Dependency/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
