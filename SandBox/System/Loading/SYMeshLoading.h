@@ -1,10 +1,10 @@
 #pragma once
 #define TINYOBJLOADER_IMPLEMENTATION
+#include <tinyobjloader/tiny_obj_loader.h>
 #include "../../../Backend/Common.h"
 #include "../../../Backend/Scene/SNSystemBase.h"
 #include "../../../Backend/Scene/SNImpl.h"
 #include "../../../Backend/Log/LGImpl.h"
-#include "../../../Dependency/tinyobjloader/tiny_obj_loader.h"
 #include "../../SBTexturePool.h"
 #include "../../SBComponentType.h"
 #include "../../SBRendererType.h"

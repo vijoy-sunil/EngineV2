@@ -1,8 +1,8 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 #include "../Backend/Common.h"
 #include "../Backend/Log/LGImpl.h"
-#include "../Dependency/stb/stb_image.h"
 
 namespace SandBox {
     class SBTexturePool {
