@@ -8,3 +8,9 @@
 	path = Dependency/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
+[submodule "Dependency/implot"]
+	path = Dependency/implot
+	url = https://github.com/epezent/implot.git
+[submodule "Dependency/IconFontCppHeaders"]
+	path = Dependency/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders.git
