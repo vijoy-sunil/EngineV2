@@ -42,6 +42,10 @@ namespace Scene {
             }
 
             /* Entity methods */
+            Signature getEntitySignature (const Entity entity) {
+                return m_sceneInfo.resource.entityMgrObj->getEntitySignature (entity);
+            }
+
             Entity addEntity (void) {
                 return m_sceneInfo.resource.entityMgrObj->addEntity();
             }

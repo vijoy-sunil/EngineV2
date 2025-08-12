@@ -190,6 +190,13 @@ namespace Renderer {
                 m_windowInfo.resource.scrollOffsetBinding   = nullptr;
             }
 
+            VkExtent2D getWindowExtent (void) {
+                return {
+                    static_cast <uint32_t> (m_windowInfo.meta.width),
+                    static_cast <uint32_t> (m_windowInfo.meta.height)
+                };
+            }
+
             bool isWindowResized (void) {
                 return m_windowInfo.state.resized;
             }

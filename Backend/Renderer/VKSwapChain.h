@@ -13,6 +13,7 @@ namespace Renderer {
         private:
             struct SwapChainInfo {
                 struct Meta {
+                    uint32_t minImages;
                     uint32_t imagesCount;
                     VkExtent2D extent;
                     VkImageUsageFlags usages;
@@ -43,7 +44,7 @@ namespace Renderer {
                 return capabilities;
             }
 
-            uint32_t getSwapChainMinImagesCount (void) {
+            uint32_t getSwapChainMinImagesEXT (void) {
                 auto capabilities = getSurfaceCapabilities();
                 /* The implementation specifies the minimum number of images that the swap chain requires to function. But
                  * simply sticking to this minimum means that the application may sometimes have to wait on the driver to
@@ -53,11 +54,11 @@ namespace Renderer {
                  * Note that, we only specified the minimum number of images in the swap chain, so the implementation is
                  * allowed to create a swap chain with more
                 */
-                uint32_t minImagesCount = capabilities.minImageCount + 1;
-                if (capabilities.maxImageCount > 0 && minImagesCount > capabilities.maxImageCount)
-                    minImagesCount = capabilities.maxImageCount;
+                uint32_t minImages = capabilities.minImageCount + 1;
+                if (capabilities.maxImageCount > 0 && minImages > capabilities.maxImageCount)
+                    minImages = capabilities.maxImageCount;
 
-                return minImagesCount;
+                return minImages;
             }
 
             /* The extent is the resolution of the swap chain images and it's almost always exactly equal to the
@@ -198,7 +199,7 @@ namespace Renderer {
                 createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
                 createInfo.pNext                     = nullptr;
                 createInfo.flags                     = 0;
-                createInfo.minImageCount             = getSwapChainMinImagesCount();
+                createInfo.minImageCount             = m_swapChainInfo.meta.minImages;
                 createInfo.imageArrayLayers          = 1;
                 createInfo.imageExtent               = m_swapChainInfo.meta.extent;
                 createInfo.imageUsage                = m_swapChainInfo.meta.usages;
@@ -293,6 +294,7 @@ namespace Renderer {
                                     const VkPresentModeKHR presentMode,
                                     const std::vector <uint32_t> queueFamilyIndices) {
 
+                m_swapChainInfo.meta.minImages                    = getSwapChainMinImagesEXT();
                 m_swapChainInfo.meta.imagesCount                  = 0;
                 m_swapChainInfo.meta.extent                       = getSwapChainExtentEXT();
                 m_swapChainInfo.meta.usages                       = imageUsages;
@@ -318,6 +320,10 @@ namespace Renderer {
 
                 m_swapChainInfo.meta.queueFamilyIndices           = queueFamilyIndices;
                 m_swapChainInfo.resource.swapChain                = nullptr;
+            }
+
+            uint32_t getSwapChainMinImages (void) {
+                return m_swapChainInfo.meta.minImages;
             }
 
             uint32_t getSwapChainImagesCount (void) {
