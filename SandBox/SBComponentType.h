@@ -262,7 +262,6 @@ namespace SandBox {
     struct CameraComponent {
         public:
             e_projectionType m_projectionType = PROJECTION_TYPE_PERSPECTIVE;
-            bool m_active                     = true;
             float m_fov                       = glm::radians (60.0f);
             float m_nearPlane                 =  0.01f;
             float m_farPlane                  = 100.0f;
@@ -270,13 +269,11 @@ namespace SandBox {
 
             CameraComponent (void) = default;
             CameraComponent (const e_projectionType projectionType,
-                             const bool active,
                              const float fov,
                              const float nearPlane,
                              const float farPlane) {
 
                 m_projectionType = projectionType;
-                m_active         = active;
                 m_fov            = fov;
                 m_nearPlane      = nearPlane;
                 m_farPlane       = farPlane;
@@ -385,10 +382,10 @@ namespace SandBox {
                 updateLocalAxes();
             }
 
-            glm::mat4 createModelMatrix (void) {
-                return glm::translate (glm::mat4 (1.0f), m_position) *
-                       glm::mat4_cast (m_orientation)                *
-                       glm::scale     (glm::mat4 (1.0f), m_scale);
+            glm::mat4 createModelMatrix (const bool unitScale = false) {
+                return glm::translate   (glm::mat4 (1.0f), m_position) *
+                       glm::mat4_cast   (m_orientation)                *
+                       glm::scale       (glm::mat4 (1.0f), unitScale ? glm::vec3 (1.0f): m_scale);
             }
     };
 

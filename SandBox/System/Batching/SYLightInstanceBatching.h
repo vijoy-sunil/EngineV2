@@ -181,7 +181,7 @@ namespace SandBox {
                     activeLight.projectionMatrix = lightComponent->createProjectionMatrix (aspectRatio);
 
                     if (lightType != LIGHT_TYPE_POINT) {
-                        activeLight.viewMatrix   = glm::inverse (transformComponent->createModelMatrix());
+                        activeLight.viewMatrix   = glm::inverse (transformComponent->createModelMatrix (true));
                         meta.activeLights.push_back (activeLight);
                     }
                     else { for (uint32_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++) {
