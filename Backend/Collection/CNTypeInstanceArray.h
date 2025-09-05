@@ -44,10 +44,11 @@ namespace Collection {
             }
 
             void initTypeInstanceArrayInfo (void) {
-                m_typeInstanceArrayInfo.meta.array              = {};
-                m_typeInstanceArrayInfo.meta.instanceIdToIdxMap = {};
-                m_typeInstanceArrayInfo.meta.idxToInstanceIdMap = {};
-                m_typeInstanceArrayInfo.meta.nextAvailableIdx   = 0;
+                auto& meta              = m_typeInstanceArrayInfo.meta;
+                meta.array              = {};
+                meta.instanceIdToIdxMap = {};
+                meta.idxToInstanceIdMap = {};
+                meta.nextAvailableIdx   = 0;
             }
 
             std::array <CNTypeInstanceBase*, g_maxTypeInstances>& getCollectionTypeInstanceArray (void) {
@@ -110,14 +111,14 @@ namespace Collection {
             }
 
             void generateReport (void) {
-                auto& meta   = m_typeInstanceArrayInfo.meta;
-                auto& logObj = m_typeInstanceArrayInfo.resource.logObj;
+                auto& idxToInstanceIdMap = m_typeInstanceArrayInfo.meta.idxToInstanceIdMap;
+                auto& logObj             = m_typeInstanceArrayInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "[" << std::endl;
                 for (uint32_t i = 0; i < g_maxTypeInstances; i++) {
-                    if (meta.idxToInstanceIdMap.find (i) != meta.idxToInstanceIdMap.end()) {
+                    if (idxToInstanceIdMap.find (i) != idxToInstanceIdMap.end()) {
                         LOG_LITE_INFO (logObj) << "\t\t";
-                        LOG_LITE_INFO (logObj) << meta.idxToInstanceIdMap[i] << std::endl;
+                        LOG_LITE_INFO (logObj) << idxToInstanceIdMap[i] << std::endl;
                     }
                 }
                 LOG_LITE_INFO (logObj) << "\t" << "]" << std::endl;

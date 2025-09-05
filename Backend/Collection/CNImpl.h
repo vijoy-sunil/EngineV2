@@ -9,7 +9,7 @@ namespace Collection {
         private:
             struct CollectionInfo {
                 struct Meta {
-                    std::unordered_map <const char*, CNTypeInstanceArray*> types;
+                    std::unordered_map <const char*, CNTypeInstanceArray*> typeNameToInstanceArrayObjMap;
                 } meta;
 
                 struct Resource {
@@ -30,38 +30,41 @@ namespace Collection {
             }
 
             void initCollectionInfo (void) {
-                m_collectionInfo.meta.types = {};
+                m_collectionInfo.meta.typeNameToInstanceArrayObjMap = {};
             }
 
             template <typename T>
             void registerCollectionType (void) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_collectionInfo.meta;
-                if (meta.types.find (typeName) != meta.types.end()) {
-                    LOG_ERROR (m_collectionInfo.resource.logObj) << "Collection type already registered"
-                                                                 << " "
-                                                                 << "[" << typeName << "]"
-                                                                 << std::endl;
+                const char* typeName                = typeid (T).name();
+                auto& typeNameToInstanceArrayObjMap = m_collectionInfo.meta.typeNameToInstanceArrayObjMap;
+                auto& logObj                        = m_collectionInfo.resource.logObj;
+
+                if (typeNameToInstanceArrayObjMap.find (typeName) != typeNameToInstanceArrayObjMap.end()) {
+                    LOG_ERROR (logObj) << "Collection type already registered"
+                                       << " "
+                                       << "[" << typeName << "]"
+                                       << std::endl;
                     throw std::runtime_error ("Collection type already registered");
                 }
-                auto instanceArrayObj = new CNTypeInstanceArray (m_collectionInfo.resource.logObj);
+                auto instanceArrayObj = new CNTypeInstanceArray (logObj);
                 instanceArrayObj->initTypeInstanceArrayInfo();
 
-                meta.types.insert ({typeName, instanceArrayObj});
+                typeNameToInstanceArrayObjMap.insert ({typeName, instanceArrayObj});
             }
 
             template <typename T>
             void addCollectionTypeInstance (const std::string instanceId, CNTypeInstanceBase* instanceBaseObj) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_collectionInfo.meta;
-                if (meta.types.find (typeName) == meta.types.end()) {
+                const char* typeName                = typeid (T).name();
+                auto& typeNameToInstanceArrayObjMap = m_collectionInfo.meta.typeNameToInstanceArrayObjMap;
+
+                if (typeNameToInstanceArrayObjMap.find (typeName) == typeNameToInstanceArrayObjMap.end()) {
                     LOG_ERROR (m_collectionInfo.resource.logObj) << "Collection type not registered before use"
                                                                  << " "
                                                                  << "[" << typeName << "]"
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                auto instanceArrayObj = meta.types[typeName];
+                auto instanceArrayObj = typeNameToInstanceArrayObjMap[typeName];
                 instanceArrayObj->addCollectionTypeInstance (instanceId, instanceBaseObj);
                 /* Run on attach */
                 instanceBaseObj->onAttach();
@@ -69,16 +72,17 @@ namespace Collection {
 
             template <typename T>
             void removeCollectionTypeInstance (const std::string instanceId) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_collectionInfo.meta;
-                if (meta.types.find (typeName) == meta.types.end()) {
+                const char* typeName                = typeid (T).name();
+                auto& typeNameToInstanceArrayObjMap = m_collectionInfo.meta.typeNameToInstanceArrayObjMap;
+
+                if (typeNameToInstanceArrayObjMap.find (typeName) == typeNameToInstanceArrayObjMap.end()) {
                     LOG_ERROR (m_collectionInfo.resource.logObj) << "Collection type not registered before use"
                                                                  << " "
                                                                  << "[" << typeName << "]"
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                auto instanceArrayObj = meta.types[typeName];
+                auto instanceArrayObj = typeNameToInstanceArrayObjMap[typeName];
                 auto instanceBaseObj  = instanceArrayObj->removeCollectionTypeInstance (instanceId);
                 /* Run on detach */
                 instanceBaseObj->onDetach();
@@ -90,16 +94,17 @@ namespace Collection {
 
             template <typename T>
             T* getCollectionTypeInstance (const std::string instanceId) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_collectionInfo.meta;
-                if (meta.types.find (typeName) == meta.types.end()) {
+                const char* typeName                = typeid (T).name();
+                auto& typeNameToInstanceArrayObjMap = m_collectionInfo.meta.typeNameToInstanceArrayObjMap;
+
+                if (typeNameToInstanceArrayObjMap.find (typeName) == typeNameToInstanceArrayObjMap.end()) {
                     LOG_ERROR (m_collectionInfo.resource.logObj) << "Collection type not registered before use"
                                                                  << " "
                                                                  << "[" << typeName << "]"
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                auto instanceArrayObj = meta.types[typeName];
+                auto instanceArrayObj = typeNameToInstanceArrayObjMap[typeName];
                 auto instanceBaseObj  = instanceArrayObj->getCollectionTypeInstance (instanceId);
 
                 return static_cast <T*> (instanceBaseObj);
@@ -107,18 +112,19 @@ namespace Collection {
 
             template <typename T>
             void updateCollectionType (void) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_collectionInfo.meta;
-                if (meta.types.find (typeName) == meta.types.end()) {
+                const char* typeName                = typeid (T).name();
+                auto& typeNameToInstanceArrayObjMap = m_collectionInfo.meta.typeNameToInstanceArrayObjMap;
+
+                if (typeNameToInstanceArrayObjMap.find (typeName) == typeNameToInstanceArrayObjMap.end()) {
                     LOG_ERROR (m_collectionInfo.resource.logObj) << "Collection type not registered before use"
                                                                  << " "
                                                                  << "[" << typeName << "]"
                                                                  << std::endl;
                     throw std::runtime_error ("Collection type not registered before use");
                 }
-                /* Run on update */
-                auto instanceArrayObj = meta.types[typeName];
+                auto instanceArrayObj = typeNameToInstanceArrayObjMap[typeName];
                 auto instanceArray    = instanceArrayObj->getCollectionTypeInstanceArray();
+                /* Run on update */
                 for (auto const& instanceBaseObj: instanceArray) {
                     if (instanceBaseObj != nullptr)
                         instanceBaseObj->onUpdate();
@@ -129,7 +135,7 @@ namespace Collection {
                 auto& logObj = m_collectionInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj)     << "{"      << std::endl;
-                for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.types) {
+                for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.typeNameToInstanceArrayObjMap) {
                     LOG_LITE_INFO (logObj) << "\t";
                     LOG_LITE_INFO (logObj) << typeName << std::endl;
                     instanceArrayObj->generateReport();
@@ -140,7 +146,7 @@ namespace Collection {
             ~CNImpl (void) {
                 delete m_collectionInfo.resource.logObj;
 
-                for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.types)
+                for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.typeNameToInstanceArrayObjMap)
                     delete instanceArrayObj;
             }
     };
