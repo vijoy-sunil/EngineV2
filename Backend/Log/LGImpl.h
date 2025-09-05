@@ -4,9 +4,9 @@
 
 /* 1-line log macros */
 #define LOG_LITE(obj, level)            obj->getReference()                                     \
-                                            << obj->updateActiveSinkTypes (level)
+                                            << obj->updateActiveSinkType (level)
 #define LOG(obj, level)                 obj->getReference()                                     \
-                                            << obj->updateActiveSinkTypes (level)               \
+                                            << obj->updateActiveSinkType (level)                \
                                             << "[" << obj->getTimeStamp()             << "]"    \
                                             << " "                                              \
                                             << "[" << obj->getLevelTypeString (level) << "]"    \
@@ -54,14 +54,14 @@ namespace Log {
         private:
             struct LogInfo {
                 struct Meta {
-                    std::unordered_map <e_levelType, e_sinkType> configs;
+                    std::unordered_map <e_levelType, e_sinkType> levelTypeToSinkTypeMap;
                     std::string saveFileDirPath;
                     std::string saveFileName;
                     const char* saveFileExtension;
                 } meta;
 
                 struct State {
-                    e_sinkType activeSinkTypes;
+                    e_sinkType activeSinkType;
                 } state;
 
                 struct Resource {
@@ -81,20 +81,21 @@ namespace Log {
                               std::string saveFileName,
                               const char* saveFileExtension = ".log") {
 
+                auto& meta        = m_logInfo.meta;
                 /* If we are using __FILE__ as save file name, strip path and extension to get just its name */
                 size_t stripStart = saveFileName.find_last_of ("\\/") + 1;
                 size_t stripEnd   = saveFileName.find_last_of ('.');
                 saveFileName      = saveFileName.substr (stripStart, stripEnd - stripStart);
 
                 /* Default log configs */
-                m_logInfo.meta.configs[LEVEL_TYPE_INFO]    = SINK_TYPE_CONSOLE;
-                m_logInfo.meta.configs[LEVEL_TYPE_WARNING] = SINK_TYPE_CONSOLE;
-                m_logInfo.meta.configs[LEVEL_TYPE_ERROR]   = SINK_TYPE_CONSOLE;
+                meta.levelTypeToSinkTypeMap[LEVEL_TYPE_INFO]    = SINK_TYPE_CONSOLE;
+                meta.levelTypeToSinkTypeMap[LEVEL_TYPE_WARNING] = SINK_TYPE_CONSOLE;
+                meta.levelTypeToSinkTypeMap[LEVEL_TYPE_ERROR]   = SINK_TYPE_CONSOLE;
 
-                m_logInfo.meta.saveFileDirPath             = saveFileDirPath;
-                m_logInfo.meta.saveFileName                = saveFileName;
-                m_logInfo.meta.saveFileExtension           = saveFileExtension;
-                m_logInfo.state.activeSinkTypes            = SINK_TYPE_NONE;
+                meta.saveFileDirPath                            = saveFileDirPath;
+                meta.saveFileName                               = saveFileName;
+                meta.saveFileExtension                          = saveFileExtension;
+                m_logInfo.state.activeSinkType                  = SINK_TYPE_NONE;
             }
 
             LGImpl& getReference (void) {
@@ -102,11 +103,11 @@ namespace Log {
             }
 
             void updateLogConfig (const e_levelType levelType, const e_sinkType sinkType) {
-                m_logInfo.meta.configs[levelType] = sinkType;
+                m_logInfo.meta.levelTypeToSinkTypeMap[levelType] = sinkType;
             }
 
-            const char* updateActiveSinkTypes (const e_levelType levelType) {
-                m_logInfo.state.activeSinkTypes = m_logInfo.meta.configs[levelType];
+            const char* updateActiveSinkType (const e_levelType levelType) {
+                m_logInfo.state.activeSinkType = m_logInfo.meta.levelTypeToSinkTypeMap[levelType];
                 return "";
             }
 
@@ -132,29 +133,37 @@ namespace Log {
             */
             template <typename T>
             LGImpl& operator << (const T& data) {
-                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_CONSOLE)
+                auto& meta           = m_logInfo.meta;
+                auto& activeSinkType = m_logInfo.state.activeSinkType;
+                auto& file           = m_logInfo.resource.file;
+
+                if (activeSinkType & SINK_TYPE_CONSOLE)
                     std::cout << data;
 
-                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_FILE) {
-                    m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
-                                                  m_logInfo.meta.saveFileName    +
-                                                  m_logInfo.meta.saveFileExtension, std::ios::app);
-                    m_logInfo.resource.file << data;
-                    m_logInfo.resource.file.close();
+                if (activeSinkType & SINK_TYPE_FILE) {
+                    file.open (meta.saveFileDirPath + "/" +
+                               meta.saveFileName    +
+                               meta.saveFileExtension, std::ios::app);
+                    file << data;
+                    file.close();
                 }
                 return *this;
             }
 
             LGImpl& operator << (EndlType endl) {
-                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_CONSOLE)
+                auto& meta           = m_logInfo.meta;
+                auto& activeSinkType = m_logInfo.state.activeSinkType;
+                auto& file           = m_logInfo.resource.file;
+
+                if (activeSinkType & SINK_TYPE_CONSOLE)
                     std::cout << endl;
 
-                if (m_logInfo.state.activeSinkTypes & SINK_TYPE_FILE) {
-                    m_logInfo.resource.file.open (m_logInfo.meta.saveFileDirPath + "/" +
-                                                  m_logInfo.meta.saveFileName    +
-                                                  m_logInfo.meta.saveFileExtension, std::ios::app);
-                    m_logInfo.resource.file << endl;
-                    m_logInfo.resource.file.close();
+                if (activeSinkType & SINK_TYPE_FILE) {
+                    file.open (meta.saveFileDirPath + "/" +
+                               meta.saveFileName    +
+                               meta.saveFileExtension, std::ios::app);
+                    file << endl;
+                    file.close();
                 }
                 return *this;
             }
