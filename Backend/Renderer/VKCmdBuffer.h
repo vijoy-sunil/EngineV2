@@ -27,26 +27,29 @@ namespace Renderer {
             } m_cmdBufferInfo;
 
             void createCmdBuffers (void) {
+                auto& meta                   = m_cmdBufferInfo.meta;
+                auto& resource               = m_cmdBufferInfo.resource;
+
                 VkCommandBufferAllocateInfo allocInfo;
                 allocInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocInfo.pNext              = nullptr;
-                allocInfo.commandBufferCount = m_cmdBufferInfo.meta.buffersCount;
-                allocInfo.level              = m_cmdBufferInfo.meta.bufferLevel;
-                allocInfo.commandPool        = *m_cmdBufferInfo.resource.cmdPoolObj->getCmdPool();
+                allocInfo.commandBufferCount = meta.buffersCount;
+                allocInfo.level              = meta.bufferLevel;
+                allocInfo.commandPool        = *resource.cmdPoolObj->getCmdPool();
 
-                m_cmdBufferInfo.resource.buffers.resize (m_cmdBufferInfo.meta.buffersCount);
-                auto result = vkAllocateCommandBuffers  (*m_cmdBufferInfo.resource.logDeviceObj->getLogDevice(),
-                                                          &allocInfo,
-                                                          m_cmdBufferInfo.resource.buffers.data());
+                resource.buffers.resize (meta.buffersCount);
+                auto result = vkAllocateCommandBuffers (*resource.logDeviceObj->getLogDevice(),
+                                                         &allocInfo,
+                                                         resource.buffers.data());
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_cmdBufferInfo.resource.logObj) << "[?] Cmd buffer(s)"
-                                                                << " "
-                                                                << "[" << string_VkResult (result) << "]"
-                                                                << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Cmd buffer(s)"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Cmd buffer(s)");
                 }
-                LOG_INFO (m_cmdBufferInfo.resource.logObj)      << "[O] Cmd buffer(s)"
-                                                                << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Cmd buffer(s)"
+                                                << std::endl;
             }
 
             void destroyCmdBuffers (void) {
@@ -86,9 +89,10 @@ namespace Renderer {
             void initCmdBufferInfo (const uint32_t cmdBuffersCount,
                                     const VkCommandBufferLevel cmdBufferLevel) {
 
-                m_cmdBufferInfo.meta.buffersCount = cmdBuffersCount;
-                m_cmdBufferInfo.meta.bufferLevel  = cmdBufferLevel;
-                m_cmdBufferInfo.resource.buffers  = {};
+                auto& meta                       = m_cmdBufferInfo.meta;
+                meta.buffersCount                = cmdBuffersCount;
+                meta.bufferLevel                 = cmdBufferLevel;
+                m_cmdBufferInfo.resource.buffers = {};
             }
 
             std::vector <VkCommandBuffer>& getCmdBuffers (void) {

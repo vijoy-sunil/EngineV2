@@ -28,15 +28,17 @@ namespace Renderer {
             } m_logDeviceInfo;
 
             void createLogDevice (void) {
-                auto validationLayers          = m_logDeviceInfo.resource.instanceObj->getValidationLayers();
-                bool validationLayersDisabled  = m_logDeviceInfo.resource.instanceObj->isValidationLayersDisabled();
-                bool validationLayersSupported = m_logDeviceInfo.resource.instanceObj->isValidationLayersSupported();
-                auto deviceExtensions          = m_logDeviceInfo.resource.phyDeviceObj->getDeviceExtensions();
+                auto& meta                     = m_logDeviceInfo.meta;
+                auto& resource                 = m_logDeviceInfo.resource;
+                auto validationLayers          = resource.instanceObj->getValidationLayers();
+                bool validationLayersDisabled  = resource.instanceObj->isValidationLayersDisabled();
+                bool validationLayersSupported = resource.instanceObj->isValidationLayersSupported();
+                auto deviceExtensions          = resource.phyDeviceObj->getDeviceExtensions();
                 auto queueCreateInfos          = std::vector <VkDeviceQueueCreateInfo> {};
                 auto queueFamilyIndices        = std::set <uint32_t> {
-                    m_logDeviceInfo.resource.phyDeviceObj->getGraphicsQueueFamilyIdx(),
-                    m_logDeviceInfo.resource.phyDeviceObj->getPresentQueueFamilyIdx(),
-                    m_logDeviceInfo.resource.phyDeviceObj->getTransferQueueFamilyIdx()
+                    resource.phyDeviceObj->getGraphicsQueueFamilyIdx(),
+                    resource.phyDeviceObj->getPresentQueueFamilyIdx(),
+                    resource.phyDeviceObj->getTransferQueueFamilyIdx()
                 };
                 /* Assign priorities to queues to influence the scheduling of command buffer execution using floating
                  * point numbers between 0.0 and 1.0. This is required even if there is only a single queue
@@ -73,65 +75,66 @@ namespace Renderer {
                 createInfo.ppEnabledLayerNames     = nullptr;
 
                 if (!validationLayersDisabled && !validationLayersSupported)
-                    LOG_WARNING (m_logDeviceInfo.resource.logObj) << "Required validation layers not available"
-                                                                  << std::endl;
+                    LOG_WARNING (resource.logObj) << "Required validation layers not available"
+                                                  << std::endl;
                 else if (!validationLayersDisabled) {
                     createInfo.enabledLayerCount   = static_cast <uint32_t> (validationLayers.size());
                     createInfo.ppEnabledLayerNames = validationLayers.data();
                 }
 
                 /* Specify set of device features that we'll be using */
-                VkPhysicalDeviceFeatures features{};
-                features.samplerAnisotropy         = VK_TRUE;
-                features.sampleRateShading         = VK_TRUE;
-                features.fillModeNonSolid          = VK_TRUE;
+                VkPhysicalDeviceFeatures features = {};
+                features.samplerAnisotropy        = VK_TRUE;
+                features.sampleRateShading        = VK_TRUE;
+                features.fillModeNonSolid         = VK_TRUE;
 
-                VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures{};
-                descriptorIndexingFeatures.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-                descriptorIndexingFeatures.pNext   = nullptr;
+                VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures = {};
+                descriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+                descriptorIndexingFeatures.pNext = nullptr;
                 descriptorIndexingFeatures.runtimeDescriptorArray                       = VK_TRUE;
                 descriptorIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
 
                 VkPhysicalDeviceFeatures2 features2;
-                features2.sType                    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-                features2.pNext                    = &descriptorIndexingFeatures;
-                features2.features                 = features;
+                features2.sType    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+                features2.pNext    = &descriptorIndexingFeatures;
+                features2.features = features;
 
-                createInfo.pNext                   = &features2;
+                createInfo.pNext   = &features2;
 
-                auto result = vkCreateDevice (*m_logDeviceInfo.resource.phyDeviceObj->getPhyDevice(),
+                auto result = vkCreateDevice (*resource.phyDeviceObj->getPhyDevice(),
                                                &createInfo,
                                                nullptr,
-                                               &m_logDeviceInfo.resource.device);
+                                               &resource.device);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_logDeviceInfo.resource.logObj) << "[?] Log device"
-                                                                << " "
-                                                                << "[" << string_VkResult (result) << "]"
-                                                                << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Log device"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Log device");
                 }
-                LOG_INFO (m_logDeviceInfo.resource.logObj)      << "[O] Log device"
-                                                                << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Log device"
+                                                << std::endl;
 
                 /* Create queues */
-                vkGetDeviceQueue (m_logDeviceInfo.resource.device,
-                                  m_logDeviceInfo.resource.phyDeviceObj->getGraphicsQueueFamilyIdx(),
+                vkGetDeviceQueue (resource.device,
+                                  resource.phyDeviceObj->getGraphicsQueueFamilyIdx(),
                                   0,
-                                  &m_logDeviceInfo.meta.graphicsQueue);
-                vkGetDeviceQueue (m_logDeviceInfo.resource.device,
-                                  m_logDeviceInfo.resource.phyDeviceObj->getPresentQueueFamilyIdx(),
+                                  &meta.graphicsQueue);
+                vkGetDeviceQueue (resource.device,
+                                  resource.phyDeviceObj->getPresentQueueFamilyIdx(),
                                   0,
-                                  &m_logDeviceInfo.meta.presentQueue);
-                vkGetDeviceQueue (m_logDeviceInfo.resource.device,
-                                  m_logDeviceInfo.resource.phyDeviceObj->getTransferQueueFamilyIdx(),
+                                  &meta.presentQueue);
+                vkGetDeviceQueue (resource.device,
+                                  resource.phyDeviceObj->getTransferQueueFamilyIdx(),
                                   0,
-                                  &m_logDeviceInfo.meta.transferQueue);
+                                  &meta.transferQueue);
             }
 
             void destroyLogDevice (void) {
-                vkDestroyDevice (m_logDeviceInfo.resource.device, nullptr);
-                LOG_INFO (m_logDeviceInfo.resource.logObj) << "[X] Log device"
-                                                           << std::endl;
+                auto& resource = m_logDeviceInfo.resource;
+                vkDestroyDevice (resource.device, nullptr);
+                LOG_INFO (resource.logObj) << "[X] Log device"
+                                           << std::endl;
             }
 
         public:
@@ -164,10 +167,11 @@ namespace Renderer {
             }
 
             void initLogDeviceInfo (void) {
-                m_logDeviceInfo.meta.graphicsQueue = nullptr;
-                m_logDeviceInfo.meta.presentQueue  = nullptr;
-                m_logDeviceInfo.meta.transferQueue = nullptr;
-                m_logDeviceInfo.resource.device    = nullptr;
+                auto& meta                      = m_logDeviceInfo.meta;
+                meta.graphicsQueue              = nullptr;
+                meta.presentQueue               = nullptr;
+                meta.transferQueue              = nullptr;
+                m_logDeviceInfo.resource.device = nullptr;
             }
 
             VkQueue* getGraphicsQueue (void) {

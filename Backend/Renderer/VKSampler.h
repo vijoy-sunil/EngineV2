@@ -32,52 +32,57 @@ namespace Renderer {
             } m_samplerInfo;
 
             void createSampler (void) {
+                auto& meta                         = m_samplerInfo.meta;
+                auto& anisotropyDisabled           = m_samplerInfo.state.anisotropyDisabled;
+                auto& resource                     = m_samplerInfo.resource;
+
                 VkSamplerCreateInfo createInfo;
                 createInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
                 createInfo.pNext                   = nullptr;
                 createInfo.flags                   = 0;
-                createInfo.mipLodBias              = m_samplerInfo.meta.mipLodBias;
-                createInfo.minLod                  = m_samplerInfo.meta.minLod;
-                createInfo.maxLod                  = m_samplerInfo.meta.maxLod;
-                if (m_samplerInfo.state.anisotropyDisabled)
+                createInfo.mipLodBias              = meta.mipLodBias;
+                createInfo.minLod                  = meta.minLod;
+                createInfo.maxLod                  = meta.maxLod;
+                if (anisotropyDisabled)
                     createInfo.maxAnisotropy       = 1.0f;
                 else
-                    createInfo.maxAnisotropy       = m_samplerInfo.meta.maxAnisotropy;
+                    createInfo.maxAnisotropy       = meta.maxAnisotropy;
 
-                createInfo.magFilter               = m_samplerInfo.meta.filter;
-                createInfo.minFilter               = m_samplerInfo.meta.filter;
-                createInfo.addressModeU            = m_samplerInfo.meta.addressMode;
-                createInfo.addressModeV            = m_samplerInfo.meta.addressMode;
-                createInfo.addressModeW            = m_samplerInfo.meta.addressMode;
-                createInfo.mipmapMode              = m_samplerInfo.meta.mipMapMode;
-                createInfo.borderColor             = m_samplerInfo.meta.borderColor;
-                createInfo.anisotropyEnable        = !m_samplerInfo.state.anisotropyDisabled;
+                createInfo.magFilter               = meta.filter;
+                createInfo.minFilter               = meta.filter;
+                createInfo.addressModeU            = meta.addressMode;
+                createInfo.addressModeV            = meta.addressMode;
+                createInfo.addressModeW            = meta.addressMode;
+                createInfo.mipmapMode              = meta.mipMapMode;
+                createInfo.borderColor             = meta.borderColor;
+                createInfo.anisotropyEnable        = !anisotropyDisabled;
 
                 createInfo.unnormalizedCoordinates = VK_FALSE;
                 createInfo.compareEnable           = VK_FALSE;
                 createInfo.compareOp               = VK_COMPARE_OP_NEVER;
 
-                auto result = vkCreateSampler (*m_samplerInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateSampler (*resource.logDeviceObj->getLogDevice(),
                                                 &createInfo,
                                                 nullptr,
-                                                &m_samplerInfo.resource.sampler);
+                                                &resource.sampler);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_samplerInfo.resource.logObj) << "[?] Sampler"
-                                                              << " "
-                                                              << "[" << string_VkResult (result) << "]"
-                                                              << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Sampler"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Sampler");
                 }
-                LOG_INFO (m_samplerInfo.resource.logObj)      << "[O] Sampler"
-                                                              << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Sampler"
+                                                << std::endl;
             }
 
             void destroySampler (void) {
-                vkDestroySampler (*m_samplerInfo.resource.logDeviceObj->getLogDevice(),
-                                   m_samplerInfo.resource.sampler,
+                auto& resource = m_samplerInfo.resource;
+                vkDestroySampler (*resource.logDeviceObj->getLogDevice(),
+                                   resource.sampler,
                                    nullptr);
-                LOG_INFO (m_samplerInfo.resource.logObj) << "[X] Sampler"
-                                                         << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Sampler"
+                                           << std::endl;
             }
 
         public:
@@ -117,14 +122,15 @@ namespace Renderer {
                                   const VkBorderColor borderColor,
                                   const VkBool32 anisotropyDisabled) {
 
-                m_samplerInfo.meta.mipLodBias          = mipLodBias;
-                m_samplerInfo.meta.minLod              = minLod;
-                m_samplerInfo.meta.maxLod              = maxLod;
-                m_samplerInfo.meta.maxAnisotropy       = maxAnisotropy;
-                m_samplerInfo.meta.filter              = filter;
-                m_samplerInfo.meta.addressMode         = addressMode;
-                m_samplerInfo.meta.mipMapMode          = mipMapMode;
-                m_samplerInfo.meta.borderColor         = borderColor;
+                auto& meta                             = m_samplerInfo.meta;
+                meta.mipLodBias                        = mipLodBias;
+                meta.minLod                            = minLod;
+                meta.maxLod                            = maxLod;
+                meta.maxAnisotropy                     = maxAnisotropy;
+                meta.filter                            = filter;
+                meta.addressMode                       = addressMode;
+                meta.mipMapMode                        = mipMapMode;
+                meta.borderColor                       = borderColor;
                 m_samplerInfo.state.anisotropyDisabled = anisotropyDisabled;
                 m_samplerInfo.resource.sampler         = nullptr;
             }

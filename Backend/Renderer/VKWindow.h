@@ -22,7 +22,6 @@ namespace Renderer {
                     int width;
                     int height;
                     const char* title;
-                    std::unordered_map <int, KeyEventInfo> keyEventInfoPool;
                 } meta;
 
                 struct State {
@@ -38,6 +37,7 @@ namespace Renderer {
                     /* Bindings */
                     std::function <void (double, double)> cursorPositionBinding;
                     std::function <void (double, double)> scrollOffsetBinding;
+                    std::unordered_map <int, KeyEventInfo> keyToKeyEventInfoMap;
                 } resource;
             } m_windowInfo;
 
@@ -74,18 +74,20 @@ namespace Renderer {
                                                 const double xPos,
                                                 const double yPos) {
 
-                auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
-                if (thisPtr->m_windowInfo.resource.cursorPositionBinding != nullptr)
-                    thisPtr->m_windowInfo.resource.cursorPositionBinding (xPos, yPos);
+                auto thisPtr                = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
+                auto& cursorPositionBinding = thisPtr->m_windowInfo.resource.cursorPositionBinding;
+                if (cursorPositionBinding != nullptr)
+                    cursorPositionBinding (xPos, yPos);
             }
 
             static void scrollOffsetCallback (GLFWwindow* window,
                                               const double xOffset,
                                               const double yOffset) {
 
-                auto thisPtr = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
-                if (thisPtr->m_windowInfo.resource.scrollOffsetBinding != nullptr)
-                    thisPtr->m_windowInfo.resource.scrollOffsetBinding (xOffset, yOffset);
+                auto thisPtr              = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
+                auto& scrollOffsetBinding = thisPtr->m_windowInfo.resource.scrollOffsetBinding;
+                if (scrollOffsetBinding != nullptr)
+                    scrollOffsetBinding (xOffset, yOffset);
             }
 
             static void keyEventCallback (GLFWwindow* window,
@@ -97,17 +99,17 @@ namespace Renderer {
                 static_cast <void> (scanCode);
                 static_cast <void> (mods);
 
-                auto thisPtr           = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
-                auto& keyEventInfoPool = thisPtr->m_windowInfo.meta.keyEventInfoPool;
+                auto thisPtr               = reinterpret_cast <VKWindow*> (glfwGetWindowUserPointer (window));
+                auto& keyToKeyEventInfoMap = thisPtr->m_windowInfo.resource.keyToKeyEventInfoMap;
                 /* Do not save event info if the key doesn't exist in pool */
-                if (keyEventInfoPool.find (key) == keyEventInfoPool.end())
+                if (keyToKeyEventInfoMap.find (key) == keyToKeyEventInfoMap.end())
                     return;
 
-                keyEventInfoPool[key].state.action = action;
+                keyToKeyEventInfoMap[key].state.action = action;
             }
 
             void handleKeyEvents (void) {
-                for (auto& [key, info]: m_windowInfo.meta.keyEventInfoPool) {
+                for (auto& [key, info]: m_windowInfo.resource.keyToKeyEventInfoMap) {
                     if ((info.state.action == GLFW_PRESS || info.state.action == GLFW_REPEAT) &&
                         (info.resource.pressBinding != nullptr))
                          info.resource.pressBinding();
@@ -122,35 +124,39 @@ namespace Renderer {
             }
 
             void createWindow (void) {
+                auto& meta     = m_windowInfo.meta;
+                auto& resource = m_windowInfo.resource;
+
                 glfwInit();
                 glfwWindowHint (GLFW_CLIENT_API, GLFW_NO_API);
                 if (m_windowInfo.state.resizeDisabled)
                     glfwWindowHint (GLFW_RESIZABLE, GLFW_FALSE);
 
-                m_windowInfo.resource.window = glfwCreateWindow (m_windowInfo.meta.width,
-                                                                 m_windowInfo.meta.height,
-                                                                 m_windowInfo.meta.title,
-                                                                 nullptr,
-                                                                 nullptr);
+                resource.window = glfwCreateWindow (meta.width,
+                                                    meta.height,
+                                                    meta.title,
+                                                    nullptr,
+                                                    nullptr);
 
-                glfwSetWindowUserPointer       (m_windowInfo.resource.window, this);
-                glfwSetFramebufferSizeCallback (m_windowInfo.resource.window, windowResizeCallback);
-                glfwSetWindowIconifyCallback   (m_windowInfo.resource.window, windowIconifyCallback);
+                glfwSetWindowUserPointer       (resource.window, this);
+                glfwSetFramebufferSizeCallback (resource.window, windowResizeCallback);
+                glfwSetWindowIconifyCallback   (resource.window, windowIconifyCallback);
 
-                LOG_INFO (m_windowInfo.resource.logObj) << "[O] Window"
-                                                        << std::endl;
+                LOG_INFO (resource.logObj) << "[O] Window"
+                                           << std::endl;
             }
 
             void destroyWindow (void) {
+                auto& resource = m_windowInfo.resource;
                 toggleCursorPositionCallback (false);
                 toggleScrollOffsetCallback   (false);
                 toggleKeyEventCallback       (false);
 
-                glfwDestroyWindow (m_windowInfo.resource.window);
+                glfwDestroyWindow            (resource.window);
                 glfwTerminate();
 
-                LOG_INFO (m_windowInfo.resource.logObj) << "[X] Window"
-                                                        << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Window"
+                                           << std::endl;
             }
 
         public:
@@ -176,25 +182,22 @@ namespace Renderer {
                                  const char* title,
                                  const bool resizeDisabled = false) {
 
-                m_windowInfo.meta.width                     = width;
-                m_windowInfo.meta.height                    = height;
-                m_windowInfo.meta.title                     = title;
-                m_windowInfo.meta.keyEventInfoPool          = {};
+                auto& meta                     = m_windowInfo.meta;
+                auto& state                    = m_windowInfo.state;
+                auto& resource                 = m_windowInfo.resource;
 
-                m_windowInfo.state.resizeDisabled           = resizeDisabled;
-                m_windowInfo.state.resized                  = false;
-                m_windowInfo.state.iconified                = false;
+                meta.width                     = width;
+                meta.height                    = height;
+                meta.title                     = title;
 
-                m_windowInfo.resource.window                = nullptr;
-                m_windowInfo.resource.cursorPositionBinding = nullptr;
-                m_windowInfo.resource.scrollOffsetBinding   = nullptr;
-            }
+                state.resizeDisabled           = resizeDisabled;
+                state.resized                  = false;
+                state.iconified                = false;
 
-            VkExtent2D getWindowExtent (void) {
-                return {
-                    static_cast <uint32_t> (m_windowInfo.meta.width),
-                    static_cast <uint32_t> (m_windowInfo.meta.height)
-                };
+                resource.window                = nullptr;
+                resource.cursorPositionBinding = nullptr;
+                resource.scrollOffsetBinding   = nullptr;
+                resource.keyToKeyEventInfoMap  = {};
             }
 
             bool isWindowResized (void) {
@@ -218,32 +221,35 @@ namespace Renderer {
             }
 
             void toggleCursorPositionCallback (const bool val) {
+                auto& window = m_windowInfo.resource.window;
                 if (val) {
-                    glfwSetCursorPosCallback (m_windowInfo.resource.window, cursorPositionCallback);
-                    glfwSetInputMode         (m_windowInfo.resource.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    glfwSetCursorPosCallback (window, cursorPositionCallback);
+                    glfwSetInputMode         (window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 }
                 else {
-                    glfwSetCursorPosCallback (m_windowInfo.resource.window, nullptr);
-                    glfwSetInputMode         (m_windowInfo.resource.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                    glfwSetCursorPosCallback (window, nullptr);
+                    glfwSetInputMode         (window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 }
             }
 
             void toggleScrollOffsetCallback (const bool val) {
+                auto& window = m_windowInfo.resource.window;
                 if (val) {
-                    glfwSetScrollCallback (m_windowInfo.resource.window, scrollOffsetCallback);
-                    glfwSetInputMode      (m_windowInfo.resource.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    glfwSetScrollCallback (window, scrollOffsetCallback);
+                    glfwSetInputMode      (window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 }
                 else {
-                    glfwSetScrollCallback (m_windowInfo.resource.window, nullptr);
-                    glfwSetInputMode      (m_windowInfo.resource.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                    glfwSetScrollCallback (window, nullptr);
+                    glfwSetInputMode      (window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 }
             }
 
             void toggleKeyEventCallback (const bool val) {
+                auto& window = m_windowInfo.resource.window;
                 if (val)
-                    glfwSetKeyCallback (m_windowInfo.resource.window, keyEventCallback);
+                    glfwSetKeyCallback (window, keyEventCallback);
                 else
-                    glfwSetKeyCallback (m_windowInfo.resource.window, nullptr);
+                    glfwSetKeyCallback (window, nullptr);
             }
 
             void setCursorPositionBinding (const std::function <void (double, double)> binding) {
@@ -258,10 +264,10 @@ namespace Renderer {
                                      const std::function <void (void)> pressBinding,
                                      const std::function <void (void)> releaseBinding = nullptr) {
 
-                auto& keyEventInfoPool                        = m_windowInfo.meta.keyEventInfoPool;
-                keyEventInfoPool[key].state.action            = GLFW_KEY_UNKNOWN;
-                keyEventInfoPool[key].resource.pressBinding   = pressBinding;
-                keyEventInfoPool[key].resource.releaseBinding = releaseBinding;
+                auto& keyToKeyEventInfoMap                        = m_windowInfo.resource.keyToKeyEventInfoMap;
+                keyToKeyEventInfoMap[key].state.action            = GLFW_KEY_UNKNOWN;
+                keyToKeyEventInfoMap[key].resource.pressBinding   = pressBinding;
+                keyToKeyEventInfoMap[key].resource.releaseBinding = releaseBinding;
             }
 
             GLFWwindow* getWindow (void) {

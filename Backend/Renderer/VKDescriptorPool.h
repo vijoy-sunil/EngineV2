@@ -26,35 +26,39 @@ namespace Renderer {
             } m_descriptorPoolInfo;
 
             void createDescriptorPool (void) {
+                auto& meta               = m_descriptorPoolInfo.meta;
+                auto& resource           = m_descriptorPoolInfo.resource;
+
                 VkDescriptorPoolCreateInfo createInfo;
                 createInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
                 createInfo.pNext         = nullptr;
-                createInfo.flags         = m_descriptorPoolInfo.meta.createFlags;
-                createInfo.poolSizeCount = static_cast <uint32_t> (m_descriptorPoolInfo.meta.poolSizes.size());
-                createInfo.pPoolSizes    = m_descriptorPoolInfo.meta.poolSizes.data();
-                createInfo.maxSets       = m_descriptorPoolInfo.meta.maxDescriptorSets;
+                createInfo.flags         = meta.createFlags;
+                createInfo.poolSizeCount = static_cast <uint32_t> (meta.poolSizes.size());
+                createInfo.pPoolSizes    = meta.poolSizes.data();
+                createInfo.maxSets       = meta.maxDescriptorSets;
 
-                auto result = vkCreateDescriptorPool (*m_descriptorPoolInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateDescriptorPool (*resource.logDeviceObj->getLogDevice(),
                                                        &createInfo,
                                                        nullptr,
-                                                       &m_descriptorPoolInfo.resource.pool);
+                                                       &resource.pool);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_descriptorPoolInfo.resource.logObj) << "[?] Descriptor pool"
-                                                                     << " "
-                                                                     << "[" << string_VkResult (result) << "]"
-                                                                     << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Descriptor pool"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Descriptor pool");
                 }
-                LOG_INFO (m_descriptorPoolInfo.resource.logObj)      << "[O] Descriptor pool"
-                                                                     << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Descriptor pool"
+                                                << std::endl;
             }
 
             void destroyDescriptorPool (void) {
-                vkDestroyDescriptorPool (*m_descriptorPoolInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_descriptorPoolInfo.resource.pool,
+                auto& resource = m_descriptorPoolInfo.resource;
+                vkDestroyDescriptorPool (*resource.logDeviceObj->getLogDevice(),
+                                          resource.pool,
                                           nullptr);
-                LOG_INFO (m_descriptorPoolInfo.resource.logObj) << "[X] Descriptor pool"
-                                                                << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Descriptor pool"
+                                           << std::endl;
             }
 
         public:
@@ -87,10 +91,11 @@ namespace Renderer {
             void initDescriptorPoolInfo (const VkDescriptorPoolCreateFlags createFlags,
                                          const uint32_t maxDescriptorSets) {
 
-                m_descriptorPoolInfo.meta.createFlags       = createFlags;
-                m_descriptorPoolInfo.meta.poolSizes         = {};
-                m_descriptorPoolInfo.meta.maxDescriptorSets = maxDescriptorSets;
-                m_descriptorPoolInfo.resource.pool          = nullptr;
+                auto& meta                         = m_descriptorPoolInfo.meta;
+                meta.createFlags                   = createFlags;
+                meta.poolSizes                     = {};
+                meta.maxDescriptorSets             = maxDescriptorSets;
+                m_descriptorPoolInfo.resource.pool = nullptr;
             }
 
             void addDescriptorPoolSize (const uint32_t descriptorsCount,

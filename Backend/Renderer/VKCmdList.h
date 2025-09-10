@@ -468,4 +468,9 @@ namespace Renderer {
                           vertexOffset,
                           firstInstanceIdx);
     }
+
+    void drawGui (const VkCommandBuffer cmdBuffer) {
+        ImGui_ImplVulkan_RenderDrawData (ImGui::GetDrawData(),
+                                         cmdBuffer);
+    }
 }   // namespace Renderer

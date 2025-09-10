@@ -412,9 +412,10 @@ namespace Renderer {
                               const char* fontFilePath,
                               const char* iconFilePath) {
 
-                m_guiInfo.meta.iniSaveFilePath    = iniSaveFilePath;
-                m_guiInfo.meta.fontFilePath       = fontFilePath;
-                m_guiInfo.meta.iconFilePath       = iconFilePath;
+                auto& meta                        = m_guiInfo.meta;
+                meta.iniSaveFilePath              = iniSaveFilePath;
+                meta.fontFilePath                 = fontFilePath;
+                meta.iconFilePath                 = iconFilePath;
                 m_guiInfo.resource.descriptorSets = {};
             }
 
@@ -428,9 +429,9 @@ namespace Renderer {
             }
 
             void toggleCursorInput (const bool val) {
-                auto& imguiIO = ImGui::GetIO();
-                if (val)        imguiIO.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
-                else            imguiIO.ConfigFlags |=  ImGuiConfigFlags_NoMouse;
+                auto& configFlags = ImGui::GetIO().ConfigFlags;
+                if (val)            configFlags &= ~ImGuiConfigFlags_NoMouse;
+                else                configFlags |=  ImGuiConfigFlags_NoMouse;
             }
 
             void beginFrame (void) {

@@ -22,30 +22,32 @@ namespace Renderer {
             } m_surfaceInfo;
 
             void createSurface (void) {
+                auto& resource = m_surfaceInfo.resource;
                 /* VK_KHR_surface (instance level extension) exposes a VkSurfaceKHR object that represents an abstract
                  * type of surface to present rendered images to
                 */
-                auto result = glfwCreateWindowSurface (*m_surfaceInfo.resource.instanceObj->getInstance(),
-                                                        m_surfaceInfo.resource.windowObj->getWindow(),
+                auto result = glfwCreateWindowSurface (*resource.instanceObj->getInstance(),
+                                                        resource.windowObj->getWindow(),
                                                         nullptr,
-                                                        &m_surfaceInfo.resource.surface);
+                                                        &resource.surface);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_surfaceInfo.resource.logObj) << "[?] Surface"
-                                                              << " "
-                                                              << "[" << string_VkResult (result) << "]"
-                                                              << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Surface"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Surface");
                 }
-                LOG_INFO (m_surfaceInfo.resource.logObj)      << "[O] Surface"
-                                                              << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Surface"
+                                                << std::endl;
             }
 
             void destroySurface (void) {
-                vkDestroySurfaceKHR (*m_surfaceInfo.resource.instanceObj->getInstance(),
-                                      m_surfaceInfo.resource.surface,
+                auto& resource = m_surfaceInfo.resource;
+                vkDestroySurfaceKHR (*resource.instanceObj->getInstance(),
+                                      resource.surface,
                                       nullptr);
-                LOG_INFO (m_surfaceInfo.resource.logObj) << "[X] Surface"
-                                                         << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Surface"
+                                           << std::endl;
             }
 
         public:

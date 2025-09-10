@@ -26,38 +26,42 @@ namespace Renderer {
             } m_renderPassInfo;
 
             void createRenderPass (void) {
+                auto& meta                 = m_renderPassInfo.meta;
+                auto& resource             = m_renderPassInfo.resource;
+
                 VkRenderPassCreateInfo createInfo;
                 createInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
                 createInfo.pNext           = nullptr;
                 createInfo.flags           = 0;
-                createInfo.attachmentCount = static_cast <uint32_t> (m_renderPassInfo.meta.attachments.size());
-                createInfo.pAttachments    = m_renderPassInfo.meta.attachments.data();
-                createInfo.subpassCount    = static_cast <uint32_t> (m_renderPassInfo.meta.subPasses.size());
-                createInfo.pSubpasses      = m_renderPassInfo.meta.subPasses.data();
-                createInfo.dependencyCount = static_cast <uint32_t> (m_renderPassInfo.meta.dependencies.size());
-                createInfo.pDependencies   = m_renderPassInfo.meta.dependencies.data();
+                createInfo.attachmentCount = static_cast <uint32_t> (meta.attachments.size());
+                createInfo.pAttachments    = meta.attachments.data();
+                createInfo.subpassCount    = static_cast <uint32_t> (meta.subPasses.size());
+                createInfo.pSubpasses      = meta.subPasses.data();
+                createInfo.dependencyCount = static_cast <uint32_t> (meta.dependencies.size());
+                createInfo.pDependencies   = meta.dependencies.data();
 
-                auto result = vkCreateRenderPass (*m_renderPassInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateRenderPass (*resource.logDeviceObj->getLogDevice(),
                                                    &createInfo,
                                                    nullptr,
-                                                   &m_renderPassInfo.resource.renderPass);
+                                                   &resource.renderPass);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_renderPassInfo.resource.logObj) << "[?] Render pass"
-                                                                 << " "
-                                                                 << "[" << string_VkResult (result) << "]"
-                                                                 << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Render pass"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Render pass");
                 }
-                LOG_INFO (m_renderPassInfo.resource.logObj)      << "[O] Render pass"
-                                                                 << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Render pass"
+                                                << std::endl;
             }
 
             void destroyRenderPass (void) {
-                vkDestroyRenderPass  (*m_renderPassInfo.resource.logDeviceObj->getLogDevice(),
-                                       m_renderPassInfo.resource.renderPass,
+                auto& resource = m_renderPassInfo.resource;
+                vkDestroyRenderPass  (*resource.logDeviceObj->getLogDevice(),
+                                       resource.renderPass,
                                        nullptr);
-                LOG_INFO (m_renderPassInfo.resource.logObj) << "[X] Render pass"
-                                                            << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Render pass"
+                                           << std::endl;
             }
 
         public:
@@ -88,9 +92,10 @@ namespace Renderer {
             }
 
             void initRenderPassInfo (void) {
-                m_renderPassInfo.meta.attachments    = {};
-                m_renderPassInfo.meta.subPasses      = {};
-                m_renderPassInfo.meta.dependencies   = {};
+                auto& meta                           = m_renderPassInfo.meta;
+                meta.attachments                     = {};
+                meta.subPasses                       = {};
+                meta.dependencies                    = {};
                 m_renderPassInfo.resource.renderPass = nullptr;
             }
 

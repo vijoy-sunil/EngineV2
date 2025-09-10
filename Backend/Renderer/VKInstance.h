@@ -78,44 +78,46 @@ namespace Renderer {
                 if (isValidationLayersDisabled())
                     return;
 
+                auto& resource  = m_instanceInfo.resource;
                 auto createInfo = createDebugUtilsMessengerEXT();
                 auto binding    = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
-                    m_instanceInfo.resource.instance,
+                    resource.instance,
                     "vkCreateDebugUtilsMessengerEXT"
                 );
                 auto result     = binding != nullptr ? binding (
-                    m_instanceInfo.resource.instance,
+                    resource.instance,
                     &createInfo,
                     nullptr,
-                    &m_instanceInfo.resource.debugUtilsMessenger
+                    &resource.debugUtilsMessenger
                 ):  VK_ERROR_EXTENSION_NOT_PRESENT;
 
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_instanceInfo.resource.logObj) << "[?] Debug utils messenger"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Debug utils messenger"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Debug utils messenger");
                 }
-                LOG_INFO (m_instanceInfo.resource.logObj)      << "[O] Debug utils messenger"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Debug utils messenger"
+                                                << std::endl;
             }
 
             void destroyDebugUtilsMessenger (void) {
                 if (isValidationLayersDisabled())
                     return;
 
-                auto binding = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
-                    m_instanceInfo.resource.instance,
+                auto& resource = m_instanceInfo.resource;
+                auto binding   = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr (
+                    resource.instance,
                     "vkDestroyDebugUtilsMessengerEXT"
                 );
                 if (binding != nullptr) binding (
-                    m_instanceInfo.resource.instance,
-                    m_instanceInfo.resource.debugUtilsMessenger,
+                    resource.instance,
+                    resource.debugUtilsMessenger,
                     nullptr
                 );
-                LOG_INFO (m_instanceInfo.resource.logObj) << "[X] Debug utils messenger"
-                                                          << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Debug utils messenger"
+                                           << std::endl;
             }
 
             std::vector <const char*> getInstanceExtensions (void) {
@@ -146,31 +148,33 @@ namespace Renderer {
             }
 
             bool isInstanceExtensionsSupportedEXT (void) {
+                auto& extensions         = m_instanceInfo.meta.extensions;
+                auto& logObj             = m_instanceInfo.resource.logObj;
                 uint32_t extensionsCount = 0;
+
                 vkEnumerateInstanceExtensionProperties (nullptr, &extensionsCount, nullptr);
                 std::vector <VkExtensionProperties> availableExtensions (extensionsCount);
                 vkEnumerateInstanceExtensionProperties (nullptr, &extensionsCount, availableExtensions.data());
 
-                LOG_INFO (m_instanceInfo.resource.logObj)     << "Available instance extensions"
-                                                              << std::endl;
+                LOG_INFO (logObj)     << "Available instance extensions"
+                                      << std::endl;
                 for (auto const& extension: availableExtensions)
-                    LOG_INFO (m_instanceInfo.resource.logObj) << "[" << extension.extensionName << "]"
-                                                              << " "
-                                                              << "[" << extension.specVersion   << "]"
-                                                              << std::endl;
-                LOG_INFO (m_instanceInfo.resource.logObj)     << LINE_BREAK
-                                                              << std::endl;
+                    LOG_INFO (logObj) << "[" << extension.extensionName << "]"
+                                      << " "
+                                      << "[" << extension.specVersion   << "]"
+                                      << std::endl;
+                LOG_INFO (logObj)     << LINE_BREAK
+                                      << std::endl;
 
-                LOG_INFO (m_instanceInfo.resource.logObj)     << "Required instance extensions"
-                                                              << std::endl;
-                for (auto const& extension: m_instanceInfo.meta.extensions)
-                    LOG_INFO (m_instanceInfo.resource.logObj) << "[" << extension << "]"
-                                                              << std::endl;
-                LOG_INFO (m_instanceInfo.resource.logObj)     << LINE_BREAK
-                                                              << std::endl;
+                LOG_INFO (logObj)     << "Required instance extensions"
+                                      << std::endl;
+                for (auto const& extension: extensions)
+                    LOG_INFO (logObj) << "[" << extension               << "]"
+                                      << std::endl;
+                LOG_INFO (logObj)     << LINE_BREAK
+                                      << std::endl;
 
-                std::set <std::string> requiredExtensions (m_instanceInfo.meta.extensions.begin(),
-                                                           m_instanceInfo.meta.extensions.end());
+                std::set <std::string> requiredExtensions (extensions.begin(), extensions.end());
                 for (auto const& extension: availableExtensions)
                     requiredExtensions.erase (extension.extensionName);
                 return requiredExtensions.empty();
@@ -181,37 +185,41 @@ namespace Renderer {
             }
 
             bool isValidationLayersSupportedEXT (void) {
-                uint32_t layersCount = 0;
+                auto& validationLayers = m_instanceInfo.meta.validationLayers;
+                auto& logObj           = m_instanceInfo.resource.logObj;
+                uint32_t layersCount   = 0;
+
                 vkEnumerateInstanceLayerProperties (&layersCount, nullptr);
                 std::vector <VkLayerProperties> availableLayers (layersCount);
                 vkEnumerateInstanceLayerProperties (&layersCount, availableLayers.data());
 
-                LOG_INFO (m_instanceInfo.resource.logObj)     << "Available validation layers"
-                                                              << std::endl;
+                LOG_INFO (logObj)     << "Available validation layers"
+                                      << std::endl;
                 for (auto const& layer: availableLayers)
-                    LOG_INFO (m_instanceInfo.resource.logObj) << "[" << layer.layerName   << "]"
-                                                              << " "
-                                                              << "[" << layer.specVersion << "]"
-                                                              << std::endl;
-                LOG_INFO (m_instanceInfo.resource.logObj)     << LINE_BREAK
-                                                              << std::endl;
+                    LOG_INFO (logObj) << "[" << layer.layerName   << "]"
+                                      << " "
+                                      << "[" << layer.specVersion << "]"
+                                      << std::endl;
+                LOG_INFO (logObj)     << LINE_BREAK
+                                      << std::endl;
 
-                LOG_INFO (m_instanceInfo.resource.logObj)     << "Required validation layers"
-                                                              << std::endl;
-                for (auto const& layer: m_instanceInfo.meta.validationLayers)
-                    LOG_INFO (m_instanceInfo.resource.logObj) << "[" << layer << "]"
-                                                              << std::endl;
-                LOG_INFO (m_instanceInfo.resource.logObj)     << LINE_BREAK
-                                                              << std::endl;
+                LOG_INFO (logObj)     << "Required validation layers"
+                                      << std::endl;
+                for (auto const& layer: validationLayers)
+                    LOG_INFO (logObj) << "[" << layer             << "]"
+                                      << std::endl;
+                LOG_INFO (logObj)     << LINE_BREAK
+                                      << std::endl;
 
-                std::set <std::string> requiredLayers (m_instanceInfo.meta.validationLayers.begin(),
-                                                       m_instanceInfo.meta.validationLayers.end());
+                std::set <std::string> requiredLayers (validationLayers.begin(), validationLayers.end());
                 for (auto const& layer: availableLayers)
                     requiredLayers.erase (layer.layerName);
                 return requiredLayers.empty();
             }
 
             void createInstance (void) {
+                auto& extensions                   = m_instanceInfo.meta.extensions;
+                auto& resource                     = m_instanceInfo.resource;
                 /* The vkCreateDebugUtilsMessengerEXT call requires a valid instance to have been created and
                  * vkDestroyDebugUtilsMessengerEXT must be called before the instance is destroyed. This currently leaves
                  * us unable to debug any issues in the vkCreateInstance and vkDestroyInstance calls. However, you'll see
@@ -229,7 +237,7 @@ namespace Renderer {
                 appInfo.applicationVersion         = VK_MAKE_API_VERSION (2, 0, 0, 0);
                 appInfo.pEngineName                = "Vulkan";
                 appInfo.engineVersion              = VK_MAKE_API_VERSION (0, 0, 0, 0);
-                appInfo.apiVersion                 = VK_MAKE_API_VERSION (0, 1, 0, 0);
+                appInfo.apiVersion                 = VK_MAKE_API_VERSION (0, 1, 3, 0);
 
                 VkInstanceCreateInfo createInfo;
                 createInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -237,12 +245,12 @@ namespace Renderer {
                 createInfo.flags                   = 0;
 
                 if (!isInstanceExtensionsSupported()) {
-                    LOG_ERROR (m_instanceInfo.resource.logObj) << "Required instance extensions not available"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "Required instance extensions not available"
+                                                << std::endl;
                     throw std::runtime_error ("Required instance extensions not available");
                 }
-                createInfo.enabledExtensionCount   = static_cast <uint32_t> (m_instanceInfo.meta.extensions.size());
-                createInfo.ppEnabledExtensionNames = m_instanceInfo.meta.extensions.data();
+                createInfo.enabledExtensionCount   = static_cast <uint32_t> (extensions.size());
+                createInfo.ppEnabledExtensionNames = extensions.data();
 
                 /* Set up validation layers */
                 createInfo.enabledLayerCount       = 0;
@@ -250,8 +258,8 @@ namespace Renderer {
                 createInfo.pNext                   = nullptr;
 
                 if (!isValidationLayersDisabled() && !isValidationLayersSupported())
-                    LOG_WARNING (m_instanceInfo.resource.logObj) << "Required validation layers not available"
-                                                                 << std::endl;
+                    LOG_WARNING (resource.logObj) << "Required validation layers not available"
+                                                  << std::endl;
                 else if (!isValidationLayersDisabled()) {
                     createInfo.enabledLayerCount   = static_cast <uint32_t> (validationLayers.size());
                     createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -264,27 +272,28 @@ namespace Renderer {
 
                 auto result = vkCreateInstance (&createInfo,
                                                 nullptr,
-                                                &m_instanceInfo.resource.instance);
+                                                &resource.instance);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_instanceInfo.resource.logObj) << "[?] Instance"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Instance"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Instance");
                 }
-                LOG_INFO (m_instanceInfo.resource.logObj)      << "[O] Instance"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Instance"
+                                                << std::endl;
                 createDebugUtilsMessenger();
             }
 
             void destroyInstance (void) {
+                auto& resource = m_instanceInfo.resource;
                 destroyDebugUtilsMessenger();
                 /* Note that, the vulkan instance should be only destroyed right before the program exits, all of the
                  * other vulkan resources that we create should be cleaned up before the instance is destroyed
                 */
-                vkDestroyInstance (m_instanceInfo.resource.instance, nullptr);
-                LOG_INFO (m_instanceInfo.resource.logObj) << "[X] Instance"
-                                                          << std::endl;
+                vkDestroyInstance (resource.instance, nullptr);
+                LOG_INFO (resource.logObj) << "[X] Instance"
+                                           << std::endl;
             }
 
         public:
@@ -314,13 +323,19 @@ namespace Renderer {
             void initInstanceInfo (const std::vector <const char*> validationLayers,
                                    const bool validationLayersDisabled = false) {
 
-                m_instanceInfo.meta.extensions                 = getInstanceExtensions();
-                m_instanceInfo.meta.validationLayers           = validationLayers;
-                m_instanceInfo.state.extensionsSupported       = isInstanceExtensionsSupportedEXT();
-                m_instanceInfo.state.validationLayersDisabled  = validationLayersDisabled;
-                m_instanceInfo.state.validationLayersSupported = isValidationLayersSupportedEXT();
-                m_instanceInfo.resource.instance               = nullptr;
-                m_instanceInfo.resource.debugUtilsMessenger    = nullptr;
+                auto& meta                      = m_instanceInfo.meta;
+                auto& state                     = m_instanceInfo.state;
+                auto& resource                  = m_instanceInfo.resource;
+
+                meta.extensions                 = getInstanceExtensions();
+                meta.validationLayers           = validationLayers;
+
+                state.extensionsSupported       = isInstanceExtensionsSupportedEXT();
+                state.validationLayersDisabled  = validationLayersDisabled;
+                state.validationLayersSupported = isValidationLayersSupportedEXT();
+
+                resource.instance               = nullptr;
+                resource.debugUtilsMessenger    = nullptr;
             }
 
             bool isValidationLayersDisabled (void) {

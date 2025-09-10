@@ -29,38 +29,43 @@ namespace Renderer {
             } m_phyDeviceInfo;
 
             bool isDeviceExtensionsSupported (const VkPhysicalDevice phyDevice) {
+                auto& extensions         = m_phyDeviceInfo.meta.extensions;
+                auto& logObj             = m_phyDeviceInfo.resource.logObj;
                 uint32_t extensionsCount = 0;
+
                 vkEnumerateDeviceExtensionProperties (phyDevice, nullptr, &extensionsCount, nullptr);
                 std::vector <VkExtensionProperties> availableExtensions (extensionsCount);
                 vkEnumerateDeviceExtensionProperties (phyDevice, nullptr, &extensionsCount, availableExtensions.data());
 
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "Available device extensions"
-                                                               << std::endl;
+                LOG_INFO (logObj)     << "Available device extensions"
+                                      << std::endl;
                 for (auto const& extension: availableExtensions)
-                    LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[" << extension.extensionName << "]"
-                                                               << " "
-                                                               << "[" << extension.specVersion   << "]"
-                                                               << std::endl;
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                    LOG_INFO (logObj) << "[" << extension.extensionName << "]"
+                                      << " "
+                                      << "[" << extension.specVersion   << "]"
+                                      << std::endl;
+                LOG_INFO (logObj)     << LINE_BREAK
+                                      << std::endl;
 
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "Required device extensions"
-                                                               << std::endl;
-                for (auto const& extension: m_phyDeviceInfo.meta.extensions)
-                    LOG_INFO (m_phyDeviceInfo.resource.logObj) << "[" << extension << "]"
-                                                               << std::endl;
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                LOG_INFO (logObj)     << "Required device extensions"
+                                      << std::endl;
+                for (auto const& extension: extensions)
+                    LOG_INFO (logObj) << "[" << extension               << "]"
+                                      << std::endl;
+                LOG_INFO (logObj)     << LINE_BREAK
+                                      << std::endl;
 
-                std::set <std::string> requiredExtensions (m_phyDeviceInfo.meta.extensions.begin(),
-                                                           m_phyDeviceInfo.meta.extensions.end());
+                std::set <std::string> requiredExtensions (extensions.begin(), extensions.end());
                 for (auto const& extension: availableExtensions)
                     requiredExtensions.erase (extension.extensionName);
                 return requiredExtensions.empty();
             }
 
             bool populateQueueFamilyIndices (const VkPhysicalDevice phyDevice) {
+                auto& meta                  = m_phyDeviceInfo.meta;
+                auto& resource              = m_phyDeviceInfo.resource;
                 uint32_t queueFamiliesCount = 0;
+
                 vkGetPhysicalDeviceQueueFamilyProperties (phyDevice, &queueFamiliesCount, nullptr);
                 std::vector <VkQueueFamilyProperties> availableQueueFamilies (queueFamiliesCount);
                 vkGetPhysicalDeviceQueueFamilyProperties (phyDevice, &queueFamiliesCount, availableQueueFamilies.data());
@@ -70,56 +75,55 @@ namespace Renderer {
                     bool presentQueueExists;
                     bool transferQueueExists;
                 };
-                std::unordered_map <uint32_t, QueueFamilyInfo> queueFamilyInfoPool;
-                uint32_t queueFamilyIdx = 0;
+                std::unordered_map <uint32_t, QueueFamilyInfo> idxToQueueFamilyInfoMap;
+                uint32_t idx = 0;
 
                 for (auto const& queueFamily: availableQueueFamilies) {
                     auto flags              = queueFamily.queueFlags;
                     VkBool32 presentSupport = false;
                     vkGetPhysicalDeviceSurfaceSupportKHR (phyDevice,
-                                                          queueFamilyIdx,
-                                                          *m_phyDeviceInfo.resource.surfaceObj->getSurface(),
+                                                          idx,
+                                                          *resource.surfaceObj->getSurface(),
                                                           &presentSupport);
 
                     if (flags & VK_QUEUE_GRAPHICS_BIT)
-                        queueFamilyInfoPool[queueFamilyIdx].graphicsQueueExists = true;
+                        idxToQueueFamilyInfoMap[idx].graphicsQueueExists = true;
                     if (presentSupport)
-                        queueFamilyInfoPool[queueFamilyIdx].presentQueueExists  = true;
+                        idxToQueueFamilyInfoMap[idx].presentQueueExists  = true;
                     if (flags & VK_QUEUE_TRANSFER_BIT)
-                        queueFamilyInfoPool[queueFamilyIdx].transferQueueExists = true;
+                        idxToQueueFamilyInfoMap[idx].transferQueueExists = true;
 
-                    ++queueFamilyIdx;
+                    ++idx;
                 }
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "Available queue families"
-                                                               << std::endl;
-                for (auto const& [idx, info]: queueFamilyInfoPool) {
+                LOG_INFO (resource.logObj)     << "Available queue families"
+                                               << std::endl;
+                for (auto const& [idx, info]: idxToQueueFamilyInfoMap) {
                     std::string graphicsQueueExists = info.graphicsQueueExists ? "[O]|G": "[X]|G";
                     std::string presentQueueExists  = info.presentQueueExists  ? "[O]|P": "[X]|P";
                     std::string transferQueueExists = info.transferQueueExists ? "[O]|T": "[X]|T";
-                    LOG_INFO (m_phyDeviceInfo.resource.logObj) << idx
-                                                               << " "
-                                                               << "[" << graphicsQueueExists << "]"
-                                                               << " "
-                                                               << "[" << presentQueueExists  << "]"
-                                                               << " "
-                                                               << "[" << transferQueueExists << "]"
-                                                               << std::endl;
+                    LOG_INFO (resource.logObj) << idx
+                                               << " "
+                                               << "[" << graphicsQueueExists << "]"
+                                               << " "
+                                               << "[" << presentQueueExists  << "]"
+                                               << " "
+                                               << "[" << transferQueueExists << "]"
+                                               << std::endl;
                 }
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << LINE_BREAK
+                                               << std::endl;
                 /* Pick queue family indices */
-                for (auto const& [idx, info]: queueFamilyInfoPool) {
-                    if (info.graphicsQueueExists && !m_phyDeviceInfo.meta.graphicsQueueFamilyIdx.has_value())
-                        m_phyDeviceInfo.meta.graphicsQueueFamilyIdx = idx;
+                for (auto const& [idx, info]: idxToQueueFamilyInfoMap) {
+                    if (info.graphicsQueueExists && !meta.graphicsQueueFamilyIdx.has_value())
+                        meta.graphicsQueueFamilyIdx = idx;
 
-                    if (info.presentQueueExists  && !m_phyDeviceInfo.meta.presentQueueFamilyIdx.has_value())
-                        m_phyDeviceInfo.meta.presentQueueFamilyIdx  = idx;
+                    if (info.presentQueueExists  && !meta.presentQueueFamilyIdx.has_value())
+                        meta.presentQueueFamilyIdx  = idx;
 
-                    if (info.transferQueueExists && !m_phyDeviceInfo.meta.transferQueueFamilyIdx.has_value())
-                        m_phyDeviceInfo.meta.transferQueueFamilyIdx = idx;
+                    if (info.transferQueueExists && !meta.transferQueueFamilyIdx.has_value())
+                        meta.transferQueueFamilyIdx = idx;
                 }
 
-                auto& meta                         = m_phyDeviceInfo.meta;
                 std::string graphicsQueueFamilyIdx = meta.graphicsQueueFamilyIdx.has_value() ?
                                                      std::to_string (meta.graphicsQueueFamilyIdx.value()): "X";
                 std::string presentQueueFamilyIdx  = meta.presentQueueFamilyIdx. has_value() ?
@@ -127,27 +131,27 @@ namespace Renderer {
                 std::string transferQueueFamilyIdx = meta.transferQueueFamilyIdx.has_value() ?
                                                      std::to_string (meta.transferQueueFamilyIdx.value()): "X";
 
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "Selected queue families"
-                                                               << std::endl;
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "G"
-                                                               << " "
-                                                               << "[" << graphicsQueueFamilyIdx << "]"
-                                                               << std::endl;
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "P"
-                                                               << " "
-                                                               << "[" << presentQueueFamilyIdx  << "]"
-                                                               << std::endl;
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << "T"
-                                                               << " "
-                                                               << "[" << transferQueueFamilyIdx << "]"
-                                                               << std::endl;
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                LOG_INFO (resource.logObj) << "Selected queue families"
+                                           << std::endl;
+                LOG_INFO (resource.logObj) << "G"
+                                           << " "
+                                           << "[" << graphicsQueueFamilyIdx << "]"
+                                           << std::endl;
+                LOG_INFO (resource.logObj) << "P"
+                                           << " "
+                                           << "[" << presentQueueFamilyIdx  << "]"
+                                           << std::endl;
+                LOG_INFO (resource.logObj) << "T"
+                                           << " "
+                                           << "[" << transferQueueFamilyIdx << "]"
+                                           << std::endl;
+                LOG_INFO (resource.logObj) << LINE_BREAK
+                                           << std::endl;
 
                 /* Return true if all queue family indices are populated */
-                return m_phyDeviceInfo.meta.graphicsQueueFamilyIdx.has_value() &&
-                       m_phyDeviceInfo.meta.presentQueueFamilyIdx. has_value() &&
-                       m_phyDeviceInfo.meta.transferQueueFamilyIdx.has_value();
+                return meta.graphicsQueueFamilyIdx.has_value() &&
+                       meta.presentQueueFamilyIdx. has_value() &&
+                       meta.transferQueueFamilyIdx.has_value();
             }
 
             void populatePhyDeviceExtensionFeatures (const VkPhysicalDevice phyDevice,
@@ -190,17 +194,19 @@ namespace Renderer {
             }
 
             void createPhyDevice (void) {
+                auto& resource           = m_phyDeviceInfo.resource;
                 uint32_t phyDevicesCount = 0;
-                vkEnumeratePhysicalDevices (*m_phyDeviceInfo.resource.instanceObj->getInstance(),
+
+                vkEnumeratePhysicalDevices (*resource.instanceObj->getInstance(),
                                              &phyDevicesCount,
                                              nullptr);
                 if (phyDevicesCount == 0) {
-                    LOG_ERROR (m_phyDeviceInfo.resource.logObj) << "No phy devices found"
-                                                                << std::endl;
+                    LOG_ERROR (resource.logObj) << "No phy devices found"
+                                                << std::endl;
                     throw std::runtime_error ("No phy devices found");
                 }
                 std::vector <VkPhysicalDevice> availablePhyDevices (phyDevicesCount);
-                vkEnumeratePhysicalDevices (*m_phyDeviceInfo.resource.instanceObj->getInstance(),
+                vkEnumeratePhysicalDevices (*resource.instanceObj->getInstance(),
                                              &phyDevicesCount,
                                              availablePhyDevices.data());
 
@@ -215,18 +221,18 @@ namespace Renderer {
                      * supported, hence why we will skip this step
                     */
                     if (extensionsSupported && queueFamilyIndicesComplete && requiredFeaturesSupported) {
-                        m_phyDeviceInfo.resource.device = phyDevice;
+                        resource.device = phyDevice;
                         break;
                     }
                 }
 
-                if (m_phyDeviceInfo.resource.device == nullptr) {
-                    LOG_ERROR (m_phyDeviceInfo.resource.logObj) << "[?] Phy device"
-                                                                << std::endl;
+                if (resource.device == nullptr) {
+                    LOG_ERROR (resource.logObj) << "[?] Phy device"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Phy device");
                 }
-                LOG_INFO (m_phyDeviceInfo.resource.logObj)      << "[O] Phy device"
-                                                                << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Phy device"
+                                                << std::endl;
             }
 
             void destroyPhyDevice (void) {

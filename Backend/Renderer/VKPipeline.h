@@ -48,15 +48,16 @@ namespace Renderer {
             } m_pipelineInfo;
 
             VkShaderModule createShaderModule (const char* binaryFilePath) {
+                auto& resource = m_pipelineInfo.resource;
                 /* The advantage of starting to read at the end of the file is that we can use the read position to
                  * determine the size of the file and allocate a buffer
                 */
                 std::ifstream file (binaryFilePath, std::ios::ate | std::ios::binary);
                 if (!file.is_open()) {
-                    LOG_WARNING (m_pipelineInfo.resource.logObj) << "Failed to open file"
-                                                                 << " "
-                                                                 << "[" << binaryFilePath << "]"
-                                                                 << std::endl;
+                    LOG_WARNING (resource.logObj) << "Failed to open file"
+                                                  << " "
+                                                  << "[" << binaryFilePath << "]"
+                                                  << std::endl;
                 }
                 size_t fileSize = static_cast <size_t> (file.tellg());
                 std::vector <char> shaderByteCode (fileSize);
@@ -73,110 +74,115 @@ namespace Renderer {
                 createInfo.pCode    = reinterpret_cast <const uint32_t*> (shaderByteCode.data());
 
                 VkShaderModule shaderModule;
-                auto result = vkCreateShaderModule (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateShaderModule (*resource.logDeviceObj->getLogDevice(),
                                                      &createInfo,
                                                      nullptr,
                                                      &shaderModule);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_pipelineInfo.resource.logObj) << "[?] Shader module"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Shader module"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Shader module");
                 }
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[O] Shader module"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Shader module"
+                                                << std::endl;
                 return shaderModule;
             }
 
             void createPipelineLayout (void) {
+                auto& pushConstantRanges          = m_pipelineInfo.meta.pushConstantRanges;
+                auto& resource                    = m_pipelineInfo.resource;
+
                 VkPipelineLayoutCreateInfo createInfo;
                 createInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
                 createInfo.pNext                  = nullptr;
                 createInfo.flags                  = 0;
-                createInfo.setLayoutCount         = static_cast <uint32_t>
-                                                    (m_pipelineInfo.resource.descriptorSetLayouts.size());
-                createInfo.pSetLayouts            = m_pipelineInfo.resource.descriptorSetLayouts.data();
-                createInfo.pushConstantRangeCount = static_cast <uint32_t>
-                                                    (m_pipelineInfo.meta.pushConstantRanges.size());
-                createInfo.pPushConstantRanges    = m_pipelineInfo.meta.pushConstantRanges.data();
+                createInfo.setLayoutCount         = static_cast <uint32_t> (resource.descriptorSetLayouts.size());
+                createInfo.pSetLayouts            = resource.descriptorSetLayouts.data();
+                createInfo.pushConstantRangeCount = static_cast <uint32_t> (pushConstantRanges.size());
+                createInfo.pPushConstantRanges    = pushConstantRanges.data();
 
-                auto result =  vkCreatePipelineLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                                        &createInfo,
-                                                        nullptr,
-                                                        &m_pipelineInfo.resource.layout);
+                auto result = vkCreatePipelineLayout (*resource.logDeviceObj->getLogDevice(),
+                                                       &createInfo,
+                                                       nullptr,
+                                                       &resource.layout);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_pipelineInfo.resource.logObj) << "[?] Pipeline layout"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Pipeline layout"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Pipeline layout");
                 }
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[O] Pipeline layout"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Pipeline layout"
+                                                << std::endl;
             }
 
             void createPipeline (void) {
+                auto& meta                     = m_pipelineInfo.meta;
+                auto& resource                 = m_pipelineInfo.resource;
+
                 createPipelineLayout();
                 VkGraphicsPipelineCreateInfo createInfo;
                 createInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
                 createInfo.pNext               = nullptr;
-                createInfo.flags               = m_pipelineInfo.meta.createFlags;
-                createInfo.subpass             = m_pipelineInfo.meta.subPassIdx;
-                createInfo.basePipelineIndex   = m_pipelineInfo.meta.basePipelineIdx;
-                createInfo.basePipelineHandle  = m_pipelineInfo.meta.basePipeline;
+                createInfo.flags               = meta.createFlags;
+                createInfo.subpass             = meta.subPassIdx;
+                createInfo.basePipelineIndex   = meta.basePipelineIdx;
+                createInfo.basePipelineHandle  = meta.basePipeline;
 
-                createInfo.pVertexInputState   = &m_pipelineInfo.meta.vertexInput;
-                createInfo.pInputAssemblyState = &m_pipelineInfo.meta.inputAssembly;
+                createInfo.pVertexInputState   = &meta.vertexInput;
+                createInfo.pInputAssemblyState = &meta.inputAssembly;
                 createInfo.pTessellationState  = nullptr;
-                createInfo.stageCount          = static_cast <uint32_t> (m_pipelineInfo.meta.shaderStages.size());
-                createInfo.pStages             = m_pipelineInfo.meta.shaderStages.data();
-                createInfo.pDepthStencilState  = &m_pipelineInfo.meta.depthStencil;
-                createInfo.pRasterizationState = &m_pipelineInfo.meta.rasterization;
-                createInfo.pMultisampleState   = &m_pipelineInfo.meta.multiSample;
-                createInfo.pColorBlendState    = &m_pipelineInfo.meta.colorBlend;
-                createInfo.pDynamicState       = &m_pipelineInfo.meta.dynamicState;
-                createInfo.pViewportState      = &m_pipelineInfo.meta.viewPort;
-                createInfo.renderPass          = *m_pipelineInfo.resource.renderPassObj->getRenderPass();
-                createInfo.layout              = m_pipelineInfo.resource.layout;
+                createInfo.stageCount          = static_cast <uint32_t> (meta.shaderStages.size());
+                createInfo.pStages             = meta.shaderStages.data();
+                createInfo.pDepthStencilState  = &meta.depthStencil;
+                createInfo.pRasterizationState = &meta.rasterization;
+                createInfo.pMultisampleState   = &meta.multiSample;
+                createInfo.pColorBlendState    = &meta.colorBlend;
+                createInfo.pDynamicState       = &meta.dynamicState;
+                createInfo.pViewportState      = &meta.viewPort;
+                createInfo.renderPass          = *resource.renderPassObj->getRenderPass();
+                createInfo.layout              = resource.layout;
 
-                auto result = vkCreateGraphicsPipelines (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateGraphicsPipelines (*resource.logDeviceObj->getLogDevice(),
                                                           nullptr,
                                                           1,
                                                           &createInfo,
                                                           nullptr,
-                                                          &m_pipelineInfo.resource.pipeline);
+                                                          &resource.pipeline);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_pipelineInfo.resource.logObj) << "[?] Pipeline"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Pipeline"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Pipeline");
                 }
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[O] Pipeline"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Pipeline"
+                                                << std::endl;
             }
 
             void destroyPipeline (void) {
-                for (auto const& descriptorSetLayout: m_pipelineInfo.resource.descriptorSetLayouts) {
-                    vkDestroyDescriptorSetLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                auto& resource = m_pipelineInfo.resource;
+                for (auto const& descriptorSetLayout: resource.descriptorSetLayouts) {
+                    vkDestroyDescriptorSetLayout (*resource.logDeviceObj->getLogDevice(),
                                                    descriptorSetLayout,
                                                    nullptr);
-                    LOG_INFO (m_pipelineInfo.resource.logObj)  << "[X] Descriptor set layout"
-                                                               << std::endl;
+                    LOG_INFO (resource.logObj) << "[X] Descriptor set layout"
+                                               << std::endl;
                 }
 
-                vkDestroyPipelineLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_pipelineInfo.resource.layout,
+                vkDestroyPipelineLayout (*resource.logDeviceObj->getLogDevice(),
+                                          resource.layout,
                                           nullptr);
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[X] Pipeline layout"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "[X] Pipeline layout"
+                                               << std::endl;
 
-                vkDestroyPipeline       (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_pipelineInfo.resource.pipeline,
+                vkDestroyPipeline       (*resource.logDeviceObj->getLogDevice(),
+                                          resource.pipeline,
                                           nullptr);
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[X] Pipeline"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "[X] Pipeline"
+                                               << std::endl;
             }
 
         public:
@@ -213,26 +219,29 @@ namespace Renderer {
                                    const int32_t basePipelineIdx,
                                    const VkPipeline basePipeline) {
 
-                m_pipelineInfo.meta.createFlags              = createFlags;
-                m_pipelineInfo.meta.subPassIdx               = subPassIdx;
-                m_pipelineInfo.meta.basePipelineIdx          = basePipelineIdx;
-                m_pipelineInfo.meta.basePipeline             = basePipeline;
+                auto& meta                    = m_pipelineInfo.meta;
+                auto& resource                = m_pipelineInfo.resource;
 
-                m_pipelineInfo.meta.vertexInput              = {};
-                m_pipelineInfo.meta.inputAssembly            = {};
-                m_pipelineInfo.meta.shaderStages             = {};
-                m_pipelineInfo.meta.depthStencil             = {};
-                m_pipelineInfo.meta.rasterization            = {};
-                m_pipelineInfo.meta.multiSample              = {};
-                m_pipelineInfo.meta.colorBlend               = {};
-                m_pipelineInfo.meta.dynamicState             = {};
-                m_pipelineInfo.meta.viewPort                 = {};
-                m_pipelineInfo.meta.pushConstantRanges       = {};
+                meta.createFlags              = createFlags;
+                meta.subPassIdx               = subPassIdx;
+                meta.basePipelineIdx          = basePipelineIdx;
+                meta.basePipeline             = basePipeline;
 
-                m_pipelineInfo.resource.pipeline             = nullptr;
-                m_pipelineInfo.resource.layout               = nullptr;
-                m_pipelineInfo.resource.shaderModules        = {};
-                m_pipelineInfo.resource.descriptorSetLayouts = {};
+                meta.vertexInput              = {};
+                meta.inputAssembly            = {};
+                meta.shaderStages             = {};
+                meta.depthStencil             = {};
+                meta.rasterization            = {};
+                meta.multiSample              = {};
+                meta.colorBlend               = {};
+                meta.dynamicState             = {};
+                meta.viewPort                 = {};
+                meta.pushConstantRanges       = {};
+
+                resource.pipeline             = nullptr;
+                resource.layout               = nullptr;
+                resource.shaderModules        = {};
+                resource.descriptorSetLayouts = {};
             }
 
             /* Binding describes the spacing between data and whether the data is per-vertex or per-instance */
@@ -518,6 +527,7 @@ namespace Renderer {
                                          const std::vector <VkDescriptorBindingFlags>&     bindingFlags,
                                          const std::vector <VkDescriptorSetLayoutBinding>& layoutBindings) {
 
+                auto& resource                       = m_pipelineInfo.resource;
                 VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo;
                 bindingFlagsCreateInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
                 bindingFlagsCreateInfo.pNext         = nullptr;
@@ -532,21 +542,21 @@ namespace Renderer {
                 createInfo.pBindings                 = layoutBindings.data();
 
                 VkDescriptorSetLayout descriptorSetLayout;
-                auto result = vkCreateDescriptorSetLayout (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateDescriptorSetLayout (*resource.logDeviceObj->getLogDevice(),
                                                             &createInfo,
                                                             nullptr,
                                                             &descriptorSetLayout);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_pipelineInfo.resource.logObj) << "[?] Descriptor set layout"
-                                                               << " "
-                                                               << "[" << string_VkResult (result) << "]"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Descriptor set layout"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Descriptor set layout");
                 }
-                LOG_INFO (m_pipelineInfo.resource.logObj)      << "[O] Descriptor set layout"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Descriptor set layout"
+                                                << std::endl;
 
-                m_pipelineInfo.resource.descriptorSetLayouts.push_back (descriptorSetLayout);
+                resource.descriptorSetLayouts.push_back (descriptorSetLayout);
             }
 
             /* Shaders in Vulkan usually access information stored in memory through a descriptor resource. Push constants
@@ -587,12 +597,13 @@ namespace Renderer {
             }
 
             void destroyShaderModules (void) {
-                for (auto const& shaderModule: m_pipelineInfo.resource.shaderModules) {
-                    vkDestroyShaderModule (*m_pipelineInfo.resource.logDeviceObj->getLogDevice(),
+                auto& resource = m_pipelineInfo.resource;
+                for (auto const& shaderModule: resource.shaderModules) {
+                    vkDestroyShaderModule (*resource.logDeviceObj->getLogDevice(),
                                             shaderModule,
                                             nullptr);
-                    LOG_INFO (m_pipelineInfo.resource.logObj) << "[X] Shader module"
-                                                              << std::endl;
+                    LOG_INFO (resource.logObj) << "[X] Shader module"
+                                               << std::endl;
                 }
             }
 

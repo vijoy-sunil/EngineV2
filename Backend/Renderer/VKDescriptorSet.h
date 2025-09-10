@@ -28,28 +28,31 @@ namespace Renderer {
             } m_descriptorSetInfo;
 
             void createDescriptorSets (void) {
+                auto& meta                   = m_descriptorSetInfo.meta;
+                auto& resource               = m_descriptorSetInfo.resource;
+
                 VkDescriptorSetAllocateInfo allocInfo;
                 allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
                 allocInfo.pNext              = nullptr;
-                allocInfo.descriptorSetCount = m_descriptorSetInfo.meta.setsCount;
-                auto layouts                 = std::vector <VkDescriptorSetLayout> (m_descriptorSetInfo.meta.setsCount,
-                                                                                    m_descriptorSetInfo.meta.layout);
-                allocInfo.pSetLayouts        = layouts.data();
-                allocInfo.descriptorPool     = *m_descriptorSetInfo.resource.descPoolObj->getDescriptorPool();
+                allocInfo.descriptorSetCount = meta.setsCount;
 
-                m_descriptorSetInfo.resource.sets.resize (m_descriptorSetInfo.meta.setsCount);
-                auto result = vkAllocateDescriptorSets   (*m_descriptorSetInfo.resource.logDeviceObj->getLogDevice(),
-                                                           &allocInfo,
-                                                           m_descriptorSetInfo.resource.sets.data());
+                auto layouts                 = std::vector <VkDescriptorSetLayout> (meta.setsCount, meta.layout);
+                allocInfo.pSetLayouts        = layouts.data();
+                allocInfo.descriptorPool     = *resource.descPoolObj->getDescriptorPool();
+
+                resource.sets.resize (meta.setsCount);
+                auto result = vkAllocateDescriptorSets (*resource.logDeviceObj->getLogDevice(),
+                                                         &allocInfo,
+                                                         resource.sets.data());
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_descriptorSetInfo.resource.logObj) << "[?] Descriptor set(s)"
-                                                                    << " "
-                                                                    << "[" << string_VkResult (result) << "]"
-                                                                    << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Descriptor set(s)"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Descriptor set(s)");
                 }
-                LOG_INFO (m_descriptorSetInfo.resource.logObj)      << "[O] Descriptor set(s)"
-                                                                    << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Descriptor set(s)"
+                                                << std::endl;
             }
 
             void destroyDescriptorSets (void) {
@@ -92,10 +95,11 @@ namespace Renderer {
             void initDescriptorSetInfo (const uint32_t descriptorSetsCount,
                                         const VkDescriptorSetLayout descriptorSetLayout) {
 
-                m_descriptorSetInfo.meta.setsCount = descriptorSetsCount;
-                m_descriptorSetInfo.meta.layout    = descriptorSetLayout;
-                m_descriptorSetInfo.meta.writeSets = {};
-                m_descriptorSetInfo.resource.sets  = {};
+                auto& meta                        = m_descriptorSetInfo.meta;
+                meta.setsCount                    = descriptorSetsCount;
+                meta.layout                       = descriptorSetLayout;
+                meta.writeSets                    = {};
+                m_descriptorSetInfo.resource.sets = {};
             }
 
             VkDescriptorBufferInfo createDescriptorBufferInfo (const VkBuffer buffer,
@@ -109,13 +113,13 @@ namespace Renderer {
                 return descriptorBufferInfo;
             }
 
-            VkDescriptorImageInfo createDescriptorImageInfo (const VkSampler sampler,
-                                                             const VkImageView imageView,
+            VkDescriptorImageInfo createDescriptorImageInfo (const VkImageView imageView,
+                                                             const VkSampler sampler,
                                                              const VkImageLayout imageLayout) {
 
                 VkDescriptorImageInfo descriptorImageInfo;
-                descriptorImageInfo.sampler     = sampler;
                 descriptorImageInfo.imageView   = imageView;
+                descriptorImageInfo.sampler     = sampler;
                 descriptorImageInfo.imageLayout = imageLayout;
                 return descriptorImageInfo;
             }
@@ -149,9 +153,10 @@ namespace Renderer {
              * descriptor set points to will update what the descriptor set sees
             */
             void updateDescriptorSets (void) {
+                auto& writeSets = m_descriptorSetInfo.meta.writeSets;
                 vkUpdateDescriptorSets (*m_descriptorSetInfo.resource.logDeviceObj->getLogDevice(),
-                                         static_cast <uint32_t> (m_descriptorSetInfo.meta.writeSets.size()),
-                                         m_descriptorSetInfo.meta.writeSets.data(),
+                                         static_cast <uint32_t> (writeSets.size()),
+                                         writeSets.data(),
                                          0,
                                          nullptr);
             }

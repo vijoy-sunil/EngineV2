@@ -37,9 +37,10 @@ namespace Renderer {
             } m_swapChainInfo;
 
             VkSurfaceCapabilitiesKHR getSurfaceCapabilities (void) {
+                auto& resource = m_swapChainInfo.resource;
                 VkSurfaceCapabilitiesKHR capabilities;
-                vkGetPhysicalDeviceSurfaceCapabilitiesKHR (*m_swapChainInfo.resource.phyDeviceObj->getPhyDevice(),
-                                                           *m_swapChainInfo.resource.surfaceObj->getSurface(),
+                vkGetPhysicalDeviceSurfaceCapabilitiesKHR (*resource.phyDeviceObj->getPhyDevice(),
+                                                           *resource.surfaceObj->getSurface(),
                                                            &capabilities);
                 return capabilities;
             }
@@ -103,46 +104,39 @@ namespace Renderer {
             }
 
             bool isSurfaceFormatSupported (const VkSurfaceFormatKHR surfaceFormat) {
+                auto& resource = m_swapChainInfo.resource;
                 std::vector <VkSurfaceFormatKHR> availableSurfaceFormats;
                 uint32_t surfaceFormatsCount;
-                vkGetPhysicalDeviceSurfaceFormatsKHR     (*m_swapChainInfo.resource.phyDeviceObj->getPhyDevice(),
-                                                          *m_swapChainInfo.resource.surfaceObj->getSurface(),
+                vkGetPhysicalDeviceSurfaceFormatsKHR     (*resource.phyDeviceObj->getPhyDevice(),
+                                                          *resource.surfaceObj->getSurface(),
                                                           &surfaceFormatsCount,
                                                           nullptr);
                 if (surfaceFormatsCount != 0) {
                     availableSurfaceFormats.resize (surfaceFormatsCount);
-                    vkGetPhysicalDeviceSurfaceFormatsKHR (*m_swapChainInfo.resource.phyDeviceObj->getPhyDevice(),
-                                                          *m_swapChainInfo.resource.surfaceObj->getSurface(),
+                    vkGetPhysicalDeviceSurfaceFormatsKHR (*resource.phyDeviceObj->getPhyDevice(),
+                                                          *resource.surfaceObj->getSurface(),
                                                           &surfaceFormatsCount,
                                                           availableSurfaceFormats.data());
                 }
 
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << "Available surface formats"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "Available surface formats"
+                                               << std::endl;
                 for (auto const& availableSurfaceFormat: availableSurfaceFormats)
-                    LOG_INFO (m_swapChainInfo.resource.logObj) << "[" << string_VkFormat
-                                                                         (availableSurfaceFormat.format)
-                                                               << "]"
-                                                               << " "
-                                                               << "[" << string_VkColorSpaceKHR
-                                                                         (availableSurfaceFormat.colorSpace)
-                                                               << "]"
-                                                               << std::endl;
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                    LOG_INFO (resource.logObj) << "[" << string_VkFormat (availableSurfaceFormat.format)            << "]"
+                                               << " "
+                                               << "[" << string_VkColorSpaceKHR (availableSurfaceFormat.colorSpace) << "]"
+                                               << std::endl;
+                LOG_INFO (resource.logObj)     << LINE_BREAK
+                                               << std::endl;
 
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << "Required surface format"
-                                                               << std::endl;
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << "[" << string_VkFormat
-                                                                         (surfaceFormat.format)
-                                                               << "]"
-                                                               << " "
-                                                               << "[" << string_VkColorSpaceKHR
-                                                                         (surfaceFormat.colorSpace)
-                                                               << "]"
-                                                               << std::endl;
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "Required surface format"
+                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "[" << string_VkFormat (surfaceFormat.format)            << "]"
+                                               << " "
+                                               << "[" << string_VkColorSpaceKHR (surfaceFormat.colorSpace) << "]"
+                                               << std::endl;
+                LOG_INFO (resource.logObj)     << LINE_BREAK
+                                               << std::endl;
 
                 for (auto const& availableSurfaceFormat: availableSurfaceFormats) {
                     if (availableSurfaceFormat.format     == surfaceFormat.format &&
@@ -154,38 +148,35 @@ namespace Renderer {
             }
 
             bool isPresentModeSupported (const VkPresentModeKHR presentMode) {
+                auto& resource = m_swapChainInfo.resource;
                 std::vector <VkPresentModeKHR> availablePresentModes;
                 uint32_t presentModesCount;
-                vkGetPhysicalDeviceSurfacePresentModesKHR     (*m_swapChainInfo.resource.phyDeviceObj->getPhyDevice(),
-                                                               *m_swapChainInfo.resource.surfaceObj->getSurface(),
+                vkGetPhysicalDeviceSurfacePresentModesKHR     (*resource.phyDeviceObj->getPhyDevice(),
+                                                               *resource.surfaceObj->getSurface(),
                                                                &presentModesCount,
                                                                nullptr);
                 if (presentModesCount != 0) {
                     availablePresentModes.resize (presentModesCount);
-                    vkGetPhysicalDeviceSurfacePresentModesKHR (*m_swapChainInfo.resource.phyDeviceObj->getPhyDevice(),
-                                                               *m_swapChainInfo.resource.surfaceObj->getSurface(),
+                    vkGetPhysicalDeviceSurfacePresentModesKHR (*resource.phyDeviceObj->getPhyDevice(),
+                                                               *resource.surfaceObj->getSurface(),
                                                                &presentModesCount,
                                                                availablePresentModes.data());
                 }
 
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << "Available present modes"
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "Available present modes"
+                                               << std::endl;
                 for (auto const& availablePresentMode: availablePresentModes)
-                    LOG_INFO (m_swapChainInfo.resource.logObj) << "[" << string_VkPresentModeKHR
-                                                                         (availablePresentMode)
-                                                               << "]"
-                                                               << std::endl;
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                    LOG_INFO (resource.logObj) << "[" << string_VkPresentModeKHR (availablePresentMode) << "]"
+                                               << std::endl;
+                LOG_INFO (resource.logObj)     << LINE_BREAK
+                                               << std::endl;
 
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << "Required present mode"
-                                                               << std::endl;
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << "[" << string_VkPresentModeKHR
-                                                                         (presentMode)
-                                                               << "]"
-                                                               << std::endl;
-                LOG_INFO (m_swapChainInfo.resource.logObj)     << LINE_BREAK
-                                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "Required present mode"
+                                               << std::endl;
+                LOG_INFO (resource.logObj)     << "[" << string_VkPresentModeKHR (presentMode)          << "]"
+                                               << std::endl;
+                LOG_INFO (resource.logObj)     << LINE_BREAK
+                                               << std::endl;
 
                 for (auto const& availablePresentMode: availablePresentModes) {
                     if (availablePresentMode == presentMode)
@@ -195,23 +186,25 @@ namespace Renderer {
             }
 
             void createSwapChain (void) {
+                auto& meta                           = m_swapChainInfo.meta;
+                auto& resource                       = m_swapChainInfo.resource;
+
                 VkSwapchainCreateInfoKHR createInfo;
                 createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
                 createInfo.pNext                     = nullptr;
                 createInfo.flags                     = 0;
-                createInfo.minImageCount             = m_swapChainInfo.meta.minImages;
+                createInfo.minImageCount             = meta.minImages;
                 createInfo.imageArrayLayers          = 1;
-                createInfo.imageExtent               = m_swapChainInfo.meta.extent;
-                createInfo.imageUsage                = m_swapChainInfo.meta.usages;
-                createInfo.imageFormat               = m_swapChainInfo.meta.surfaceFormat.format;
-                createInfo.imageColorSpace           = m_swapChainInfo.meta.surfaceFormat.colorSpace;
-                createInfo.presentMode               = m_swapChainInfo.meta.presentMode;
+                createInfo.imageExtent               = meta.extent;
+                createInfo.imageUsage                = meta.usages;
+                createInfo.imageFormat               = meta.surfaceFormat.format;
+                createInfo.imageColorSpace           = meta.surfaceFormat.colorSpace;
+                createInfo.presentMode               = meta.presentMode;
 
-                auto& queueFamilyIndices             = m_swapChainInfo.meta.queueFamilyIndices;
-                if (isIndicesUnique (queueFamilyIndices)) {
+                if (isIndicesUnique (meta.queueFamilyIndices)) {
                     createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
-                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
-                    createInfo.pQueueFamilyIndices   = queueFamilyIndices.data();
+                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (meta.queueFamilyIndices.size());
+                    createInfo.pQueueFamilyIndices   = meta.queueFamilyIndices.data();
                 }
                 else {
                     createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
@@ -219,39 +212,40 @@ namespace Renderer {
                     createInfo.pQueueFamilyIndices   = nullptr;
                 }
 
-                createInfo.surface                   = *m_swapChainInfo.resource.surfaceObj->getSurface();
+                createInfo.surface                   = *resource.surfaceObj->getSurface();
                 createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
                 createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
                 createInfo.clipped                   = VK_TRUE;
                 createInfo.oldSwapchain              = nullptr;
 
-                auto result = vkCreateSwapchainKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateSwapchainKHR (*resource.logDeviceObj->getLogDevice(),
                                                      &createInfo,
                                                      nullptr,
-                                                     &m_swapChainInfo.resource.swapChain);
+                                                     &resource.swapChain);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_swapChainInfo.resource.logObj) << "[?] Swap chain"
-                                                                << " "
-                                                                << "[" << string_VkResult (result) << "]"
-                                                                << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Swap chain"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Swap chain");
                 }
-                LOG_INFO (m_swapChainInfo.resource.logObj)      << "[O] Swap chain"
-                                                                << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Swap chain"
+                                                << std::endl;
 
                 /* Save swap chain size */
-                vkGetSwapchainImagesKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_swapChainInfo.resource.swapChain,
-                                          &m_swapChainInfo.meta.imagesCount,
+                vkGetSwapchainImagesKHR (*resource.logDeviceObj->getLogDevice(),
+                                          resource.swapChain,
+                                          &meta.imagesCount,
                                           nullptr);
             }
 
             void destroySwapChain (void) {
-                vkDestroySwapchainKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
-                                        m_swapChainInfo.resource.swapChain,
+                auto& resource = m_swapChainInfo.resource;
+                vkDestroySwapchainKHR (*resource.logDeviceObj->getLogDevice(),
+                                        resource.swapChain,
                                         nullptr);
-                LOG_INFO (m_swapChainInfo.resource.logObj) << "[X] Swap chain"
-                                                           << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Swap chain"
+                                           << std::endl;
             }
 
         public:
@@ -294,32 +288,35 @@ namespace Renderer {
                                     const VkPresentModeKHR presentMode,
                                     const std::vector <uint32_t> queueFamilyIndices) {
 
-                m_swapChainInfo.meta.minImages                    = getSwapChainMinImagesEXT();
-                m_swapChainInfo.meta.imagesCount                  = 0;
-                m_swapChainInfo.meta.extent                       = getSwapChainExtentEXT();
-                m_swapChainInfo.meta.usages                       = imageUsages;
+                auto& meta                        = m_swapChainInfo.meta;
+                auto& resource                    = m_swapChainInfo.resource;
+
+                meta.minImages                    = getSwapChainMinImagesEXT();
+                meta.imagesCount                  = 0;
+                meta.extent                       = getSwapChainExtentEXT();
+                meta.usages                       = imageUsages;
 
                 if (!isSurfaceFormatSupported (surfaceFormat)) {
-                    LOG_WARNING (m_swapChainInfo.resource.logObj) << "Surface format not supported, setting to default"
-                                                                  << std::endl;
+                    LOG_WARNING (resource.logObj) << "Surface format not supported, setting to default"
+                                                  << std::endl;
                     /* We will settle with the first surface format in the list */
-                    m_swapChainInfo.meta.surfaceFormat.format     = VK_FORMAT_B8G8R8A8_UNORM;
-                    m_swapChainInfo.meta.surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+                    meta.surfaceFormat.format     = VK_FORMAT_B8G8R8A8_UNORM;
+                    meta.surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
                 }
                 else
-                    m_swapChainInfo.meta.surfaceFormat            = surfaceFormat;
+                    meta.surfaceFormat            = surfaceFormat;
 
                 if (!isPresentModeSupported (presentMode)) {
-                    LOG_WARNING (m_swapChainInfo.resource.logObj) << "Present mode not supported, setting to default"
-                                                                  << std::endl;
+                    LOG_WARNING (resource.logObj) << "Present mode not supported, setting to default"
+                                                  << std::endl;
                     /* VK_PRESENT_MODE_FIFO_KHR is guaranteed to be available */
-                    m_swapChainInfo.meta.presentMode              = VK_PRESENT_MODE_FIFO_KHR;
+                    meta.presentMode              = VK_PRESENT_MODE_FIFO_KHR;
                 }
                 else
-                    m_swapChainInfo.meta.presentMode              = presentMode;
+                    meta.presentMode              = presentMode;
 
-                m_swapChainInfo.meta.queueFamilyIndices           = queueFamilyIndices;
-                m_swapChainInfo.resource.swapChain                = nullptr;
+                meta.queueFamilyIndices           = queueFamilyIndices;
+                resource.swapChain                = nullptr;
             }
 
             uint32_t getSwapChainMinImages (void) {
@@ -343,10 +340,13 @@ namespace Renderer {
             }
 
             std::vector <VkImage> getSwapChainImages (void) {
-                std::vector <VkImage> images (m_swapChainInfo.meta.imagesCount);
-                vkGetSwapchainImagesKHR (*m_swapChainInfo.resource.logDeviceObj->getLogDevice(),
-                                          m_swapChainInfo.resource.swapChain,
-                                          &m_swapChainInfo.meta.imagesCount,
+                auto& imagesCount = m_swapChainInfo.meta.imagesCount;
+                auto& resource    = m_swapChainInfo.resource;
+
+                std::vector <VkImage> images (imagesCount);
+                vkGetSwapchainImagesKHR (*resource.logDeviceObj->getLogDevice(),
+                                          resource.swapChain,
+                                          &imagesCount,
                                           images.data());
                 return images;
             }

@@ -33,41 +33,45 @@ namespace Renderer {
              * with an attachment, and the frame buffer together with the render pass defines the render target
             */
             void createFrameBuffer (void) {
+                auto& meta                 = m_frameBufferInfo.meta;
+                auto& resource             = m_frameBufferInfo.resource;
+
                 VkFramebufferCreateInfo createInfo;
                 createInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
                 createInfo.pNext           = nullptr;
                 createInfo.flags           = 0;
-                createInfo.width           = m_frameBufferInfo.meta.width;
-                createInfo.height          = m_frameBufferInfo.meta.height;
-                createInfo.layers          = m_frameBufferInfo.meta.layersCount;
-                createInfo.attachmentCount = static_cast <uint32_t> (m_frameBufferInfo.meta.attachments.size());
-                createInfo.pAttachments    = m_frameBufferInfo.meta.attachments.data();
+                createInfo.width           = meta.width;
+                createInfo.height          = meta.height;
+                createInfo.layers          = meta.layersCount;
+                createInfo.attachmentCount = static_cast <uint32_t> (meta.attachments.size());
+                createInfo.pAttachments    = meta.attachments.data();
                 /* Note that, you can only use a frame buffer with the render passes that it is compatible with, which
                  * roughly means that they use the same number and type of attachments
                 */
-                createInfo.renderPass      = *m_frameBufferInfo.resource.renderPassObj->getRenderPass();
+                createInfo.renderPass      = *resource.renderPassObj->getRenderPass();
 
-                auto result = vkCreateFramebuffer (*m_frameBufferInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateFramebuffer (*resource.logDeviceObj->getLogDevice(),
                                                     &createInfo,
                                                     nullptr,
-                                                    &m_frameBufferInfo.resource.buffer);
+                                                    &resource.buffer);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_frameBufferInfo.resource.logObj) << "[?] Frame buffer"
-                                                                  << " "
-                                                                  << "[" << string_VkResult (result) << "]"
-                                                                  << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Frame buffer"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Frame buffer");
                 }
-                LOG_INFO (m_frameBufferInfo.resource.logObj)      << "[O] Frame buffer"
-                                                                  << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Frame buffer"
+                                                << std::endl;
             }
 
             void destroyFrameBuffer (void) {
-                vkDestroyFramebuffer (*m_frameBufferInfo.resource.logDeviceObj->getLogDevice(),
-                                       m_frameBufferInfo.resource.buffer,
+                auto& resource = m_frameBufferInfo.resource;
+                vkDestroyFramebuffer (*resource.logDeviceObj->getLogDevice(),
+                                       resource.buffer,
                                        nullptr);
-                LOG_INFO (m_frameBufferInfo.resource.logObj) << "[X] Frame buffer"
-                                                             << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Frame buffer"
+                                           << std::endl;
             }
 
         public:
@@ -104,11 +108,12 @@ namespace Renderer {
                                       const uint32_t layersCount,
                                       const std::vector <VkImageView> attachments) {
 
-                m_frameBufferInfo.meta.width       = width;
-                m_frameBufferInfo.meta.height      = height;
-                m_frameBufferInfo.meta.layersCount = layersCount;
-                m_frameBufferInfo.meta.attachments = attachments;
-                m_frameBufferInfo.resource.buffer  = nullptr;
+                auto& meta                        = m_frameBufferInfo.meta;
+                meta.width                        = width;
+                meta.height                       = height;
+                meta.layersCount                  = layersCount;
+                meta.attachments                  = attachments;
+                m_frameBufferInfo.resource.buffer = nullptr;
             }
 
             VkFramebuffer* getFrameBuffer (void) {

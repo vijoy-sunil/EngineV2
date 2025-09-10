@@ -40,19 +40,19 @@ namespace Renderer {
             } m_rendererInfo;
 
             bool getSwapChainImageIdxEXT (void) {
-                auto& frameIdx = m_rendererInfo.meta.frameInFlightIdx;
+                auto& meta     = m_rendererInfo.meta;
                 auto& resource = m_rendererInfo.resource;
                 /* The semaphore is signaled when the presentation engine is finished using the image. That's the point
                  * in time where we can start drawing to it. Note that, the image index refers to the VkImage in our swap
                  * chain images array. We're going to use this index to pick the frame buffer. The function returns the
                  * index of the next image that will be available at some point notified by the semaphore
                 */
-                auto result    = vkAcquireNextImageKHR (*resource.logDeviceObj->getLogDevice(),
-                                                        *resource.swapChainObj->getSwapChain(),
-                                                        UINT64_MAX,
-                                                        *resource.imageAvailableSemObjs[frameIdx]->getSemaphore(),
-                                                        nullptr,
-                                                        &m_rendererInfo.meta.swapChainImageIdx);
+                auto result = vkAcquireNextImageKHR (*resource.logDeviceObj->getLogDevice(),
+                                                     *resource.swapChainObj->getSwapChain(),
+                                                     UINT64_MAX,
+                                                     *resource.imageAvailableSemObjs[meta.frameInFlightIdx]->getSemaphore(),
+                                                     nullptr,
+                                                     &meta.swapChainImageIdx);
                 /* If the swap chain turns out to be out of date when attempting to acquire an image, then it is no longer
                  * possible to present to it. Therefore we should immediately recreate the swap chain and its dependents
                  * and try again
@@ -94,7 +94,7 @@ namespace Renderer {
             }
 
             void presentSwapChainImage (void) {
-                auto& frameIdx                 = m_rendererInfo.meta.frameInFlightIdx;
+                auto& meta                     = m_rendererInfo.meta;
                 auto& resource                 = m_rendererInfo.resource;
 
                 VkPresentInfoKHR presentInfo;
@@ -102,9 +102,9 @@ namespace Renderer {
                 presentInfo.pNext              = nullptr;
                 presentInfo.swapchainCount     = 1;
                 presentInfo.pSwapchains        = resource.swapChainObj->getSwapChain();
-                presentInfo.pImageIndices      = &m_rendererInfo.meta.swapChainImageIdx;
+                presentInfo.pImageIndices      = &meta.swapChainImageIdx;
                 presentInfo.waitSemaphoreCount = 1;
-                presentInfo.pWaitSemaphores    = resource.renderDoneSemObjs[frameIdx]->getSemaphore();
+                presentInfo.pWaitSemaphores    = resource.renderDoneSemObjs[meta.frameInFlightIdx]->getSemaphore();
                 presentInfo.pResults           = nullptr;
                 /* Note that, the presentation engine isn't guaranteed to act in concert with the queue it’s on, even if
                  * it’s on a graphics queue. vkAcquireNextImageKHR returns when the presentation engine knows which index
@@ -147,8 +147,8 @@ namespace Renderer {
             }
 
             void updateFrameInFlightIdx (void) {
-                auto& frameIdx = m_rendererInfo.meta.frameInFlightIdx;
-                frameIdx       = (frameIdx + 1) % m_rendererInfo.meta.maxFramesInFlight;
+                auto& meta            = m_rendererInfo.meta;
+                meta.frameInFlightIdx = (meta.frameInFlightIdx + 1) % meta.maxFramesInFlight;
             }
 
         public:
@@ -195,17 +195,20 @@ namespace Renderer {
             }
 
             void initRendererInfo (const uint32_t maxFramesInFlight) {
-                m_rendererInfo.meta.swapChainImageIdx = 0;
-                m_rendererInfo.meta.frameInFlightIdx  = 0;
-                m_rendererInfo.meta.maxFramesInFlight = maxFramesInFlight;
+                auto& meta             = m_rendererInfo.meta;
+                auto& resource         = m_rendererInfo.resource;
+
+                meta.swapChainImageIdx = 0;
+                meta.frameInFlightIdx  = 0;
+                meta.maxFramesInFlight = maxFramesInFlight;
 
                 /* Make sure we have sync objects for every frame in flight */
-                if (m_rendererInfo.resource.inFlightFenObjs.size()       != maxFramesInFlight ||
-                    m_rendererInfo.resource.imageAvailableSemObjs.size() != maxFramesInFlight ||
-                    m_rendererInfo.resource.renderDoneSemObjs.size()     != maxFramesInFlight) {
+                if (resource.inFlightFenObjs.size()       != maxFramesInFlight ||
+                    resource.imageAvailableSemObjs.size() != maxFramesInFlight ||
+                    resource.renderDoneSemObjs.size()     != maxFramesInFlight) {
 
-                    LOG_ERROR (m_rendererInfo.resource.logObj) << "Invalid sync objects count"
-                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << "Invalid sync objects count"
+                                                << std::endl;
                     throw std::runtime_error ("Invalid sync objects count");
                 }
             }
@@ -223,10 +226,10 @@ namespace Renderer {
             }
 
             bool beginFrame (void) {
-                auto& frameIdx      = m_rendererInfo.meta.frameInFlightIdx;
-                auto& resource      = m_rendererInfo.resource;
-                auto inFlightFenObj = resource.inFlightFenObjs[frameIdx];
-                auto cmdBuffer      = resource.cmdBufferObj->getCmdBuffers()[frameIdx];
+                auto& frameInFlightIdx = m_rendererInfo.meta.frameInFlightIdx;
+                auto& resource         = m_rendererInfo.resource;
+                auto inFlightFenObj    = resource.inFlightFenObjs[frameInFlightIdx];
+                auto cmdBuffer         = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
                 /* At the start of the frame, we want to wait until the previous frame has finished, so that the command
                  * buffer and semaphores are available to use
                 */
@@ -267,12 +270,12 @@ namespace Renderer {
             }
 
             void endFrame (void) {
-                auto& frameIdx            = m_rendererInfo.meta.frameInFlightIdx;
+                auto& frameInFlightIdx    = m_rendererInfo.meta.frameInFlightIdx;
                 auto& resource            = m_rendererInfo.resource;
-                auto inFlightFenObj       = resource.inFlightFenObjs[frameIdx];
-                auto imageAvailableSemObj = resource.imageAvailableSemObjs[frameIdx];
-                auto renderDoneSemObj     = resource.renderDoneSemObjs[frameIdx];
-                auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameIdx];
+                auto inFlightFenObj       = resource.inFlightFenObjs[frameInFlightIdx];
+                auto imageAvailableSemObj = resource.imageAvailableSemObjs[frameInFlightIdx];
+                auto renderDoneSemObj     = resource.renderDoneSemObjs[frameInFlightIdx];
+                auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
                 endCmdBufferRecording (cmdBuffer);
 
                 auto cmdBuffers           = std::vector {

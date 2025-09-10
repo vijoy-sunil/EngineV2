@@ -8,33 +8,6 @@ namespace Renderer {
         return setContainer.size() != 1;
     }
 
-    /* Note that, we're using a depth buffer, so we have to take into account the sample count for both color and depth.
-     * The highest sample count that is supported by both (&) will be the maximum we can support
-    */
-    VkSampleCountFlagBits getMaxSupportedSamplesCount (const VkPhysicalDevice phyDevice) {
-        VkPhysicalDeviceProperties properties;
-        vkGetPhysicalDeviceProperties (phyDevice, &properties);
-
-        auto samplesCount = properties.limits.framebufferColorSampleCounts &
-                            properties.limits.framebufferDepthSampleCounts;
-
-        if (samplesCount & VK_SAMPLE_COUNT_64_BIT)  return VK_SAMPLE_COUNT_64_BIT;
-        if (samplesCount & VK_SAMPLE_COUNT_32_BIT)  return VK_SAMPLE_COUNT_32_BIT;
-        if (samplesCount & VK_SAMPLE_COUNT_16_BIT)  return VK_SAMPLE_COUNT_16_BIT;
-        if (samplesCount & VK_SAMPLE_COUNT_8_BIT)   return VK_SAMPLE_COUNT_8_BIT;
-        if (samplesCount & VK_SAMPLE_COUNT_4_BIT)   return VK_SAMPLE_COUNT_4_BIT;
-        if (samplesCount & VK_SAMPLE_COUNT_2_BIT)   return VK_SAMPLE_COUNT_2_BIT;
-
-        return VK_SAMPLE_COUNT_1_BIT;
-    }
-
-    float getMaxSamplerAnisotropy (const VkPhysicalDevice phyDevice) {
-        VkPhysicalDeviceProperties properties;
-        vkGetPhysicalDeviceProperties (phyDevice, &properties);
-
-        return properties.limits.maxSamplerAnisotropy;
-    }
-
     uint32_t getMemoryTypeIdx (const VkPhysicalDevice phyDevice,
                                const uint32_t memoryTypeFilter,
                                const VkMemoryPropertyFlags memoryProperties) {

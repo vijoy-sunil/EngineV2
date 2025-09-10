@@ -44,27 +44,29 @@ namespace Renderer {
             } m_imageInfo;
 
             void createImage (void) {
+                auto& meta                           = m_imageInfo.meta;
+                auto& resource                       = m_imageInfo.resource;
+
                 VkImageCreateInfo createInfo;
                 createInfo.sType                     = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
                 createInfo.pNext                     = nullptr;
-                createInfo.flags                     = m_imageInfo.meta.createFlags;
+                createInfo.flags                     = meta.createFlags;
                 createInfo.imageType                 = VK_IMAGE_TYPE_2D;
-                createInfo.extent.width              = m_imageInfo.meta.width;
-                createInfo.extent.height             = m_imageInfo.meta.height;
+                createInfo.extent.width              = meta.width;
+                createInfo.extent.height             = meta.height;
                 createInfo.extent.depth              = 1;
-                createInfo.mipLevels                 = m_imageInfo.meta.mipLevels;
-                createInfo.arrayLayers               = m_imageInfo.meta.layersCount;
-                createInfo.initialLayout             = m_imageInfo.meta.initialLayout;
-                createInfo.format                    = m_imageInfo.meta.format;
-                createInfo.usage                     = m_imageInfo.meta.usages;
-                createInfo.samples                   = m_imageInfo.meta.samplesCount;
-                createInfo.tiling                    = m_imageInfo.meta.tiling;
+                createInfo.mipLevels                 = meta.mipLevels;
+                createInfo.arrayLayers               = meta.layersCount;
+                createInfo.initialLayout             = meta.initialLayout;
+                createInfo.format                    = meta.format;
+                createInfo.usage                     = meta.usages;
+                createInfo.samples                   = meta.samplesCount;
+                createInfo.tiling                    = meta.tiling;
 
-                auto& queueFamilyIndices             = m_imageInfo.meta.queueFamilyIndices;
-                if (isIndicesUnique (queueFamilyIndices)) {
+                if (isIndicesUnique (meta.queueFamilyIndices)) {
                     createInfo.sharingMode           = VK_SHARING_MODE_CONCURRENT;
-                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
-                    createInfo.pQueueFamilyIndices   = queueFamilyIndices.data();
+                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (meta.queueFamilyIndices.size());
+                    createInfo.pQueueFamilyIndices   = meta.queueFamilyIndices.data();
                 }
                 else {
                     createInfo.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
@@ -72,108 +74,113 @@ namespace Renderer {
                     createInfo.pQueueFamilyIndices   = nullptr;
                 }
 
-                auto result = vkCreateImage (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateImage (*resource.logDeviceObj->getLogDevice(),
                                               &createInfo,
                                               nullptr,
-                                              &m_imageInfo.resource.image);
+                                              &resource.image);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_imageInfo.resource.logObj) << "[?] Image"
-                                                            << " "
-                                                            << "[" << string_VkResult (result) << "]"
-                                                            << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Image"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Image");
                 }
-                LOG_INFO (m_imageInfo.resource.logObj)      << "[O] Image"
-                                                            << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Image"
+                                                << std::endl;
 
                 VkMemoryRequirements memoryRequirements;
-                vkGetImageMemoryRequirements (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
-                                               m_imageInfo.resource.image,
+                vkGetImageMemoryRequirements (*resource.logDeviceObj->getLogDevice(),
+                                               resource.image,
                                                &memoryRequirements);
 
                 VkMemoryAllocateInfo allocInfo;
                 allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
                 allocInfo.pNext           = nullptr;
                 allocInfo.allocationSize  = memoryRequirements.size;
-                allocInfo.memoryTypeIndex = getMemoryTypeIdx (*m_imageInfo.resource.phyDeviceObj->getPhyDevice(),
+                allocInfo.memoryTypeIndex = getMemoryTypeIdx (*resource.phyDeviceObj->getPhyDevice(),
                                                                memoryRequirements.memoryTypeBits,
-                                                               m_imageInfo.meta.memoryProperties);
+                                                               meta.memoryProperties);
 
-                result = vkAllocateMemory (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
+                result = vkAllocateMemory (*resource.logDeviceObj->getLogDevice(),
                                             &allocInfo,
                                             nullptr,
-                                            &m_imageInfo.resource.memory);
+                                            &resource.memory);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_imageInfo.resource.logObj) << "[?] Image memory"
-                                                            << " "
-                                                            << "[" << string_VkResult (result) << "]"
-                                                            << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Image memory"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Image memory");
                 }
-                LOG_INFO (m_imageInfo.resource.logObj)      << "[O] Image memory"
-                                                            << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Image memory"
+                                                << std::endl;
 
-                vkBindImageMemory (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
-                                    m_imageInfo.resource.image,
-                                    m_imageInfo.resource.memory,
+                vkBindImageMemory (*resource.logDeviceObj->getLogDevice(),
+                                    resource.image,
+                                    resource.memory,
                                     0);
             }
 
             void createImageView (void) {
+                auto& meta                                 = m_imageInfo.meta;
+                auto& resource                             = m_imageInfo.resource;
+
                 VkImageViewCreateInfo createInfo;
                 createInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
                 createInfo.pNext                           = nullptr;
                 createInfo.flags                           = 0;
 
                 createInfo.subresourceRange.baseMipLevel   = 0;
-                createInfo.subresourceRange.levelCount     = m_imageInfo.meta.mipLevels;
-                createInfo.subresourceRange.baseArrayLayer = m_imageInfo.meta.baseArrayLayer;
-                createInfo.subresourceRange.layerCount     = m_imageInfo.meta.layersCount;
-                createInfo.subresourceRange.aspectMask     = m_imageInfo.meta.aspectFlags;
+                createInfo.subresourceRange.levelCount     = meta.mipLevels;
+                createInfo.subresourceRange.baseArrayLayer = meta.baseArrayLayer;
+                createInfo.subresourceRange.layerCount     = meta.layersCount;
+                createInfo.subresourceRange.aspectMask     = meta.aspectFlags;
 
-                createInfo.format                          = m_imageInfo.meta.format;
-                createInfo.viewType                        = m_imageInfo.meta.viewType;
-                createInfo.image                           = m_imageInfo.resource.image;
+                createInfo.format                          = meta.format;
+                createInfo.viewType                        = meta.viewType;
+                createInfo.image                           = resource.image;
                 createInfo.components.r                    = VK_COMPONENT_SWIZZLE_IDENTITY;
                 createInfo.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
                 createInfo.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
                 createInfo.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
 
-                auto result = vkCreateImageView (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateImageView (*resource.logDeviceObj->getLogDevice(),
                                                   &createInfo,
                                                   nullptr,
-                                                  &m_imageInfo.resource.view);
+                                                  &resource.view);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_imageInfo.resource.logObj) << "[?] Image view"
-                                                            << " "
-                                                            << "[" << string_VkResult (result) << "]"
-                                                            << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Image view"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Image view");
                 }
-                LOG_INFO (m_imageInfo.resource.logObj)      << "[O] Image view"
-                                                            << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Image view"
+                                                << std::endl;
             }
 
             void destroyImage (void) {
-                vkDestroyImage (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
-                                 m_imageInfo.resource.image,
+                auto& resource = m_imageInfo.resource;
+                vkDestroyImage (*resource.logDeviceObj->getLogDevice(),
+                                 resource.image,
                                  nullptr);
-                LOG_INFO (m_imageInfo.resource.logObj) << "[X] Image"
-                                                       << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Image"
+                                           << std::endl;
 
-                vkFreeMemory   (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
-                                 m_imageInfo.resource.memory,
+                vkFreeMemory   (*resource.logDeviceObj->getLogDevice(),
+                                 resource.memory,
                                  nullptr);
-                LOG_INFO (m_imageInfo.resource.logObj) << "[X] Image memory"
-                                                       << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Image memory"
+                                           << std::endl;
             }
 
             void destroyImageView (void) {
-                vkDestroyImageView (*m_imageInfo.resource.logDeviceObj->getLogDevice(),
-                                     m_imageInfo.resource.view,
+                auto& resource = m_imageInfo.resource;
+                vkDestroyImageView (*resource.logDeviceObj->getLogDevice(),
+                                     resource.view,
                                      nullptr);
-                LOG_INFO (m_imageInfo.resource.logObj) << "[X] Image view"
-                                                       << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Image view"
+                                           << std::endl;
             }
 
         public:
@@ -221,25 +228,29 @@ namespace Renderer {
                                 const VkImageAspectFlags aspectFlags,
                                 const VkImageViewType viewType) {
 
-                m_imageInfo.meta.width              = width;
-                m_imageInfo.meta.height             = height;
-                m_imageInfo.meta.mipLevels          = mipLevels;
-                m_imageInfo.meta.baseArrayLayer     = baseArrayLayer;
-                m_imageInfo.meta.layersCount        = layersCount;
-                m_imageInfo.meta.createFlags        = createFlags;
-                m_imageInfo.meta.initialLayout      = initialImageLayout;
-                m_imageInfo.meta.format             = format;
-                m_imageInfo.meta.usages             = imageUsages;
-                m_imageInfo.meta.samplesCount       = samplesCount;
-                m_imageInfo.meta.tiling             = tiling;
-                m_imageInfo.meta.memoryProperties   = memoryProperties;
-                m_imageInfo.meta.queueFamilyIndices = queueFamilyIndices;
-                m_imageInfo.meta.aspectFlags        = aspectFlags;
-                m_imageInfo.meta.viewType           = viewType;
-                m_imageInfo.state.onlyViewCreated   = false;
-                m_imageInfo.resource.image          = nullptr;
-                m_imageInfo.resource.memory         = nullptr;
-                m_imageInfo.resource.view           = nullptr;
+                auto& meta                        = m_imageInfo.meta;
+                auto& resource                    = m_imageInfo.resource;
+
+                meta.width                        = width;
+                meta.height                       = height;
+                meta.mipLevels                    = mipLevels;
+                meta.baseArrayLayer               = baseArrayLayer;
+                meta.layersCount                  = layersCount;
+                meta.createFlags                  = createFlags;
+                meta.initialLayout                = initialImageLayout;
+                meta.format                       = format;
+                meta.usages                       = imageUsages;
+                meta.samplesCount                 = samplesCount;
+                meta.tiling                       = tiling;
+                meta.memoryProperties             = memoryProperties;
+                meta.queueFamilyIndices           = queueFamilyIndices;
+                meta.aspectFlags                  = aspectFlags;
+                meta.viewType                     = viewType;
+                m_imageInfo.state.onlyViewCreated = false;
+
+                resource.image                    = nullptr;
+                resource.memory                   = nullptr;
+                resource.view                     = nullptr;
             }
 
             void initImageInfo (const uint32_t mipLevels,
@@ -250,19 +261,24 @@ namespace Renderer {
                                 const VkImageViewType viewType,
                                 const VkImage image) {
 
-                m_imageInfo.meta.mipLevels        = mipLevels;
-                m_imageInfo.meta.baseArrayLayer   = baseArrayLayer;
-                m_imageInfo.meta.layersCount      = layersCount;
-                m_imageInfo.meta.format           = format;
-                m_imageInfo.meta.aspectFlags      = aspectFlags;
-                m_imageInfo.meta.viewType         = viewType;
+                auto& meta                        = m_imageInfo.meta;
+                auto& resource                    = m_imageInfo.resource;
+
+                meta.mipLevels                    = mipLevels;
+                meta.baseArrayLayer               = baseArrayLayer;
+                meta.layersCount                  = layersCount;
+                meta.format                       = format;
+                meta.aspectFlags                  = aspectFlags;
+                meta.viewType                     = viewType;
                 m_imageInfo.state.onlyViewCreated = true;
-                m_imageInfo.resource.image        = image;
-                m_imageInfo.resource.view         = nullptr;
+
+                resource.image                    = image;
+                resource.view                     = nullptr;
             }
 
             VkExtent2D getImageExtent (void) {
-                return {m_imageInfo.meta.width, m_imageInfo.meta.height};
+                auto& meta = m_imageInfo.meta;
+                return {meta.width, meta.height};
             }
 
             uint32_t getImageMipLevels (void) {

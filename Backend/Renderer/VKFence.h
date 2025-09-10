@@ -24,32 +24,34 @@ namespace Renderer {
             } m_fenceInfo;
 
             void createFence (void) {
+                auto& resource   = m_fenceInfo.resource;
                 VkFenceCreateInfo createInfo;
                 createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
                 createInfo.pNext = nullptr;
                 createInfo.flags = m_fenceInfo.meta.createFlags;
 
-                auto result = vkCreateFence (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateFence (*resource.logDeviceObj->getLogDevice(),
                                               &createInfo,
                                               nullptr,
-                                              &m_fenceInfo.resource.fence);
+                                              &resource.fence);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_fenceInfo.resource.logObj) << "[?] Fence"
-                                                            << " "
-                                                            << "[" << string_VkResult (result) << "]"
-                                                            << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Fence"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Fence");
                 }
-                LOG_INFO (m_fenceInfo.resource.logObj)      << "[O] Fence"
-                                                            << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Fence"
+                                                << std::endl;
             }
 
             void destroyFence (void) {
-                vkDestroyFence  (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
-                                  m_fenceInfo.resource.fence,
-                                  nullptr);
-                LOG_INFO (m_fenceInfo.resource.logObj) << "[X] Fence"
-                                                       << std::endl;
+                auto& resource = m_fenceInfo.resource;
+                vkDestroyFence (*resource.logDeviceObj->getLogDevice(),
+                                 resource.fence,
+                                 nullptr);
+                LOG_INFO (resource.logObj) << "[X] Fence"
+                                           << std::endl;
             }
 
         public:
@@ -85,21 +87,23 @@ namespace Renderer {
             }
 
             void waitForFence (void) {
-                vkWaitForFences (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
+                auto& resource = m_fenceInfo.resource;
+                vkWaitForFences (*resource.logDeviceObj->getLogDevice(),
                                   1,
-                                  &m_fenceInfo.resource.fence,
+                                  &resource.fence,
                                   VK_TRUE,
                                   UINT64_MAX);
             }
 
-            /* Note that, fences must be reset manually to put them back into the unsignaled state. This is because
-             * fences are used to control the execution of the host, and so the host gets to decide when to reset the
-             * fence. Contrast this to semaphores which are used to order work on the GPU without the host being involved
+            /* Note that, fences must be reset manually to put them back into the unsignaled state. This is because fences
+             * are used to control the execution of the host, and so the host gets to decide when to reset the fence.
+             * Contrast this to semaphores which are used to order work on the GPU without the host being involved
             */
             void resetFence (void) {
-                vkResetFences (*m_fenceInfo.resource.logDeviceObj->getLogDevice(),
+                auto& resource = m_fenceInfo.resource;
+                vkResetFences (*resource.logDeviceObj->getLogDevice(),
                                 1,
-                                &m_fenceInfo.resource.fence);
+                                &resource.fence);
             }
 
             VkFence* getFence (void) {

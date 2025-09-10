@@ -38,32 +38,34 @@ namespace Renderer {
              * Note that, the waiting only happens on the GPU. The CPU continues running without blocking
             */
             void createSemaphore (void) {
+                auto& resource   = m_semaphoreInfo.resource;
                 VkSemaphoreCreateInfo createInfo;
                 createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
                 createInfo.pNext = nullptr;
                 createInfo.flags = m_semaphoreInfo.meta.createFlags;
 
-                auto result = vkCreateSemaphore (*m_semaphoreInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateSemaphore (*resource.logDeviceObj->getLogDevice(),
                                                   &createInfo,
                                                   nullptr,
-                                                  &m_semaphoreInfo.resource.semaphore);
+                                                  &resource.semaphore);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_semaphoreInfo.resource.logObj) << "[?] Semaphore"
-                                                                << " "
-                                                                << "[" << string_VkResult (result) << "]"
-                                                                << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Semaphore"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Semaphore");
                 }
-                LOG_INFO (m_semaphoreInfo.resource.logObj)      << "[O] Semaphore"
-                                                                << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Semaphore"
+                                                << std::endl;
             }
 
             void destroySemaphore (void) {
-                vkDestroySemaphore  (*m_semaphoreInfo.resource.logDeviceObj->getLogDevice(),
-                                      m_semaphoreInfo.resource.semaphore,
-                                      nullptr);
-                LOG_INFO (m_semaphoreInfo.resource.logObj) << "[X] Semaphore"
-                                                           << std::endl;
+                auto& resource = m_semaphoreInfo.resource;
+                vkDestroySemaphore (*resource.logDeviceObj->getLogDevice(),
+                                     resource.semaphore,
+                                     nullptr);
+                LOG_INFO (resource.logObj) << "[X] Semaphore"
+                                           << std::endl;
             }
 
         public:

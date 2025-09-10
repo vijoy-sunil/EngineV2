@@ -33,23 +33,25 @@ namespace Renderer {
             } m_bufferInfo;
 
             void createBuffer (void) {
+                auto& meta                           = m_bufferInfo.meta;
+                auto& resource                       = m_bufferInfo.resource;
+
                 VkBufferCreateInfo createInfo;
                 createInfo.sType                     = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
                 createInfo.pNext                     = nullptr;
                 createInfo.flags                     = 0;
-                createInfo.size                      = m_bufferInfo.meta.size;
-                createInfo.usage                     = m_bufferInfo.meta.usages;
+                createInfo.size                      = meta.size;
+                createInfo.usage                     = meta.usages;
 
-                auto& queueFamilyIndices             = m_bufferInfo.meta.queueFamilyIndices;
                 /* If the queue families differ, then we'll be using the concurrent mode (buffers can be used across
                  * multiple queue families without explicit ownership transfers). Concurrent mode requires you to specify
                  * in advance between which queue families ownership will be shared using the queueFamilyIndexCount and
                  * pQueueFamilyIndices parameters
                 */
-                if (isIndicesUnique (queueFamilyIndices)) {
+                if (isIndicesUnique (meta.queueFamilyIndices)) {
                     createInfo.sharingMode           = VK_SHARING_MODE_CONCURRENT;
-                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (queueFamilyIndices.size());
-                    createInfo.pQueueFamilyIndices   = queueFamilyIndices.data();
+                    createInfo.queueFamilyIndexCount = static_cast <uint32_t> (meta.queueFamilyIndices.size());
+                    createInfo.pQueueFamilyIndices   = meta.queueFamilyIndices.data();
                 }
                 /* If the queue families are the same, then we should stick to exclusive mode (a buffer is owned by one
                  * queue family at a time and ownership must be explicitly transferred before using it in another queue
@@ -61,35 +63,35 @@ namespace Renderer {
                     createInfo.pQueueFamilyIndices   = nullptr;
                 }
 
-                auto result = vkCreateBuffer (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
+                auto result = vkCreateBuffer (*resource.logDeviceObj->getLogDevice(),
                                                &createInfo,
                                                nullptr,
-                                               &m_bufferInfo.resource.buffer);
+                                               &resource.buffer);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_bufferInfo.resource.logObj) << "[?] Buffer"
-                                                             << " "
-                                                             << "[" << string_VkResult (result) << "]"
-                                                             << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Buffer"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Buffer");
                 }
-                LOG_INFO (m_bufferInfo.resource.logObj)      << "[O] Buffer"
-                                                             << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Buffer"
+                                                << std::endl;
 
                 /* The buffer has been created, but it doesn't actually have any memory assigned to it yet. Note that,
                  * before allocating memory for the buffer, we need to query its memory requirements
                 */
                 VkMemoryRequirements memoryRequirements;
-                vkGetBufferMemoryRequirements (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                                m_bufferInfo.resource.buffer,
+                vkGetBufferMemoryRequirements (*resource.logDeviceObj->getLogDevice(),
+                                                resource.buffer,
                                                 &memoryRequirements);
 
                 VkMemoryAllocateInfo allocInfo;
                 allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
                 allocInfo.pNext           = nullptr;
                 allocInfo.allocationSize  = memoryRequirements.size;
-                allocInfo.memoryTypeIndex = getMemoryTypeIdx (*m_bufferInfo.resource.phyDeviceObj->getPhyDevice(),
+                allocInfo.memoryTypeIndex = getMemoryTypeIdx (*resource.phyDeviceObj->getPhyDevice(),
                                                                memoryRequirements.memoryTypeBits,
-                                                               m_bufferInfo.meta.memoryProperties);
+                                                               meta.memoryProperties);
                 /* It should be noted that in a real world application, you're not supposed to actually call
                  * vkAllocateMemory for every individual buffer. The maximum number of simultaneous memory allocations
                  * is limited by the maxMemoryAllocationCount physical device limit, which may be as low as 4096 even
@@ -97,49 +99,50 @@ namespace Renderer {
                  * objects at the same time is to create a custom allocator that splits up a single allocation among
                  * many different objects by using the offset parameter
                 */
-                result = vkAllocateMemory (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
+                result = vkAllocateMemory (*resource.logDeviceObj->getLogDevice(),
                                             &allocInfo,
                                             nullptr,
-                                            &m_bufferInfo.resource.memory);
+                                            &resource.memory);
                 if (result != VK_SUCCESS) {
-                    LOG_ERROR (m_bufferInfo.resource.logObj) << "[?] Buffer memory"
-                                                             << " "
-                                                             << "[" << string_VkResult (result) << "]"
-                                                             << std::endl;
+                    LOG_ERROR (resource.logObj) << "[?] Buffer memory"
+                                                << " "
+                                                << "[" << string_VkResult (result) << "]"
+                                                << std::endl;
                     throw std::runtime_error ("[?] Buffer memory");
                 }
-                LOG_INFO (m_bufferInfo.resource.logObj)      << "[O] Buffer memory"
-                                                             << std::endl;
+                LOG_INFO (resource.logObj)      << "[O] Buffer memory"
+                                                << std::endl;
 
                 /* If memory allocation was successful, then we can now associate this memory with the buffer */
-                vkBindBufferMemory (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                     m_bufferInfo.resource.buffer,
-                                     m_bufferInfo.resource.memory,
+                vkBindBufferMemory (*resource.logDeviceObj->getLogDevice(),
+                                     resource.buffer,
+                                     resource.memory,
                                      0);
 
                 if (!m_bufferInfo.state.memoryMappingDisabled)
-                    vkMapMemory (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                  m_bufferInfo.resource.memory,
+                    vkMapMemory (*resource.logDeviceObj->getLogDevice(),
+                                  resource.memory,
                                   0,
-                                  m_bufferInfo.meta.size,
+                                  meta.size,
                                   0,
-                                  &m_bufferInfo.meta.mappedMemory);
+                                  &meta.mappedMemory);
             }
 
             void destroyBuffer (void) {
-                vkDestroyBuffer (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                  m_bufferInfo.resource.buffer,
+                auto& resource = m_bufferInfo.resource;
+                vkDestroyBuffer (*resource.logDeviceObj->getLogDevice(),
+                                  resource.buffer,
                                   nullptr);
-                LOG_INFO (m_bufferInfo.resource.logObj) << "[X] Buffer"
-                                                        << std::endl;
+                LOG_INFO (resource.logObj) << "[X] Buffer"
+                                           << std::endl;
                 /* Memory that is bound to a buffer object may be freed once the buffer is no longer used, so we will
                  * free it after the buffer has been destroyed
                 */
-                vkFreeMemory    (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                  m_bufferInfo.resource.memory,
-                                  nullptr);
-                LOG_INFO (m_bufferInfo.resource.logObj) << "[X] Buffer memory"
-                                                        << std::endl;
+                vkFreeMemory (*resource.logDeviceObj->getLogDevice(),
+                               resource.memory,
+                               nullptr);
+                LOG_INFO (resource.logObj) << "[X] Buffer memory"
+                                           << std::endl;
             }
 
         public:
@@ -177,22 +180,29 @@ namespace Renderer {
                                  const std::vector <uint32_t> queueFamilyIndices,
                                  const bool memoryMappingDisabled) {
 
-                m_bufferInfo.meta.size                   = size;
-                m_bufferInfo.meta.usages                 = bufferUsages;
-                m_bufferInfo.meta.memoryProperties       = memoryProperties;
-                m_bufferInfo.meta.queueFamilyIndices     = queueFamilyIndices;
-                m_bufferInfo.meta.mappedMemory           = nullptr;
+                auto& meta                               = m_bufferInfo.meta;
+                auto& resource                           = m_bufferInfo.resource;
+
+                meta.size                                = size;
+                meta.usages                              = bufferUsages;
+                meta.memoryProperties                    = memoryProperties;
+                meta.queueFamilyIndices                  = queueFamilyIndices;
+                meta.mappedMemory                        = nullptr;
                 m_bufferInfo.state.memoryMappingDisabled = memoryMappingDisabled;
-                m_bufferInfo.resource.buffer             = nullptr;
-                m_bufferInfo.resource.memory             = nullptr;
+
+                resource.buffer                          = nullptr;
+                resource.memory                          = nullptr;
             }
 
             void updateBuffer (const void *data,
                                const bool persistentMappingDisabled) {
 
-                memcpy (m_bufferInfo.meta.mappedMemory,
+                auto& meta     = m_bufferInfo.meta;
+                auto& resource = m_bufferInfo.resource;
+
+                memcpy (meta.mappedMemory,
                         data,
-                        static_cast <size_t> (m_bufferInfo.meta.size));
+                        static_cast <size_t> (meta.size));
                 /* Under normal scenarios, we map the buffer memory into CPU accessible memory with vkMapMemory. This
                  * allows us to access a region of the specified memory resource defined by an offset and size. We would
                  * then simply memcpy the desired data to the mapped memory and unmap it again using vkUnmapMemory. But,
@@ -201,8 +211,8 @@ namespace Renderer {
                  * the buffer every time we need to update it increases performances, as mapping is not free
                 */
                 if (persistentMappingDisabled)
-                    vkUnmapMemory (*m_bufferInfo.resource.logDeviceObj->getLogDevice(),
-                                    m_bufferInfo.resource.memory);
+                    vkUnmapMemory (*resource.logDeviceObj->getLogDevice(),
+                                    resource.memory);
             }
 
             VkDeviceSize getBufferSize (void) {
