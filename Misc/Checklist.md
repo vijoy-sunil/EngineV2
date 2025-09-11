@@ -247,6 +247,7 @@
 - [ ] `binding`, `bindingIdx`, `bindingNumber`  do not mix them up
 - [ ] `{`, `[`, `(`                             verify use of these in log files
 - [ ] `= {};`                                   prefer using this over `{};` for structs
+- [ ] `delete`                                  order of `delete` in destructor must be inverse of `new`
 - [x] `PushStyleVar` then `PushStyleColor`      uniform ordering in all files
 - [x] `_None` flag                              instead of leaving it blank
 - [x] `Flags_` via class vars                   only if using more than one flag, otherwise plug them directly
