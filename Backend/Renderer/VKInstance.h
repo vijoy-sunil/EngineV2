@@ -367,9 +367,9 @@ namespace Renderer {
             }
 
             ~VKInstance (void) {
+                delete m_validationLogObj;
                 if (m_instanceInfo.state.logObjCreated)
                     delete m_instanceInfo.resource.logObj;
-                delete m_validationLogObj;
             }
     };
     Log::LGImpl* VKInstance::m_validationLogObj = nullptr;

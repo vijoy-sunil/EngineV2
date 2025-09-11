@@ -467,9 +467,9 @@ namespace Renderer {
             }
 
             ~VKGui (void) {
+                delete m_guiLogObj;
                 if (m_guiInfo.state.logObjCreated)
                     delete m_guiInfo.resource.logObj;
-                delete m_guiLogObj;
             }
     };
     Log::LGImpl* VKGui::m_guiLogObj = nullptr;

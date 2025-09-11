@@ -144,10 +144,10 @@ namespace Collection {
             }
 
             ~CNImpl (void) {
-                delete m_collectionInfo.resource.logObj;
-
                 for (auto const& [typeName, instanceArrayObj]: m_collectionInfo.meta.typeNameToInstanceArrayObjMap)
                     delete instanceArrayObj;
+
+                delete m_collectionInfo.resource.logObj;
             }
     };
 }   // namespace Collection
