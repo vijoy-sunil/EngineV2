@@ -10,8 +10,8 @@ namespace Scene {
         private:
             struct ComponentMgrInfo {
                 struct Meta {
-                    std::unordered_map <const char*, ComponentType> types;
-                    std::unordered_map <const char*, SNComponentArrayBase*> arrays;
+                    std::unordered_map <const char*, ComponentType> typeNameToComponentTypeMap;
+                    std::unordered_map <const char*, SNComponentArrayBase*> typeNameToArrayBaseObjMap;
                     ComponentType nextAvailableType;
                 } meta;
 
@@ -26,16 +26,17 @@ namespace Scene {
 
             template <typename T>
             SNComponentArray <T>* getComponentArray (void) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_componentMgrInfo.meta;
-                if (meta.arrays.find (typeName) == meta.arrays.end()) {
+                const char* typeName            = typeid (T).name();
+                auto& typeNameToArrayBaseObjMap = m_componentMgrInfo.meta.typeNameToArrayBaseObjMap;
+
+                if (typeNameToArrayBaseObjMap.find (typeName) == typeNameToArrayBaseObjMap.end()) {
                     LOG_ERROR (m_componentMgrInfo.resource.logObj) << "Component not registered before use"
                                                                    << " "
                                                                    << "[" << typeName << "]"
                                                                    << std::endl;
                     throw std::runtime_error ("Component not registered before use");
                 }
-                return static_cast <SNComponentArray <T>*> (meta.arrays[typeName]);
+                return static_cast <SNComponentArray <T>*> (typeNameToArrayBaseObjMap[typeName]);
             }
 
         public:
@@ -57,28 +58,31 @@ namespace Scene {
             }
 
             void initComponentMgrInfo (void) {
-                m_componentMgrInfo.meta.types             = {};
-                m_componentMgrInfo.meta.arrays            = {};
-                m_componentMgrInfo.meta.nextAvailableType = 0;
+                auto& meta                      = m_componentMgrInfo.meta;
+                meta.typeNameToComponentTypeMap = {};
+                meta.typeNameToArrayBaseObjMap  = {};
+                meta.nextAvailableType          = 0;
             }
 
             template <typename T>
             void registerComponent (void) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_componentMgrInfo.meta;
-                if (meta.arrays.find (typeName) != meta.arrays.end()) {
-                    LOG_ERROR (m_componentMgrInfo.resource.logObj) << "Component already registered"
-                                                                   << " "
-                                                                   << "[" << typeName << "]"
-                                                                   << std::endl;
+                auto& logObj         = m_componentMgrInfo.resource.logObj;
+
+                if (meta.typeNameToArrayBaseObjMap.find (typeName) != meta.typeNameToArrayBaseObjMap.end()) {
+                    LOG_ERROR (logObj) << "Component already registered"
+                                       << " "
+                                       << "[" << typeName << "]"
+                                       << std::endl;
                     throw std::runtime_error ("Component already registered");
                 }
                 /* Create new component array */
-                auto arrayObj = new SNComponentArray <T> (m_componentMgrInfo.resource.logObj);
+                auto arrayObj = new SNComponentArray <T> (logObj);
                 arrayObj->initComponentArrayInfo();
 
-                meta.types.insert  ({typeName, meta.nextAvailableType});
-                meta.arrays.insert ({typeName, arrayObj});
+                meta.typeNameToComponentTypeMap.insert ({typeName, meta.nextAvailableType});
+                meta.typeNameToArrayBaseObjMap.insert  ({typeName, arrayObj});
                 ++meta.nextAvailableType;
             }
 
@@ -86,14 +90,15 @@ namespace Scene {
             ComponentType getComponentType (void) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_componentMgrInfo.meta;
-                if (meta.arrays.find (typeName) == meta.arrays.end()) {
+
+                if (meta.typeNameToArrayBaseObjMap.find (typeName) == meta.typeNameToArrayBaseObjMap.end()) {
                     LOG_ERROR (m_componentMgrInfo.resource.logObj) << "Component not registered before use"
                                                                    << " "
                                                                    << "[" << typeName << "]"
                                                                    << std::endl;
                     throw std::runtime_error ("Component not registered before use");
                 }
-                return meta.types[typeName];
+                return meta.typeNameToComponentTypeMap[typeName];
             }
 
             template <typename T>
@@ -113,20 +118,21 @@ namespace Scene {
 
             void removeEntity (const Entity entity) {
                 /* Notify each component array that an entity has been destroyed, and remove it */
-                for (auto const& [typeName, arrayBaseObj]: m_componentMgrInfo.meta.arrays)
+                for (auto const& [typeName, arrayBaseObj]: m_componentMgrInfo.meta.typeNameToArrayBaseObjMap)
                     arrayBaseObj->onRemoveEntity (entity);
             }
 
             void generateReport (void) {
+                auto& meta   = m_componentMgrInfo.meta;
                 auto& logObj = m_componentMgrInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "{" << std::endl;
-                for (auto const& [typeName, arrayBaseObj]: m_componentMgrInfo.meta.arrays) {
-                    auto type = m_componentMgrInfo.meta.types[typeName];
+                for (auto const& [typeName, arrayBaseObj]: meta.typeNameToArrayBaseObjMap) {
+                    auto componentType = meta.typeNameToComponentTypeMap[typeName];
 
                     LOG_LITE_INFO (logObj) << "\t\t";
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_L << typeName << ", ";
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << type     << ", ";
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_L << typeName      << ", ";
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << componentType << ", ";
                     arrayBaseObj->onGenerateReport();
                     LOG_LITE_INFO (logObj) << std::endl;
                 }
@@ -134,11 +140,11 @@ namespace Scene {
             }
 
             ~SNComponentMgr (void) {
+                for (auto const& [typeName, arrayBaseObj]: m_componentMgrInfo.meta.typeNameToArrayBaseObjMap)
+                    delete arrayBaseObj;
+
                 if (m_componentMgrInfo.state.logObjCreated)
                     delete m_componentMgrInfo.resource.logObj;
-
-                for (auto const& [typeName, arrayBaseObj]: m_componentMgrInfo.meta.arrays)
-                    delete arrayBaseObj;
             }
     };
 }   // namespace Scene

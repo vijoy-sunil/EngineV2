@@ -9,8 +9,8 @@ namespace Scene {
         private:
             struct SysteMgrInfo {
                 struct Meta {
-                    std::unordered_map <const char*, Signature> signatures;
-                    std::unordered_map <const char*, SNSystemBase*> systems;
+                    std::unordered_map <const char*, Signature> typeNameToSignatureMap;
+                    std::unordered_map <const char*, SNSystemBase*> typeNameToSystemBaseObjMap;
                 } meta;
 
                 struct State {
@@ -41,15 +41,17 @@ namespace Scene {
             }
 
             void initSystemMgrInfo (void) {
-                m_systemMgrInfo.meta.signatures = {};
-                m_systemMgrInfo.meta.systems    = {};
+                auto& meta                      = m_systemMgrInfo.meta;
+                meta.typeNameToSignatureMap     = {};
+                meta.typeNameToSystemBaseObjMap = {};
             }
 
             template <typename T>
             T* registerSystem (void) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_systemMgrInfo.meta;
-                if (meta.systems.find (typeName) != meta.systems.end()) {
+                const char* typeName             = typeid (T).name();
+                auto& typeNameToSystemBaseObjMap = m_systemMgrInfo.meta.typeNameToSystemBaseObjMap;
+
+                if (typeNameToSystemBaseObjMap.find (typeName) != typeNameToSystemBaseObjMap.end()) {
                     LOG_ERROR (m_systemMgrInfo.resource.logObj) << "System already registered"
                                                                 << " "
                                                                 << "[" << typeName << "]"
@@ -57,7 +59,7 @@ namespace Scene {
                     throw std::runtime_error ("System already registered");
                 }
                 auto systemObj = new T;
-                meta.systems.insert ({typeName, systemObj});
+                typeNameToSystemBaseObjMap.insert ({typeName, systemObj});
                 return systemObj;
             }
 
@@ -65,28 +67,30 @@ namespace Scene {
             void setSystemSignature (const Signature systemSignature) {
                 const char* typeName = typeid (T).name();
                 auto& meta           = m_systemMgrInfo.meta;
-                if (meta.systems.find (typeName) == meta.systems.end()) {
+
+                if (meta.typeNameToSystemBaseObjMap.find (typeName) == meta.typeNameToSystemBaseObjMap.end()) {
                     LOG_ERROR (m_systemMgrInfo.resource.logObj) << "System not registered before use"
                                                                 << " "
                                                                 << "[" << typeName << "]"
                                                                 << std::endl;
                     throw std::runtime_error ("System not registered before use");
                 }
-                meta.signatures.insert ({typeName, systemSignature});
+                meta.typeNameToSignatureMap.insert ({typeName, systemSignature});
             }
 
             template <typename T>
             T* getSystem (void) {
-                const char* typeName = typeid (T).name();
-                auto& meta           = m_systemMgrInfo.meta;
-                if (meta.systems.find (typeName) == meta.systems.end()) {
+                const char* typeName             = typeid (T).name();
+                auto& typeNameToSystemBaseObjMap = m_systemMgrInfo.meta.typeNameToSystemBaseObjMap;
+
+                if (typeNameToSystemBaseObjMap.find (typeName) == typeNameToSystemBaseObjMap.end()) {
                     LOG_ERROR (m_systemMgrInfo.resource.logObj) << "System not registered before use"
                                                                 << " "
                                                                 << "[" << typeName << "]"
                                                                 << std::endl;
                     throw std::runtime_error ("System not registered before use");
                 }
-                return static_cast <T*> (meta.systems[typeName]);
+                return static_cast <T*> (typeNameToSystemBaseObjMap[typeName]);
             }
 
             /* When an entity’s signature has changed (due to components being added or removed), then the system’s list
@@ -94,8 +98,9 @@ namespace Scene {
              * destroyed, then it also needs to update its list
             */
             void updateEntity (const Entity entity, const Signature entitySignature) {
-                for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.systems) {
-                    auto systemSignature = m_systemMgrInfo.meta.signatures[typeName];
+                auto& meta = m_systemMgrInfo.meta;
+                for (auto const& [typeName, systemBaseObj]: meta.typeNameToSystemBaseObjMap) {
+                    auto systemSignature = meta.typeNameToSignatureMap[typeName];
 
                     /* If the updated entity's signature is of interest to the system */
                     if ((entitySignature & systemSignature) == systemSignature)
@@ -106,16 +111,17 @@ namespace Scene {
             }
 
             void removeEntity (const Entity entity) {
-                for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.systems)
+                for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.typeNameToSystemBaseObjMap)
                     systemBaseObj->m_entities.erase (entity);
             }
 
             void generateReport (void) {
+                auto& meta   = m_systemMgrInfo.meta;
                 auto& logObj = m_systemMgrInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "{" << std::endl;
-                for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.systems) {
-                    auto systemSignature = m_systemMgrInfo.meta.signatures[typeName];
+                for (auto const& [typeName, systemBaseObj]: meta.typeNameToSystemBaseObjMap) {
+                    auto systemSignature = meta.typeNameToSignatureMap[typeName];
                     std::string spacer   = "";
 
                     LOG_LITE_INFO (logObj) << "\t\t";
@@ -134,11 +140,11 @@ namespace Scene {
             }
 
             ~SNSystemMgr (void) {
+                for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.typeNameToSystemBaseObjMap)
+                    delete systemBaseObj;
+
                 if (m_systemMgrInfo.state.logObjCreated)
                     delete m_systemMgrInfo.resource.logObj;
-
-                for (auto const& [typeName, systemBaseObj]: m_systemMgrInfo.meta.systems)
-                    delete systemBaseObj;
             }
     };
 }   // namespace Scene

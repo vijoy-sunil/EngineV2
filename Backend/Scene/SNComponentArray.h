@@ -53,10 +53,11 @@ namespace Scene {
             }
 
             void initComponentArrayInfo (void) {
-                m_componentArrayInfo.meta.array            = {};
-                m_componentArrayInfo.meta.entityToIdxMap   = {};
-                m_componentArrayInfo.meta.idxToEntityMap   = {};
-                m_componentArrayInfo.meta.nextAvailableIdx = 0;
+                auto& meta            = m_componentArrayInfo.meta;
+                meta.array            = {};
+                meta.entityToIdxMap   = {};
+                meta.idxToEntityMap   = {};
+                meta.nextAvailableIdx = 0;
             }
 
             void addComponent (const Entity entity, const T component) {
@@ -117,19 +118,19 @@ namespace Scene {
             }
 
             void onRemoveEntity (const Entity entity) override {
-                auto& meta = m_componentArrayInfo.meta;
-                if (meta.entityToIdxMap.find (entity) != meta.entityToIdxMap.end())
+                auto& entityToIdxMap = m_componentArrayInfo.meta.entityToIdxMap;
+                if (entityToIdxMap.find (entity) != entityToIdxMap.end())
                     removeComponent (entity);
             }
 
             void onGenerateReport (void) override {
-                auto& meta         = m_componentArrayInfo.meta;
-                auto& logObj       = m_componentArrayInfo.resource.logObj;
-                std::string spacer = "";
+                auto& entityToIdxMap = m_componentArrayInfo.meta.entityToIdxMap;
+                auto& logObj         = m_componentArrayInfo.resource.logObj;
+                std::string spacer   = "";
 
                 LOG_LITE_INFO (logObj) << "[";
                 for (Entity i = 0; i < g_maxEntities; i++) {
-                    if (meta.entityToIdxMap.find (i) != meta.entityToIdxMap.end())
+                    if (entityToIdxMap.find (i) != entityToIdxMap.end())
                         LOG_LITE_INFO (logObj) << spacer << "O";
                     else
                         LOG_LITE_INFO (logObj) << spacer << "X";

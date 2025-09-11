@@ -30,11 +30,11 @@ namespace Scene {
                 logObj->updateLogConfig (Log::LEVEL_TYPE_WARNING, Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
                 logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
 
-                m_sceneInfo.resource.entityMgrObj    = new SNEntityMgr    (m_sceneInfo.resource.logObj);
+                m_sceneInfo.resource.entityMgrObj    = new SNEntityMgr    (logObj);
                 m_sceneInfo.resource.entityMgrObj->initEntityMgrInfo();
-                m_sceneInfo.resource.componentMgrObj = new SNComponentMgr (m_sceneInfo.resource.logObj);
+                m_sceneInfo.resource.componentMgrObj = new SNComponentMgr (logObj);
                 m_sceneInfo.resource.componentMgrObj->initComponentMgrInfo();
-                m_sceneInfo.resource.systemMgrObj    = new SNSystemMgr    (m_sceneInfo.resource.logObj);
+                m_sceneInfo.resource.systemMgrObj    = new SNSystemMgr    (logObj);
                 m_sceneInfo.resource.systemMgrObj->initSystemMgrInfo();
             }
 
@@ -51,9 +51,10 @@ namespace Scene {
             }
 
             void removeEntity (const Entity entity) {
-                m_sceneInfo.resource.entityMgrObj->removeEntity    (entity);
-                m_sceneInfo.resource.componentMgrObj->removeEntity (entity);
-                m_sceneInfo.resource.systemMgrObj->removeEntity    (entity);
+                auto& resource = m_sceneInfo.resource;
+                resource.entityMgrObj->removeEntity    (entity);
+                resource.componentMgrObj->removeEntity (entity);
+                resource.systemMgrObj->removeEntity    (entity);
             }
 
             /* Component methods */
@@ -69,26 +70,28 @@ namespace Scene {
 
             template <typename T>
             void addComponent (const Entity entity, const T component) {
-                m_sceneInfo.resource.componentMgrObj->addComponent <T> (entity, component);
+                auto& resource = m_sceneInfo.resource;
+                resource.componentMgrObj->addComponent <T> (entity, component);
 
-                auto entitySignature = m_sceneInfo.resource.entityMgrObj->getEntitySignature (entity);
-                auto componentType   = m_sceneInfo.resource.componentMgrObj->getComponentType <T>();
+                auto entitySignature = resource.entityMgrObj->getEntitySignature (entity);
+                auto componentType   = resource.componentMgrObj->getComponentType <T>();
                 entitySignature.set (componentType, true);
 
-                m_sceneInfo.resource.entityMgrObj->updateEntitySignature (entity, entitySignature);
-                m_sceneInfo.resource.systemMgrObj->updateEntity          (entity, entitySignature);
+                resource.entityMgrObj->updateEntitySignature (entity, entitySignature);
+                resource.systemMgrObj->updateEntity          (entity, entitySignature);
             }
 
             template <typename T>
             void removeComponent (const Entity entity) {
-                m_sceneInfo.resource.componentMgrObj->removeComponent <T> (entity);
+                auto& resource = m_sceneInfo.resource;
+                resource.componentMgrObj->removeComponent <T> (entity);
 
-                auto entitySignature = m_sceneInfo.resource.entityMgrObj->getEntitySignature (entity);
-                auto componentType   = m_sceneInfo.resource.componentMgrObj->getComponentType <T>();
+                auto entitySignature = resource.entityMgrObj->getEntitySignature (entity);
+                auto componentType   = resource.componentMgrObj->getComponentType <T>();
                 entitySignature.set (componentType, false);
 
-                m_sceneInfo.resource.entityMgrObj->updateEntitySignature (entity, entitySignature);
-                m_sceneInfo.resource.systemMgrObj->updateEntity          (entity, entitySignature);
+                resource.entityMgrObj->updateEntitySignature (entity, entitySignature);
+                resource.systemMgrObj->updateEntity          (entity, entitySignature);
             }
 
             template <typename T>
@@ -113,23 +116,24 @@ namespace Scene {
             }
 
             void generateReport (void) {
-                auto& logObj = m_sceneInfo.resource.logObj;
+                auto& resource = m_sceneInfo.resource;
 
-                LOG_LITE_INFO (logObj) << "{"                               << std::endl;
-                LOG_LITE_INFO (logObj) << "\t"         << "Entity mgr"      << std::endl;
-                m_sceneInfo.resource.entityMgrObj->generateReport();
-                LOG_LITE_INFO (logObj) << "\t"         << "Component mgr"   << std::endl;
-                m_sceneInfo.resource.componentMgrObj->generateReport();
-                LOG_LITE_INFO (logObj) << "\t"         << "System mgr"      << std::endl;
-                m_sceneInfo.resource.systemMgrObj->generateReport();
-                LOG_LITE_INFO (logObj) << "}"                               << std::endl;
+                LOG_LITE_INFO (resource.logObj) << "{"                     << std::endl;
+                LOG_LITE_INFO (resource.logObj) << "\t" << "Entity mgr"    << std::endl;
+                resource.entityMgrObj->generateReport();
+                LOG_LITE_INFO (resource.logObj) << "\t" << "Component mgr" << std::endl;
+                resource.componentMgrObj->generateReport();
+                LOG_LITE_INFO (resource.logObj) << "\t" << "System mgr"    << std::endl;
+                resource.systemMgrObj->generateReport();
+                LOG_LITE_INFO (resource.logObj) << "}"                     << std::endl;
             }
 
             ~SNImpl (void) {
-                delete m_sceneInfo.resource.logObj;
-                delete m_sceneInfo.resource.entityMgrObj;
-                delete m_sceneInfo.resource.componentMgrObj;
-                delete m_sceneInfo.resource.systemMgrObj;
+                auto& resource = m_sceneInfo.resource;
+                delete resource.systemMgrObj;
+                delete resource.componentMgrObj;
+                delete resource.entityMgrObj;
+                delete resource.logObj;
             }
     };
 }   // namespace Scene

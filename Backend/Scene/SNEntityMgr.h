@@ -47,12 +47,13 @@ namespace Scene {
             }
 
             void initEntityMgrInfo (void) {
+                auto& meta = m_entityMgrInfo.meta;
                 /* Initialize queue with available entity ids */
                 for (Entity i = 0; i < g_maxEntities; i++)
-                    m_entityMgrInfo.meta.availableEntities.push (i);
+                    meta.availableEntities.push (i);
 
-                m_entityMgrInfo.meta.signatures    = {};
-                m_entityMgrInfo.meta.entitiesCount = 0;
+                meta.signatures    = {};
+                meta.entitiesCount = 0;
             }
 
             void updateEntitySignature (const Entity entity, const Signature entitySignature) {
@@ -78,22 +79,24 @@ namespace Scene {
             }
 
             Entity addEntity (void) {
-                if (m_entityMgrInfo.meta.entitiesCount >= g_maxEntities) {
-                    LOG_ERROR (m_entityMgrInfo.resource.logObj) << "Exceeded max entities count"
+                auto& meta = m_entityMgrInfo.meta;
+                if (meta.entitiesCount >= g_maxEntities) {
+                    LOG_ERROR (m_entityMgrInfo.resource.logObj) << "Exceeded max entities"
                                                                 << " "
-                                                                << "[" << m_entityMgrInfo.meta.entitiesCount << "]"
+                                                                << "[" << meta.entitiesCount << "]"
                                                                 << std::endl;
-                    throw std::runtime_error ("Exceeded max entities count");
+                    throw std::runtime_error ("Exceeded max entities");
                 }
                 /* Take an id from the front of the queue */
-                auto entity = m_entityMgrInfo.meta.availableEntities.front();
-                m_entityMgrInfo.meta.availableEntities.pop();
+                auto entity = meta.availableEntities.front();
+                meta.availableEntities.pop();
 
-                ++m_entityMgrInfo.meta.entitiesCount;
+                ++meta.entitiesCount;
                 return entity;
             }
 
             void removeEntity (const Entity entity) {
+                auto& meta = m_entityMgrInfo.meta;
                 if (entity >= g_maxEntities) {
                     LOG_ERROR (m_entityMgrInfo.resource.logObj) << "Invalid entity"
                                                                 << " "
@@ -102,21 +105,20 @@ namespace Scene {
                     throw std::runtime_error ("Invalid entity");
                 }
                 /* Invalidate the destroyed entity's signature */
-		        m_entityMgrInfo.meta.signatures[entity].reset();
+                meta.signatures[entity].reset();
                 /* Put the destroyed id at the back of the queue */
-		        m_entityMgrInfo.meta.availableEntities.push (entity);
-		        --m_entityMgrInfo.meta.entitiesCount;
+                meta.availableEntities.push (entity);
+                --meta.entitiesCount;
             }
 
             void generateReport (void) {
-                auto& signatures = m_entityMgrInfo.meta.signatures;
-                auto& logObj     = m_entityMgrInfo.resource.logObj;
+                auto& logObj = m_entityMgrInfo.resource.logObj;
 
                 LOG_LITE_INFO (logObj) << "\t" << "["         << std::endl;
                 for (Entity i = 0; i < g_maxEntities; i++) {
                     LOG_LITE_INFO (logObj) << "\t\t";
-                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S << i << ", ";
-                    LOG_LITE_INFO (logObj) << signatures[i]   << std::endl;
+                    LOG_LITE_INFO (logObj) << ALIGN_AND_PAD_S                    << i << ", ";
+                    LOG_LITE_INFO (logObj) << m_entityMgrInfo.meta.signatures[i] << std::endl;
                 }
                 LOG_LITE_INFO (logObj) << "\t" << "]"         << std::endl;
             }
