@@ -39,20 +39,20 @@ namespace SandBox {
             bool createEntityTreeNode (const Scene::Entity entity) {
                 auto& meta            = m_entityCollectionViewInfo.meta;
                 auto& style           = m_entityCollectionViewInfo.style;
-                auto& flag            = m_entityCollectionViewInfo.flag;
+                auto& treeNodeFlags   = m_entityCollectionViewInfo.flag.treeNodeFlags;
                 auto& sceneObj        = m_entityCollectionViewInfo.resource.sceneObj;
                 std::string label     = sceneObj->getComponent <MetaComponent> (entity)->m_id;
                 bool treeNodeOpened   = false;
                 bool treeNodeSelected = meta.selectedEntity == entity;
 
-                if (treeNodeSelected)              flag.treeNodeFlags |=  ImGuiTreeNodeFlags_Selected;
-                else                               flag.treeNodeFlags &= ~ImGuiTreeNodeFlags_Selected;
+                if (treeNodeSelected)              treeNodeFlags |=  ImGuiTreeNodeFlags_Selected;
+                else                               treeNodeFlags &= ~ImGuiTreeNodeFlags_Selected;
 
                 ImGui::PushStyleVar                (ImGuiStyleVar_ItemSpacing, style.treeNodeSpacing);
                 if (treeNodeSelected)
                     ImGui::PushStyleColor          (ImGuiCol_Text, style.selectedTreeNodeTextColor);
 
-                treeNodeOpened = ImGui::TreeNodeEx (label.c_str(), flag.treeNodeFlags);
+                treeNodeOpened = ImGui::TreeNodeEx (label.c_str(), treeNodeFlags);
                 if (treeNodeSelected)
                     ImGui::PopStyleColor();
                 ImGui::PopStyleVar();
@@ -71,8 +71,7 @@ namespace SandBox {
             void createComponentTypeButtons (const Scene::Entity entity) {
                 auto& meta           = m_entityCollectionViewInfo.meta;
                 auto& style          = m_entityCollectionViewInfo.style;
-                auto& sceneObj       = m_entityCollectionViewInfo.resource.sceneObj;
-                auto entitySignature = sceneObj->getEntitySignature (entity);
+                auto entitySignature = m_entityCollectionViewInfo.resource.sceneObj->getEntitySignature (entity);
                 size_t loopIdx       = 0;
 
                 for (auto const& [type, info]: g_componentTypeToLabelInfoMap) {
@@ -131,30 +130,32 @@ namespace SandBox {
                                                const std::map <Scene::Entity, std::vector <Scene::Entity>>
                                                parentEntityToChildrenMap) {
 
-                m_entityCollectionViewInfo.meta.selectedEntity             = selectedEntity;
-                m_entityCollectionViewInfo.meta.selectedComponentType      = 0;
-                m_entityCollectionViewInfo.meta.parentEntityToChildrenMap  = parentEntityToChildrenMap;
+                auto& meta                                    = m_entityCollectionViewInfo.meta;
+                auto& style                                   = m_entityCollectionViewInfo.style;
+                auto& resource                                = m_entityCollectionViewInfo.resource;
 
-                m_entityCollectionViewInfo.style.buttonOutlineRounding     = ImGui::GetStyle().FrameRounding;
-                m_entityCollectionViewInfo.style.buttonOutlineThickness    = ImGui::GetStyle().TreeLinesSize;
-                m_entityCollectionViewInfo.style.buttonSize                = ImVec2 (24.0f, 24.0f);
-                m_entityCollectionViewInfo.style.treeNodeSpacing           = ImVec2 ( 0.0f,  0.0f);
-                m_entityCollectionViewInfo.style.selectedTreeNodeTextColor = ImGui::GetStyle().Colors
-                                                                             [ImGuiCol_ScrollbarGrabActive];
-                m_entityCollectionViewInfo.style.buttonOutlineColor        = ImGui::GetStyle().Colors
-                                                                             [ImGuiCol_ScrollbarGrabActive];
+                meta.selectedEntity                           = selectedEntity;
+                meta.selectedComponentType                    = 0;
+                meta.parentEntityToChildrenMap                = parentEntityToChildrenMap;
 
-                m_entityCollectionViewInfo.flag.treeNodeFlags              = ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                                                                             ImGuiTreeNodeFlags_OpenOnArrow       |
-                                                                             ImGuiTreeNodeFlags_FramePadding      |
-                                                                             ImGuiTreeNodeFlags_SpanFullWidth;
+                style.buttonOutlineRounding                   = ImGui::GetStyle().FrameRounding;
+                style.buttonOutlineThickness                  = ImGui::GetStyle().TreeLinesSize;
+                style.buttonSize                              = ImVec2 (24.0f, 24.0f);
+                style.treeNodeSpacing                         = ImVec2 ( 0.0f,  0.0f);
+                style.selectedTreeNodeTextColor               = ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrabActive];
+                style.buttonOutlineColor                      = ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrabActive];
+
+                m_entityCollectionViewInfo.flag.treeNodeFlags = ImGuiTreeNodeFlags_OpenOnDoubleClick |
+                                                                ImGuiTreeNodeFlags_OpenOnArrow       |
+                                                                ImGuiTreeNodeFlags_FramePadding      |
+                                                                ImGuiTreeNodeFlags_SpanFullWidth;
 
                 if (sceneObj == nullptr) {
-                    LOG_ERROR (m_entityCollectionViewInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                           << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_entityCollectionViewInfo.resource.sceneObj = sceneObj;
+                resource.sceneObj                             = sceneObj;
             }
 
             Scene::Entity getSelectedEntity (void) {
@@ -167,10 +168,8 @@ namespace SandBox {
             }
 
             void update (void) {
-                auto& meta = m_entityCollectionViewInfo.meta;
-
                 if (ImGui::Begin (ICON_FA_SHAPES " Entity collection", nullptr, ImGuiWindowFlags_None)) {
-                    for (auto const& [parent, children]: meta.parentEntityToChildrenMap) {
+                    for (auto const& [parent, children]: m_entityCollectionViewInfo.meta.parentEntityToChildrenMap) {
                         if (createEntityTreeNode       (parent)) {
                             createComponentTypeButtons (parent);
 

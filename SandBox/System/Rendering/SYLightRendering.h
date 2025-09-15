@@ -22,8 +22,9 @@ namespace SandBox {
                     Log::LGImpl* logObj;
                     Renderer::VKSwapChain* swapChainObj;
                     std::vector <Renderer::VKBuffer*> lightInstanceBufferObjs;
+                    std::vector <Renderer::VKBuffer*> shadowConfigBufferObjs;
                     Renderer::VKRenderPass* renderPassObj;
-                    std::vector <Renderer::VKFrameBuffer*> frameBufferObjs;
+                    Renderer::VKFrameBuffer* frameBufferObj;
                     Renderer::VKPipeline* pipelineObj;
                     Renderer::VKDescriptorSet* perFrameDescSetObj;
                     Renderer::VKDescriptorSet* otherDescSetObj;
@@ -45,13 +46,12 @@ namespace SandBox {
             }
 
             void initLightRenderingInfo (Collection::CNImpl* collectionObj) {
+                auto& resource              = m_lightRenderingInfo.resource;
                 if (collectionObj == nullptr) {
-                    LOG_ERROR (m_lightRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                     << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto& resource              = m_lightRenderingInfo.resource;
                 resource.swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain>     (
                     "CORE"
                 );
@@ -61,15 +61,18 @@ namespace SandBox {
                     );
                     resource.lightInstanceBufferObjs.push_back (bufferObj);
                 }
+                for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
+                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
+                        "F_LIGHT_SHADOW_CONFIG_"  + std::to_string (i)
+                    );
+                    resource.shadowConfigBufferObjs.push_back (bufferObj);
+                }
                 resource.renderPassObj      = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>    (
                     "F"
                 );
-                for (uint32_t i = 0; i < resource.swapChainObj->getSwapChainImagesCount(); i++) {
-                    auto bufferObj          = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
-                        "F_"                      + std::to_string (i)
-                    );
-                    resource.frameBufferObjs.push_back (bufferObj);
-                }
+                resource.frameBufferObj     = collectionObj->getCollectionTypeInstance <Renderer::VKFrameBuffer>   (
+                    "F"
+                );
                 resource.pipelineObj        = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
                     "F_LIGHT"
                 );
@@ -88,15 +91,14 @@ namespace SandBox {
             }
 
             void update (const void* lightInstances,
+                         const void* shadowConfig,
                          const void* lightTypeOffsets,
                          const void* activeCamera) {
 
-                auto& resource             = m_lightRenderingInfo.resource;
-                uint32_t swapChainImageIdx = resource.rendererObj->getSwapChainImageIdx();
-                uint32_t frameInFlightIdx  = resource.rendererObj->getFrameInFlightIdx();
-                auto frameBufferObj        = resource.frameBufferObjs[swapChainImageIdx];
-                auto cmdBuffer             = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
-                auto clearValues           = std::vector {
+                auto& resource            = m_lightRenderingInfo.resource;
+                uint32_t frameInFlightIdx = resource.rendererObj->getFrameInFlightIdx();
+                auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
+                auto clearValues          = std::vector {
                     VkClearValue {                              /* Attachment idx 0 */
                         {{0.0f, 0.0f, 0.0f, 1.0f}}
                     },
@@ -110,6 +112,10 @@ namespace SandBox {
                     lightInstances,
                     false
                 );
+                resource.shadowConfigBufferObjs[frameInFlightIdx]->updateBuffer  (
+                    shadowConfig,
+                    false
+                );
                 /* [O] Begin render pass
                  *  .
                  *  .
@@ -120,7 +126,7 @@ namespace SandBox {
                 Renderer::beginRenderPass (
                     cmdBuffer,
                     *resource.renderPassObj->getRenderPass(),
-                    *frameBufferObj->getFrameBuffer(),
+                    *resource.frameBufferObj->getFrameBuffer(),
                     {0, 0},
                     *resource.swapChainObj->getSwapChainExtent(),
                     clearValues
@@ -154,8 +160,8 @@ namespace SandBox {
                     cmdBuffer,
                     0.0f,
                     0.0f,
-                    (*resource.swapChainObj->getSwapChainExtent()).width,
-                    (*resource.swapChainObj->getSwapChainExtent()).height,
+                    resource.swapChainObj->getSwapChainExtent()->width,
+                    resource.swapChainObj->getSwapChainExtent()->height,
                     0.0f,
                     1.0f,
                     0,

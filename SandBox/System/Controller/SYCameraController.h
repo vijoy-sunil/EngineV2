@@ -6,7 +6,10 @@
 #include "../../../Backend/Log/LGImpl.h"
 #include "../../../Backend/Renderer/VKWindow.h"
 #include "../../../Backend/Renderer/VKSwapChain.h"
-#include "../SYEnum.h"
+#include "../../../Backend/Renderer/VKGui.h"
+#include "../../../Backend/Scene/SNType.h"
+#include "SYControllerHelper.h"
+#include "../SYConfig.h"
 #include "../../SBComponentType.h"
 #include "../../SBRendererType.h"
 
@@ -33,7 +36,6 @@ namespace SandBox {
                     float movementSensitivity;
                     float fovSensitivity;
                     float deltaDamp;
-                    float levelDamp;
 
                     ActiveCameraPC activeCamera;
                 } meta;
@@ -59,101 +61,114 @@ namespace SandBox {
                     Log::LGImpl* logObj;
                     Renderer::VKWindow* windowObj;
                     Renderer::VKSwapChain* swapChainObj;
+                    Renderer::VKGui* guiObj;
                 } resource;
             } m_cameraControllerInfo;
 
             void updateCameraControllerSensitivity (const e_sensitivityType sensitivityType) {
-                auto& meta = m_cameraControllerInfo.meta;
+                auto& meta                   = m_cameraControllerInfo.meta;
+                auto& fineSensitivity        = g_systemConfig.camera.fineSensitivity;
+                auto& coarseSensitivity      = g_systemConfig.camera.coarseSensitivity;
+
                 if (sensitivityType         == SENSITIVITY_TYPE_FINE) {
-                    meta.cursorSensitivity   = 0.03f;
-                    meta.scrollSensitivity   = 0.25f;
-                    meta.movementSensitivity = 1.00f;
-                    meta.fovSensitivity      = 0.10f;
-                    meta.deltaDamp           = 0.00f;
+                    meta.cursorSensitivity   = fineSensitivity.cursor;
+                    meta.scrollSensitivity   = fineSensitivity.scroll;
+                    meta.movementSensitivity = fineSensitivity.movement;
+                    meta.fovSensitivity      = fineSensitivity.fov;
+                    meta.deltaDamp           = fineSensitivity.deltaDamp;
                 }
                 else {
-                    meta.cursorSensitivity   = 0.08f;
-                    meta.scrollSensitivity   = 0.90f;
-                    meta.movementSensitivity = 6.50f;
-                    meta.fovSensitivity      = 0.40f;
-                    meta.deltaDamp           = 0.85f;
+                    meta.cursorSensitivity   = coarseSensitivity.cursor;
+                    meta.scrollSensitivity   = coarseSensitivity.scroll;
+                    meta.movementSensitivity = coarseSensitivity.movement;
+                    meta.fovSensitivity      = coarseSensitivity.fov;
+                    meta.deltaDamp           = coarseSensitivity.deltaDamp;
                 }
             }
 
             void setCameraControllerBindings (void) {
                 auto& windowObj = m_cameraControllerInfo.resource.windowObj;
 
-                windowObj->setKeyEventBinding (GLFW_KEY_PERIOD,
+                windowObj->setKeyEventBinding (GLFW_KEY_GRAVE_ACCENT,
+                    [this](void) {
+                        auto& droneToggle = m_cameraControllerInfo.state.droneToggle;
+                        if (droneToggle  == KEY_STATE_LOCKED)
+                            droneToggle   = KEY_STATE_PENDING_UNLOCK;
+
+                        if (droneToggle  == KEY_STATE_UNLOCKED)
+                            droneToggle   = KEY_STATE_PENDING_LOCK;
+                    },
                     [this](void) {
                         auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_LOCKED)
-                            state.droneToggle  = KEY_STATE_PENDING_UNLOCK;
+                        auto& resource         = m_cameraControllerInfo.resource;
 
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            state.droneToggle  = KEY_STATE_PENDING_LOCK;
-                    },
-                    [this, windowObj](void) {
-                        auto& state            = m_cameraControllerInfo.state;
                         if (state.droneToggle == KEY_STATE_PENDING_UNLOCK) {
                             state.droneToggle  = KEY_STATE_UNLOCKED;
 
                             state.firstCursorPositionEvent = true;
-                            windowObj->toggleCursorPositionCallback (true);
-                            windowObj->toggleScrollOffsetCallback   (true);
+                            /* Note that, the application callbacks are initialized before initializing the imgui backend.
+                             * However, there may be cases where callbacks would need to be initialized after, in such
+                             * cases use imgui _RestoreCallbacks and _InstallCallbacks() methods to reinstall callbacks
+                            */
+                            ImGui_ImplGlfw_RestoreCallbacks                  (resource.windowObj->getWindow());
+                            resource.windowObj->toggleCursorPositionCallback (true);
+                            resource.windowObj->toggleScrollOffsetCallback   (true);
+                            ImGui_ImplGlfw_InstallCallbacks                  (resource.windowObj->getWindow());
+                            resource.guiObj->toggleCursorInput               (false);
                         }
 
                         if (state.droneToggle == KEY_STATE_PENDING_LOCK) {
                             state.droneToggle  = KEY_STATE_LOCKED;
 
-                            windowObj->toggleCursorPositionCallback (false);
-                            windowObj->toggleScrollOffsetCallback   (false);
+                            ImGui_ImplGlfw_RestoreCallbacks                  (resource.windowObj->getWindow());
+                            resource.windowObj->toggleCursorPositionCallback (false);
+                            resource.windowObj->toggleScrollOffsetCallback   (false);
+                            ImGui_ImplGlfw_InstallCallbacks                  (resource.windowObj->getWindow());
+                            resource.guiObj->toggleCursorInput               (true);
                         }
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_SLASH,
                     [this](void) {
-                        auto& state           = m_cameraControllerInfo.state;
-                        if (state.fineToggle == KEY_STATE_LOCKED) {
-                            state.fineToggle  = KEY_STATE_UNLOCKED;
-
+                        auto& fineToggle = m_cameraControllerInfo.state.fineToggle;
+                        if (fineToggle  == KEY_STATE_LOCKED) {
+                            fineToggle   = KEY_STATE_UNLOCKED;
                             updateCameraControllerSensitivity (SENSITIVITY_TYPE_FINE);
                         }
                     },
                     [this](void) {
-                        auto& state           = m_cameraControllerInfo.state;
-                        if (state.fineToggle == KEY_STATE_UNLOCKED) {
-                            state.fineToggle  = KEY_STATE_LOCKED;
-
+                        auto& fineToggle = m_cameraControllerInfo.state.fineToggle;
+                        if (fineToggle  == KEY_STATE_UNLOCKED) {
+                            fineToggle   = KEY_STATE_LOCKED;
                             updateCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
                         }
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_COMMA,
                     [this](void) {
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.levelToggle == KEY_STATE_LOCKED) {
-                            state.levelToggle  = KEY_STATE_UNLOCKED;
-
+                        auto& state                = m_cameraControllerInfo.state;
+                        if (state.levelToggle     == KEY_STATE_LOCKED) {
+                            state.levelToggle      = KEY_STATE_UNLOCKED;
                             state.levelingDisabled = false;
                         }
                     },
                     [this](void) {
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.levelToggle == KEY_STATE_UNLOCKED) {
-                            state.levelToggle  = KEY_STATE_LOCKED;
-
+                        auto& state                = m_cameraControllerInfo.state;
+                        if (state.levelToggle     == KEY_STATE_UNLOCKED) {
+                            state.levelToggle      = KEY_STATE_LOCKED;
                             state.levelingDisabled = true;
                         }
                     }
                 );
                 windowObj->setCursorPositionBinding (
                     [this](const double xPos, const double yPos) {
-                        auto& meta  = m_cameraControllerInfo.meta;
-                        auto& state = m_cameraControllerInfo.state;
-                        if (state.firstCursorPositionEvent) {
-                            meta.lastCursorXPos            = static_cast <float> (xPos);
-                            meta.lastCursorYPos            = static_cast <float> (yPos);
-                            state.firstCursorPositionEvent = false;
+                        auto& meta                     = m_cameraControllerInfo.meta;
+                        auto& firstCursorPositionEvent = m_cameraControllerInfo.state.firstCursorPositionEvent;
+
+                        if (firstCursorPositionEvent) {
+                            meta.lastCursorXPos        = static_cast <float> (xPos);
+                            meta.lastCursorYPos        = static_cast <float> (yPos);
+                            firstCursorPositionEvent   = false;
                         }
 
                         meta.pitchDelta     = meta.cursorSensitivity *
@@ -173,50 +188,44 @@ namespace SandBox {
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_D,
                     [this](void) {
-                        auto& meta             = m_cameraControllerInfo.meta;
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.lateralDelta  = meta.movementSensitivity;
+                        auto& meta                                    = m_cameraControllerInfo.meta;
+                        if (m_cameraControllerInfo.state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.lateralDelta                         = meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_A,
                     [this](void) {
-                        auto& meta             = m_cameraControllerInfo.meta;
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.lateralDelta  = -meta.movementSensitivity;
+                        auto& meta                                    = m_cameraControllerInfo.meta;
+                        if (m_cameraControllerInfo.state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.lateralDelta                         = -meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_W,
                     [this](void) {
-                        auto& meta             = m_cameraControllerInfo.meta;
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.axialDelta    = meta.movementSensitivity;
+                        auto& meta                                    = m_cameraControllerInfo.meta;
+                        if (m_cameraControllerInfo.state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.axialDelta                           = meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_S,
                     [this](void) {
-                        auto& meta             = m_cameraControllerInfo.meta;
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.axialDelta    = -meta.movementSensitivity;
+                        auto& meta                                    = m_cameraControllerInfo.meta;
+                        if (m_cameraControllerInfo.state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.axialDelta                           = -meta.movementSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_MINUS,
                     [this](void) {
-                        auto& meta             = m_cameraControllerInfo.meta;
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.fovDelta      = meta.fovSensitivity;
+                        auto& meta                                    = m_cameraControllerInfo.meta;
+                        if (m_cameraControllerInfo.state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.fovDelta                             = meta.fovSensitivity;
                     }
                 );
                 windowObj->setKeyEventBinding (GLFW_KEY_EQUAL,
                     [this](void) {
-                        auto& meta             = m_cameraControllerInfo.meta;
-                        auto& state            = m_cameraControllerInfo.state;
-                        if (state.droneToggle == KEY_STATE_UNLOCKED)
-                            meta.fovDelta      = -meta.fovSensitivity;
+                        auto& meta                                    = m_cameraControllerInfo.meta;
+                        if (m_cameraControllerInfo.state.droneToggle == KEY_STATE_UNLOCKED)
+                            meta.fovDelta                             = -meta.fovSensitivity;
                     }
                 );
             }
@@ -236,42 +245,43 @@ namespace SandBox {
             void initCameraControllerInfo (Scene::SNImpl* sceneObj,
                                            Collection::CNImpl* collectionObj) {
 
+                auto& meta                     = m_cameraControllerInfo.meta;
+                auto& state                    = m_cameraControllerInfo.state;
+                auto& resource                 = m_cameraControllerInfo.resource;
+
+                meta.lastCursorXPos            = 0.0f;
+                meta.lastCursorYPos            = 0.0f;
+                meta.pitchDelta                = 0.0f;
+                meta.yawDelta                  = 0.0f;
+                meta.rollDelta                 = 0.0f;
+                meta.lateralDelta              = 0.0f;
+                meta.axialDelta                = 0.0f;
+                meta.fovDelta                  = 0.0f;
+                meta.minFov                    = glm::radians (  5.0f);
+                meta.maxFov                    = glm::radians (120.0f);
+                meta.activeCamera              = {};
+
+                state.droneToggle              = KEY_STATE_LOCKED;
+                state.fineToggle               = KEY_STATE_LOCKED;
+                state.levelToggle              = KEY_STATE_LOCKED;
+                state.firstCursorPositionEvent = false;
+                state.levelingDisabled         = true;
+
                 if (sceneObj == nullptr || collectionObj == nullptr) {
-                    LOG_ERROR (m_cameraControllerInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                       << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                m_cameraControllerInfo.meta.lastCursorXPos            = 0.0f;
-                m_cameraControllerInfo.meta.lastCursorYPos            = 0.0f;
-
-                m_cameraControllerInfo.meta.pitchDelta                = 0.0f;
-                m_cameraControllerInfo.meta.yawDelta                  = 0.0f;
-                m_cameraControllerInfo.meta.rollDelta                 = 0.0f;
-                m_cameraControllerInfo.meta.lateralDelta              = 0.0f;
-                m_cameraControllerInfo.meta.axialDelta                = 0.0f;
-                m_cameraControllerInfo.meta.fovDelta                  = 0.0f;
-                m_cameraControllerInfo.meta.minFov                    = glm::radians (  5.0f);
-                m_cameraControllerInfo.meta.maxFov                    = glm::radians (120.0f);
-                m_cameraControllerInfo.meta.levelDamp                 = 2.5f;
-                m_cameraControllerInfo.meta.activeCamera              = {};
-
-                m_cameraControllerInfo.state.droneToggle              = KEY_STATE_LOCKED;
-                m_cameraControllerInfo.state.fineToggle               = KEY_STATE_LOCKED;
-                m_cameraControllerInfo.state.levelToggle              = KEY_STATE_LOCKED;
-                m_cameraControllerInfo.state.firstCursorPositionEvent = false;
-                m_cameraControllerInfo.state.levelingDisabled         = true;
-
-                m_cameraControllerInfo.resource.sceneObj              = sceneObj;
-                m_cameraControllerInfo.resource.windowObj             =
-                collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    (
+                resource.sceneObj              = sceneObj;
+                resource.windowObj             = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    (
                     "CORE"
                 );
-                m_cameraControllerInfo.resource.swapChainObj          =
-                collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> (
+                resource.swapChainObj          = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> (
                     "CORE"
                 );
-
+                resource.guiObj                = collectionObj->getCollectionTypeInstance <Renderer::VKGui>       (
+                    "DRAW_OPS"
+                );
                 updateCameraControllerSensitivity (SENSITIVITY_TYPE_COARSE);
                 setCameraControllerBindings();
             }
@@ -280,19 +290,18 @@ namespace SandBox {
                 return &m_cameraControllerInfo.meta.activeCamera;
             }
 
-            void update (const float frameDelta) {
-                auto& meta         = m_cameraControllerInfo.meta;
-                auto& activeCamera = meta.activeCamera;
-                auto& state        = m_cameraControllerInfo.state;
-                auto& sceneObj     = m_cameraControllerInfo.resource.sceneObj;
-                auto& swapChainObj = m_cameraControllerInfo.resource.swapChainObj;
+            void update (const float frameDelta,
+                         const Scene::Entity activeCameraEntity) {
+
+                auto& meta     = m_cameraControllerInfo.meta;
+                auto& resource = m_cameraControllerInfo.resource;
 
                 for (auto const& entity: m_entities) {
-                    auto cameraComponent    = sceneObj->getComponent <CameraComponent>    (entity);
-                    auto transformComponent = sceneObj->getComponent <TransformComponent> (entity);
-
-                    if (!cameraComponent->m_active)
+                    if (entity != activeCameraEntity)
                         continue;
+
+                    auto cameraComponent    = resource.sceneObj->getComponent <CameraComponent>    (entity);
+                    auto transformComponent = resource.sceneObj->getComponent <TransformComponent> (entity);
                     /* Graphics applications and games usually keep track of a delta time variable that stores the time
                      * it took to render the last frame. We multiply the movement speed with this delta time value. The
                      * result is that when we have a large delta time in a frame, meaning that the last frame took longer
@@ -310,12 +319,13 @@ namespace SandBox {
                         meta.rollDelta  *= meta.deltaDamp;
                     }
                     {   /* Leveling */
-                        if (!state.levelingDisabled) {
+                        if (!m_cameraControllerInfo.state.levelingDisabled) {
                             auto& orientation           = transformComponent->m_orientation;
                             glm::vec3 upVector          = transformComponent->getUpVector();
                             glm::vec3 targetUpVector    = {0.0f, 1.0f, 0.0f};
                             glm::vec3 targetAxis        = glm::cross     (upVector, targetUpVector);
-                            float targetAngle           = glm::dot       (upVector, targetUpVector) * meta.levelDamp;
+                            float targetAngle           = glm::dot       (upVector, targetUpVector) *
+                                                          g_systemConfig.camera.levelDamp;
 
                             glm::quat targetOrientation = glm::angleAxis (targetAngle * frameDelta, targetAxis);
                             orientation                 = glm::normalize (targetOrientation * orientation);
@@ -346,11 +356,11 @@ namespace SandBox {
                     }
 
                     /* Compute aspect ratio */
-                    float aspectRatio             = swapChainObj->getSwapChainExtent()->width/
-                                                    static_cast <float> (swapChainObj->getSwapChainExtent()->height);
-                    activeCamera.position         = transformComponent->m_position;
-                    activeCamera.viewMatrix       = glm::inverse (transformComponent->createModelMatrix());
-                    activeCamera.projectionMatrix = cameraComponent->createProjectionMatrix (aspectRatio);
+                    auto imageExtent                   = resource.swapChainObj->getSwapChainExtent();
+                    float aspectRatio                  = imageExtent->width / static_cast <float> (imageExtent->height);
+                    meta.activeCamera.position         = transformComponent->m_position;
+                    meta.activeCamera.viewMatrix       = glm::inverse (transformComponent->createModelMatrix (true));
+                    meta.activeCamera.projectionMatrix = cameraComponent->createProjectionMatrix (aspectRatio);
                 }
             }
 

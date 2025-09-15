@@ -37,13 +37,12 @@ namespace SandBox {
             }
 
             void initGuiRenderingInfo (Collection::CNImpl* collectionObj) {
+                auto& resource         = m_guiRenderingInfo.resource;
                 if (collectionObj == nullptr) {
-                    LOG_ERROR (m_guiRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                   << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto& resource         = m_guiRenderingInfo.resource;
                 resource.swapChainObj  = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain>   (
                     "CORE"
                 );

@@ -127,17 +127,20 @@ namespace SandBox {
             }
 
             void initLightInstanceBatchingInfo (Scene::SNImpl* sceneObj) {
-                m_lightInstanceBatchingInfo.meta.entityToIdxMap = {};
-                m_lightInstanceBatchingInfo.meta.activeLights   = {};
-                m_lightInstanceBatchingInfo.meta.instances      = {};
-                m_lightInstanceBatchingInfo.meta.typeOffsets    = {};
+                auto& meta          = m_lightInstanceBatchingInfo.meta;
+                auto& resource      = m_lightInstanceBatchingInfo.resource;
+
+                meta.entityToIdxMap = {};
+                meta.activeLights   = {};
+                meta.instances      = {};
+                meta.typeOffsets    = {};
 
                 if (sceneObj == nullptr) {
-                    LOG_ERROR (m_lightInstanceBatchingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                            << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_lightInstanceBatchingInfo.resource.sceneObj = sceneObj;
+                resource.sceneObj   = sceneObj;
             }
 
             std::vector <ActiveLightPC>& getBatchedActiveLights (void) {
@@ -231,13 +234,12 @@ namespace SandBox {
 
             void generateReport (void) {
                 auto& meta     = m_lightInstanceBatchingInfo.meta;
-                auto& sceneObj = m_lightInstanceBatchingInfo.resource.sceneObj;
-                auto& logObj   = m_lightInstanceBatchingInfo.resource.logObj;
+                auto& resource = m_lightInstanceBatchingInfo.resource;
+                auto& logObj   = resource.logObj;
 
                 for (auto const& [entity, idx]: meta.entityToIdxMap) {
-                    auto metaComponent  = sceneObj->getComponent <MetaComponent>  (entity);
-                    auto lightComponent = sceneObj->getComponent <LightComponent> (entity);
-                    auto& lightType     = lightComponent->m_lightType;
+                    auto metaComponent  = resource.sceneObj->getComponent <MetaComponent>  (entity);
+                    auto lightComponent = resource.sceneObj->getComponent <LightComponent> (entity);
                     auto instance       = meta.instances[idx];
 
                     LOG_LITE_INFO (logObj)     << metaComponent->m_id              << std::endl;
@@ -282,14 +284,14 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj)     << "\t"     << instance.farPlane    << std::endl;
 
                     size_t activeLightStartIdx = idx;
-                    size_t activeLightEndIdx   = lightType != LIGHT_TYPE_POINT ? idx + 1: idx + 6;
+                    size_t activeLightEndIdx   = lightComponent->m_lightType != LIGHT_TYPE_POINT ? idx + 1: idx + 6;
 
                     for (size_t i = activeLightStartIdx; i < activeLightEndIdx; i++) {
                         auto& viewMatrix       = meta.activeLights[i].viewMatrix;
                         auto& projectionMatrix = meta.activeLights[i].projectionMatrix;
                         size_t rowIdx          = 0;
 
-                        LOG_LITE_INFO (logObj) << "\t"     << "["                  << std::endl;
+                        LOG_LITE_INFO (logObj) << "\t"     << "{"                  << std::endl;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "["                  << std::endl;
                         while (rowIdx < 4) {
                         LOG_LITE_INFO (logObj) << "\t\t\t" << ALIGN_AND_PAD_C (16) << viewMatrix[rowIdx][0]       << ", "
@@ -312,7 +314,7 @@ namespace SandBox {
                         }
                         rowIdx = 0;
                         LOG_LITE_INFO (logObj) << "\t\t"   << "]"                  << std::endl;
-                        LOG_LITE_INFO (logObj) << "\t"     << "]"                  << std::endl;
+                        LOG_LITE_INFO (logObj) << "\t"     << "}"                  << std::endl;
                     }
                     LOG_LITE_INFO (logObj)     << "}"                              << std::endl;
                 }

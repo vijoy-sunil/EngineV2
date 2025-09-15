@@ -18,6 +18,7 @@ namespace SandBox {
                 struct Meta {
                     const char* formatSpecifier;
                     float dragSpeed;
+                    ImTextureID textureId;
                 } meta;
 
                 struct Style {
@@ -36,7 +37,6 @@ namespace SandBox {
                 struct Resource {
                     Scene::SNImpl* sceneObj;
                     Log::LGImpl* logObj;
-                    ImTextureID textureId;
                 } resource;
             } m_componentEditorViewInfo;
 
@@ -55,40 +55,39 @@ namespace SandBox {
             void initComponentEditorViewInfo (Scene::SNImpl* sceneObj,
                                               Collection::CNImpl* collectionObj) {
 
-                m_componentEditorViewInfo.meta.formatSpecifier         = "%0.4f";
-                m_componentEditorViewInfo.meta.dragSpeed               = 0.1f;
+                auto& meta                                    = m_componentEditorViewInfo.meta;
+                auto& style                                   = m_componentEditorViewInfo.style;
+                auto& resource                                = m_componentEditorViewInfo.resource;
 
-                m_componentEditorViewInfo.style.tabButtonRounding      = 0.0f;
-                m_componentEditorViewInfo.style.imageSize              = ImVec2 (200.0f, 200.0f);
-                m_componentEditorViewInfo.style.tabButtonSize          = ImVec2 ( 48.0f,  40.0f);
-                m_componentEditorViewInfo.style.childWindowSpacing     = ImVec2 (  0.0f, ImGui::GetStyle().ItemSpacing.y);
-                m_componentEditorViewInfo.style.tabButtonInactiveColor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
-                m_componentEditorViewInfo.style.tabButtonActiveColor   = ImGui::GetStyle().Colors[ImGuiCol_ChildBg];
+                meta.formatSpecifier                          = "%0.4f";
+                meta.dragSpeed                                = 0.1f;
 
-                m_componentEditorViewInfo.flag.colorEditFlags          = ImGuiColorEditFlags_NoBorder   |
-                                                                         ImGuiColorEditFlags_AlphaBar   |
-                                                                         ImGuiColorEditFlags_DisplayRGB |
-                                                                         ImGuiColorEditFlags_Float      |
-                                                                         ImGuiColorEditFlags_InputRGB;
+                style.tabButtonRounding                       = 0.0f;
+                style.imageSize                               = ImVec2 (200.0f, 200.0f);
+                style.tabButtonSize                           = ImVec2 ( 48.0f,  40.0f);
+                style.childWindowSpacing                      = ImVec2 (  0.0f, ImGui::GetStyle().ItemSpacing.y);
+                style.tabButtonInactiveColor                  = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+                style.tabButtonActiveColor                    = ImGui::GetStyle().Colors[ImGuiCol_ChildBg];
+
+                m_componentEditorViewInfo.flag.colorEditFlags = ImGuiColorEditFlags_NoBorder   |
+                                                                ImGuiColorEditFlags_AlphaBar   |
+                                                                ImGuiColorEditFlags_DisplayRGB |
+                                                                ImGuiColorEditFlags_Float      |
+                                                                ImGuiColorEditFlags_InputRGB;
 
                 if (sceneObj == nullptr || collectionObj == nullptr) {
-                    LOG_ERROR (m_componentEditorViewInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                          << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto& resource     = m_componentEditorViewInfo.resource;
-                resource.sceneObj  = sceneObj;
-                auto imageObj      = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   (
-                    "G_DEFAULT_TEXTURE_2"
-                );
-                auto samplerObj    = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> (
-                    "F_LIGHT_GBUFFER"
-                );
-                auto guiObj        = collectionObj->getCollectionTypeInstance <Renderer::VKGui>     (
-                    "DRAW_OPS"
-                );
-                resource.textureId = guiObj->addTexture (
+                resource.sceneObj                             = sceneObj;
+                auto imageObj                                 =
+                    collectionObj->getCollectionTypeInstance <Renderer::VKImage>   ("G_DEFAULT_TEXTURE_2");
+                auto samplerObj                               =
+                    collectionObj->getCollectionTypeInstance <Renderer::VKSampler> ("F_LIGHT_GBUFFER");
+                auto guiObj                                   =
+                    collectionObj->getCollectionTypeInstance <Renderer::VKGui>     ("DRAW_OPS");
+                meta.textureId                                = guiObj->addTexture (
                     *imageObj->getImageView(),
                     *samplerObj->getSampler(),
                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
@@ -101,9 +100,8 @@ namespace SandBox {
 
                 auto& meta           = m_componentEditorViewInfo.meta;
                 auto& style          = m_componentEditorViewInfo.style;
-                auto& flag           = m_componentEditorViewInfo.flag;
-                auto& resource       = m_componentEditorViewInfo.resource;
-                auto& sceneObj       = resource.sceneObj;
+                auto& colorEditFlags = m_componentEditorViewInfo.flag.colorEditFlags;
+                auto& sceneObj       = m_componentEditorViewInfo.resource.sceneObj;
                 auto entitySignature = sceneObj->getEntitySignature (selectedEntity);
 
                 /* Remove horizontal item spacing between left child and right child */
@@ -206,9 +204,9 @@ namespace SandBox {
                                 ImGui::EndDisabled();
 
                                 ImGui::SeparatorText ("Color");
-                                ImGui::ColorEdit3    ("Ambient",    glm::value_ptr   (ambient),  flag.colorEditFlags);
-                                ImGui::ColorEdit3    ("Diffuse",    glm::value_ptr   (diffuse),  flag.colorEditFlags);
-                                ImGui::ColorEdit3    ("Specular",   glm::value_ptr   (specular), flag.colorEditFlags);
+                                ImGui::ColorEdit3    ("Ambient",    glm::value_ptr   (ambient),  colorEditFlags);
+                                ImGui::ColorEdit3    ("Diffuse",    glm::value_ptr   (diffuse),  colorEditFlags);
+                                ImGui::ColorEdit3    ("Specular",   glm::value_ptr   (specular), colorEditFlags);
 
                                 ImGui::SeparatorText ("Attenuation");
                                 ImGui::DragFloat     ("Constant",   &constant,       meta.dragSpeed,
@@ -360,7 +358,7 @@ namespace SandBox {
                                 auto colorComponent = sceneObj->getComponent <ColorComponent> (selectedEntity);
                                 auto& color         = colorComponent->m_color;
 
-                                ImGui::ColorPicker4 ("Color", glm::value_ptr (color), flag.colorEditFlags);
+                                ImGui::ColorPicker4 ("Color", glm::value_ptr (color), colorEditFlags);
                                 break;
                             }
                             case 7:
@@ -406,7 +404,7 @@ namespace SandBox {
 
                                 /* Center align image and text */
                                 ImGui::SetCursorPosX ((windowContentWidth - style.imageSize.x) * 0.5f);
-                                ImGui::Image         (resource.textureId, style.imageSize);
+                                ImGui::Image         (meta.textureId, style.imageSize);
 
                                 ImGui::SetCursorPosX ((windowContentWidth - textWidth) * 0.5f);
                                 ImGui::Text          ("%s", text);

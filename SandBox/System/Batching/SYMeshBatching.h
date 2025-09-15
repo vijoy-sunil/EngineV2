@@ -46,17 +46,20 @@ namespace SandBox {
             }
 
             void initMeshBatchingInfo (Scene::SNImpl* sceneObj) {
-                m_meshBatchingInfo.meta.entityToOffsetInfoMap = {};
-                m_meshBatchingInfo.meta.tagTypeToEntitiesMap  = {};
-                m_meshBatchingInfo.meta.tagTypeToVerticesMap  = {};
-                m_meshBatchingInfo.meta.tagTypeToIndicesMap   = {};
+                auto& meta                 = m_meshBatchingInfo.meta;
+                auto& resource             = m_meshBatchingInfo.resource;
+
+                meta.entityToOffsetInfoMap = {};
+                meta.tagTypeToEntitiesMap  = {};
+                meta.tagTypeToVerticesMap  = {};
+                meta.tagTypeToIndicesMap   = {};
 
                 if (sceneObj == nullptr) {
-                    LOG_ERROR (m_meshBatchingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                   << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_meshBatchingInfo.resource.sceneObj = sceneObj;
+                resource.sceneObj          = sceneObj;
             }
 
             std::vector <Vertex>& getBatchedVertices (const e_tagType tagType) {
@@ -121,8 +124,8 @@ namespace SandBox {
 
             void generateReport (void) {
                 auto& meta     = m_meshBatchingInfo.meta;
-                auto& sceneObj = m_meshBatchingInfo.resource.sceneObj;
-                auto& logObj   = m_meshBatchingInfo.resource.logObj;
+                auto& resource = m_meshBatchingInfo.resource;
+                auto& logObj   = resource.logObj;
 
                 for (auto const& [tagType, entities]: meta.tagTypeToEntitiesMap) {
                     auto vertices = meta.tagTypeToVerticesMap[tagType];
@@ -132,7 +135,7 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj)         << "["                            << std::endl;
 
                     for (auto const& entity: entities) {
-                        auto metaComponent                 = sceneObj->getComponent <MetaComponent> (entity);
+                        auto metaComponent                 = resource.sceneObj->getComponent <MetaComponent> (entity);
                         auto info                          = meta.entityToOffsetInfoMap[entity];
                         uint32_t verticesCountPerPrimitive = info.verticesCountPerPrimitive;
                         uint32_t firstIndexIdx             = info.firstIndexIdx;
@@ -154,25 +157,25 @@ namespace SandBox {
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.uv.x       << ", "
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.uv.y
                                                              << ")"
-                                                             << " "
+                                                             << ", "
                                                              << "("
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.normal.x   << ", "
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.normal.y   << ", "
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.normal.z
                                                              << ")"
-                                                             << " "
+                                                             << ", "
                                                              << "("
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.position.x << ", "
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.position.y << ", "
                                                              << ALIGN_AND_PAD_C (16) << vertex.meta.position.z
                                                              << ")"
-                                                             << " "
+                                                             << ", "
                                                              << ALIGN_AND_PAD_S      << vertex.material.diffuseTextureIdx
-                                                             << " "
+                                                             << ", "
                                                              << ALIGN_AND_PAD_S      << vertex.material.specularTextureIdx
-                                                             << " "
+                                                             << ", "
                                                              << ALIGN_AND_PAD_S      << vertex.material.emissionTextureIdx
-                                                             << " "
+                                                             << ", "
                                                              << ALIGN_AND_PAD_S      << vertex.material.shininess
                                                              << std::endl;
                             ++loopIdx;

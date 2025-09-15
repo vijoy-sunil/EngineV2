@@ -39,6 +39,7 @@ namespace SandBox {
                     float maxFpsPlotAxis;
 
                     ScrollingBuffer fpsBuffer;
+                    ImTextureID textureId;
                 } meta;
 
                 struct Style {
@@ -57,7 +58,6 @@ namespace SandBox {
 
                 struct Resource {
                     Log::LGImpl* logObj;
-                    ImTextureID textureId;
                 } resource;
             } m_sceneViewInfo;
 
@@ -74,60 +74,63 @@ namespace SandBox {
             }
 
             void initSceneViewInfo (Collection::CNImpl* collectionObj) {
-                m_sceneViewInfo.meta.elapsedTime         =  0.0f;
-                m_sceneViewInfo.meta.plotHistory         = 10.0f;
-                m_sceneViewInfo.meta.minFpsPlotAxis      = 30.0f;
-                m_sceneViewInfo.meta.maxFpsPlotAxis      = 90.0f;
-                m_sceneViewInfo.meta.fpsBuffer           = {};
+                auto& meta               = m_sceneViewInfo.meta;
+                auto& style              = m_sceneViewInfo.style;
+                auto& flag               = m_sceneViewInfo.flag;
 
-                m_sceneViewInfo.style.plotWindowAlpha    = 0.5f;
-                m_sceneViewInfo.style.sceneWindowPadding = ImVec2 (  0.0f,  0.0f);
-                m_sceneViewInfo.style.plotWindowPadding  = ImVec2 (  0.0f,  0.0f);
-                m_sceneViewInfo.style.plotSize           = ImVec2 (200.0f, 60.0f);
+                meta.elapsedTime         =  0.0f;
+                meta.plotHistory         = 10.0f;
+                meta.minFpsPlotAxis      = 30.0f;
+                meta.maxFpsPlotAxis      = 90.0f;
+                meta.fpsBuffer           = {};
 
-                m_sceneViewInfo.flag.sceneWindowFlags    = ImGuiWindowFlags_NoScrollbar       |
-                                                           ImGuiWindowFlags_NoScrollWithMouse;
-                m_sceneViewInfo.flag.plotWindowFlags     = ImGuiWindowFlags_NoTitleBar        |
-                                                           ImGuiWindowFlags_NoResize          |
-                                                           ImGuiWindowFlags_NoMove            |
-                                                           ImGuiWindowFlags_NoScrollbar       |
-                                                           ImGuiWindowFlags_NoScrollWithMouse |
-                                                           ImGuiWindowFlags_NoCollapse        |
-                                                           ImGuiWindowFlags_NoMouseInputs     |
-                                                           ImGuiWindowFlags_NoNavInputs       |
-                                                           ImGuiWindowFlags_NoNavFocus        |
-                                                           ImGuiWindowFlags_NoDocking;
-                m_sceneViewInfo.flag.plotFlags           = ImPlotFlags_NoTitle                |
-                                                           ImPlotFlags_NoMouseText            |
-                                                           ImPlotFlags_NoInputs               |
-                                                           ImPlotFlags_NoMenus                |
-                                                           ImPlotFlags_NoBoxSelect            |
-                                                           ImPlotFlags_NoFrame;
-                m_sceneViewInfo.flag.plotAxisFlags       = ImPlotAxisFlags_NoLabel            |
-                                                           ImPlotAxisFlags_NoTickMarks        |
-                                                           ImPlotAxisFlags_NoTickLabels       |
-                                                           ImPlotAxisFlags_NoMenus            |
-                                                           ImPlotAxisFlags_NoSideSwitch       |
-                                                           ImPlotAxisFlags_NoHighlight        |
-                                                           ImPlotAxisFlags_LockMin            |
-                                                           ImPlotAxisFlags_LockMax;
+                style.plotWindowAlpha    = 0.5f;
+                style.sceneWindowPadding = ImVec2 (  0.0f,  0.0f);
+                style.plotWindowPadding  = ImVec2 (  0.0f,  0.0f);
+                style.plotSize           = ImVec2 (200.0f, 60.0f);
+
+                flag.sceneWindowFlags    = ImGuiWindowFlags_NoScrollbar       |
+                                           ImGuiWindowFlags_NoScrollWithMouse;
+                flag.plotWindowFlags     = ImGuiWindowFlags_NoTitleBar        |
+                                           ImGuiWindowFlags_NoResize          |
+                                           ImGuiWindowFlags_NoMove            |
+                                           ImGuiWindowFlags_NoScrollbar       |
+                                           ImGuiWindowFlags_NoScrollWithMouse |
+                                           ImGuiWindowFlags_NoCollapse        |
+                                           ImGuiWindowFlags_NoMouseInputs     |
+                                           ImGuiWindowFlags_NoNavInputs       |
+                                           ImGuiWindowFlags_NoNavFocus        |
+                                           ImGuiWindowFlags_NoDocking;
+                flag.plotFlags           = ImPlotFlags_NoTitle                |
+                                           ImPlotFlags_NoMouseText            |
+                                           ImPlotFlags_NoInputs               |
+                                           ImPlotFlags_NoMenus                |
+                                           ImPlotFlags_NoBoxSelect            |
+                                           ImPlotFlags_NoFrame;
+                flag.plotAxisFlags       = ImPlotAxisFlags_NoLabel            |
+                                           ImPlotAxisFlags_NoTickMarks        |
+                                           ImPlotAxisFlags_NoTickLabels       |
+                                           ImPlotAxisFlags_NoMenus            |
+                                           ImPlotAxisFlags_NoSideSwitch       |
+                                           ImPlotAxisFlags_NoHighlight        |
+                                           ImPlotAxisFlags_LockMin            |
+                                           ImPlotAxisFlags_LockMax;
 
                 if (collectionObj == nullptr) {
                     LOG_ERROR (m_sceneViewInfo.resource.logObj) << NULL_DEPOBJ_MSG
                                                                 << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto imageObj                      = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   (
+                auto imageObj            = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   (
                     "F_LIGHT_COLOR"
                 );
-                auto samplerObj                    = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> (
+                auto samplerObj          = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> (
                     "F_LIGHT_GBUFFER"
                 );
-                auto guiObj                        = collectionObj->getCollectionTypeInstance <Renderer::VKGui>     (
+                auto guiObj              = collectionObj->getCollectionTypeInstance <Renderer::VKGui>     (
                     "DRAW_OPS"
                 );
-                m_sceneViewInfo.resource.textureId = guiObj->addTexture (
+                meta.textureId           = guiObj->addTexture (
                     *imageObj->getImageView(),
                     *samplerObj->getSampler(),
                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
@@ -136,19 +139,17 @@ namespace SandBox {
 
             void update (const float frameDelta) {
                 auto& meta        = m_sceneViewInfo.meta;
-                auto& fpsBuffer   = meta.fpsBuffer;
                 auto& style       = m_sceneViewInfo.style;
                 auto& flag        = m_sceneViewInfo.flag;
-                auto& resource    = m_sceneViewInfo.resource;
 
                 /* Add (x,y) point to buffer */
                 meta.elapsedTime += frameDelta;
                 float fps         = frameDelta == 0.0f ? 0.0f: (1.0f / frameDelta);
-                fpsBuffer.addPoint (meta.elapsedTime, fps);
+                meta.fpsBuffer.addPoint (meta.elapsedTime, fps);
 
                 /* Construct legend label */
                 char label[11];
-                std::snprintf (label, sizeof (label), "FPS: %0.2f", fpsBuffer.m_average);
+                std::snprintf (label, sizeof (label), "FPS: %0.2f", meta.fpsBuffer.m_average);
 
                 /* Set plot window position */
                 float titleBarHeight      = ImGui::GetTextLineHeight() + (2.0f * ImGui::GetStyle().FramePadding.y);
@@ -159,7 +160,7 @@ namespace SandBox {
                 if (ImGui::Begin    (ICON_FA_EYE " Scene", nullptr, flag.sceneWindowFlags)) {
                     /* Compute image size */
                     ImVec2 contentRegionSize = ImGui::GetContentRegionAvail();
-                    ImGui::Image                    (resource.textureId, contentRegionSize);
+                    ImGui::Image                    (meta.textureId, contentRegionSize);
 
                     ImGui::SetNextWindowPos         (plotWindowPosition);
                     ImGui::SetNextWindowBgAlpha     (style.plotWindowAlpha);
@@ -179,12 +180,12 @@ namespace SandBox {
                                                      ImGuiCond_Always);
 
                             ImPlot::PlotShaded      (label,
-                                                     &fpsBuffer.m_buffer[0].x,
-                                                     &fpsBuffer.m_buffer[0].y,
-                                                     static_cast <int> (fpsBuffer.m_buffer.size()),
+                                                     &meta.fpsBuffer.m_buffer[0].x,
+                                                     &meta.fpsBuffer.m_buffer[0].y,
+                                                     static_cast <int> (meta.fpsBuffer.m_buffer.size()),
                                                      -INFINITY,
                                                      ImPlotShadedFlags_None,
-                                                     static_cast <int> (fpsBuffer.m_offset),
+                                                     static_cast <int> (meta.fpsBuffer.m_offset),
                                                      2 * sizeof (float));
                             ImPlot::EndPlot();
                         }

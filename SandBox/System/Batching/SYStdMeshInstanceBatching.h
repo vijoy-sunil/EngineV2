@@ -49,17 +49,20 @@ namespace SandBox {
             }
 
             void initStdMeshInstanceBatchingInfo (Scene::SNImpl* sceneObj) {
-                m_stdMeshInstanceBatchingInfo.meta.entityToIdxMap            = {};
-                m_stdMeshInstanceBatchingInfo.meta.tagTypeToEntitiesMap      = {};
-                m_stdMeshInstanceBatchingInfo.meta.tagTypeToInstancesLiteMap = {};
-                m_stdMeshInstanceBatchingInfo.meta.tagTypeToInstancesMap     = {};
+                auto& meta                     = m_stdMeshInstanceBatchingInfo.meta;
+                auto& resource                 = m_stdMeshInstanceBatchingInfo.resource;
+
+                meta.entityToIdxMap            = {};
+                meta.tagTypeToEntitiesMap      = {};
+                meta.tagTypeToInstancesLiteMap = {};
+                meta.tagTypeToInstancesMap     = {};
 
                 if (sceneObj == nullptr) {
-                    LOG_ERROR (m_stdMeshInstanceBatchingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                              << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_stdMeshInstanceBatchingInfo.resource.sceneObj = sceneObj;
+                resource.sceneObj              = sceneObj;
             }
 
             std::vector <MeshInstanceLiteSBO>& getBatchedMeshInstancesLite (const e_tagType tagType) {
@@ -85,10 +88,9 @@ namespace SandBox {
                     auto transformComponent        = sceneObj->getComponent <TransformComponent>        (entity);
                     auto textureIdxOffsetComponent = sceneObj->getComponent <TextureIdxOffsetComponent> (entity);
                     auto& tagType                  = metaComponent->m_tagType;
-                    auto& loopIdx                  = tagTypeToLoopIdxMap[tagType];
                     glm::mat4 modelMatrix          = transformComponent->createModelMatrix();
 
-                    meta.entityToIdxMap[entity] = loopIdx++;
+                    meta.entityToIdxMap[entity] = tagTypeToLoopIdxMap[tagType]++;
                     meta.tagTypeToEntitiesMap[tagType].push_back (entity);
 
                     MeshInstanceLiteSBO instanceLite;
@@ -105,8 +107,8 @@ namespace SandBox {
 
             void generateReport (void) {
                 auto& meta     = m_stdMeshInstanceBatchingInfo.meta;
-                auto& sceneObj = m_stdMeshInstanceBatchingInfo.resource.sceneObj;
-                auto& logObj   = m_stdMeshInstanceBatchingInfo.resource.logObj;
+                auto& resource = m_stdMeshInstanceBatchingInfo.resource;
+                auto& logObj   = resource.logObj;
                 size_t rowIdx  = 0;
 
                 for (auto const& [tagType, entities]: meta.tagTypeToEntitiesMap) {
@@ -116,7 +118,7 @@ namespace SandBox {
                     LOG_LITE_INFO (logObj)     << "["                              << std::endl;
 
                     for (auto const& entity: entities) {
-                        auto metaComponent      = sceneObj->getComponent <MetaComponent> (entity);
+                        auto metaComponent      = resource.sceneObj->getComponent <MetaComponent> (entity);
                         size_t idx              = meta.entityToIdxMap[entity];
                         auto& modelMatrix       = instances[idx].modelMatrix;
                         auto& normalMatrix      = instances[idx].normalMatrix;

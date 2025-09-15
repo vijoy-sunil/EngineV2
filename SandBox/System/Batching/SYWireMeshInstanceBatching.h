@@ -41,15 +41,18 @@ namespace SandBox {
             }
 
             void initWireMeshInstanceBatchingInfo (Scene::SNImpl* sceneObj) {
-                m_wireMeshInstanceBatchingInfo.meta.entityToIdxMap = {};
-                m_wireMeshInstanceBatchingInfo.meta.instances      = {};
+                auto& meta          = m_wireMeshInstanceBatchingInfo.meta;
+                auto& resource      = m_wireMeshInstanceBatchingInfo.resource;
+
+                meta.entityToIdxMap = {};
+                meta.instances      = {};
 
                 if (sceneObj == nullptr) {
-                    LOG_ERROR (m_wireMeshInstanceBatchingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                               << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_wireMeshInstanceBatchingInfo.resource.sceneObj = sceneObj;
+                resource.sceneObj   = sceneObj;
             }
 
             std::vector <MeshInstanceSBO>& getBatchedMeshInstances (void) {
@@ -79,12 +82,12 @@ namespace SandBox {
 
             void generateReport (void) {
                 auto& meta     = m_wireMeshInstanceBatchingInfo.meta;
-                auto& sceneObj = m_wireMeshInstanceBatchingInfo.resource.sceneObj;
-                auto& logObj   = m_wireMeshInstanceBatchingInfo.resource.logObj;
+                auto& resource = m_wireMeshInstanceBatchingInfo.resource;
+                auto& logObj   = resource.logObj;
                 size_t rowIdx  = 0;
 
                 for (auto const& [entity, idx]: meta.entityToIdxMap) {
-                    auto metaComponent = sceneObj->getComponent <MetaComponent> (entity);
+                    auto metaComponent = resource.sceneObj->getComponent <MetaComponent> (entity);
                     auto& color        = meta.instances[idx].color;
                     auto& modelMatrix  = meta.instances[idx].modelMatrix;
 

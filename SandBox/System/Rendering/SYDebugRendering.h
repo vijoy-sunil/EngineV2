@@ -37,13 +37,12 @@ namespace SandBox {
             }
 
             void initDebugRenderingInfo (Collection::CNImpl* collectionObj) {
+                auto& resource           = m_debugRenderingInfo.resource;
                 if (collectionObj == nullptr) {
-                    LOG_ERROR (m_debugRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                     << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto& resource           = m_debugRenderingInfo.resource;
                 resource.pipelineObj     = collectionObj->getCollectionTypeInstance <Renderer::VKPipeline>      (
                     "F_DEBUG"
                 );

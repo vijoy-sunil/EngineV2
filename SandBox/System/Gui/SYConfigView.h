@@ -21,6 +21,7 @@ namespace SandBox {
                     int selectedTextureIdx;
                     size_t selectedConfigIdx;
                     std::unordered_map <size_t, LabelInfo> configIdxToLabelInfoMap;
+                    std::vector <ImTextureID> textureIds;
                 } meta;
 
                 struct Style {
@@ -35,7 +36,6 @@ namespace SandBox {
                 struct Resource {
                     Log::LGImpl* logObj;
                     SBTexturePool* texturePoolObj;
-                    std::vector <ImTextureID> textureIds;
                 } resource;
             } m_configViewInfo;
 
@@ -54,44 +54,46 @@ namespace SandBox {
             void initConfigViewInfo (Collection::CNImpl* collectionObj,
                                      SBTexturePool* texturePoolObj) {
 
-                m_configViewInfo.meta.formatSpecifier         = "%0.4f";
-                m_configViewInfo.meta.dragSpeed               = 0.01f;
-                m_configViewInfo.meta.selectedTextureIdx      = 0;
-                m_configViewInfo.meta.selectedConfigIdx       = 0;
-                m_configViewInfo.meta.configIdxToLabelInfoMap = {
+                auto& meta                   = m_configViewInfo.meta;
+                auto& style                  = m_configViewInfo.style;
+                auto& resource               = m_configViewInfo.resource;
+
+                meta.formatSpecifier         = "%0.4f";
+                meta.dragSpeed               = 0.01f;
+                meta.selectedTextureIdx      = 0;
+                meta.selectedConfigIdx       = 0;
+                meta.configIdxToLabelInfoMap = {
                     {0, {"Texture pool", ICON_FA_IMAGES   }},
                     {1, {"Shadow",       ICON_FA_CLOUD_SUN}},
                     {2, {"Camera",       ICON_FA_CAMERA   }}
                 };
 
-                m_configViewInfo.style.tabButtonRounding      = 0.0f;
-                m_configViewInfo.style.imageSize              = ImVec2 (200.0f, 200.0f);
-                m_configViewInfo.style.tabButtonSize          = ImVec2 ( 48.0f,  40.0f);
-                m_configViewInfo.style.childWindowSpacing     = ImVec2 (  0.0f, ImGui::GetStyle().ItemSpacing.y);
-                m_configViewInfo.style.tabButtonInactiveColor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
-                m_configViewInfo.style.tabButtonActiveColor   = ImGui::GetStyle().Colors[ImGuiCol_ChildBg];
+                style.tabButtonRounding      = 0.0f;
+                style.imageSize              = ImVec2 (200.0f, 200.0f);
+                style.tabButtonSize          = ImVec2 ( 48.0f,  40.0f);
+                style.childWindowSpacing     = ImVec2 (  0.0f, ImGui::GetStyle().ItemSpacing.y);
+                style.tabButtonInactiveColor = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+                style.tabButtonActiveColor   = ImGui::GetStyle().Colors[ImGuiCol_ChildBg];
 
                 if (collectionObj == nullptr || texturePoolObj == nullptr) {
-                    LOG_ERROR (m_configViewInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                 << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto& resource          = m_configViewInfo.resource;
-                resource.texturePoolObj = texturePoolObj;
-                auto samplerObj         = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> (
+                resource.texturePoolObj      = texturePoolObj;
+                auto samplerObj              = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> (
                     "F_LIGHT_GBUFFER"
                 );
-                auto guiObj             = collectionObj->getCollectionTypeInstance <Renderer::VKGui>     (
+                auto guiObj                  = collectionObj->getCollectionTypeInstance <Renderer::VKGui>     (
                     "DRAW_OPS"
                 );
-                auto texturePool        = resource.texturePoolObj->getTexturePool();
+                auto texturePool             = resource.texturePoolObj->getTexturePool();
 
                 for (auto const& [idx, info]: texturePool) {
-                    auto imageObj       = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   (
+                    auto imageObj            = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   (
                         "G_DEFAULT_TEXTURE_" + std::to_string (idx)
                     );
-                    resource.textureIds.push_back (
+                    meta.textureIds.push_back (
                         guiObj->addTexture (*imageObj->getImageView(),
                                             *samplerObj->getSampler(),
                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
@@ -102,8 +104,7 @@ namespace SandBox {
             void update (void) {
                 auto& meta       = m_configViewInfo.meta;
                 auto& style      = m_configViewInfo.style;
-                auto& resource   = m_configViewInfo.resource;
-                auto texturePool = resource.texturePoolObj->getTexturePool();
+                auto texturePool = m_configViewInfo.resource.texturePoolObj->getTexturePool();
 
                 /* Remove horizontal item spacing between left child and right child */
                 ImGui::PushStyleVar       (ImGuiStyleVar_ItemSpacing, style.childWindowSpacing);
@@ -179,51 +180,46 @@ namespace SandBox {
 
                                 ImGui::SeparatorText ("Preview");
                                 ImGui::SetCursorPosX ((windowContentWidth - style.imageSize.x) * 0.5f);
-                                ImGui::Image         (resource.textureIds[meta.selectedTextureIdx], style.imageSize);
+                                ImGui::Image         (meta.textureIds[meta.selectedTextureIdx], style.imageSize);
                                 break;
                             }
                             case 1:
                             {   /* Shadow */
-                                auto& minShadowFactor = g_systemConfig.shadow.minShadowFactor;
-                                auto& constant        = g_systemConfig.shadow.depthBiasConstantFactor;
-                                auto& slope           = g_systemConfig.shadow.depthBiasSlopeFactor;
-                                auto& minDepthBias    = g_systemConfig.shadow.minDepthBias;
-                                auto& maxDepthBias    = g_systemConfig.shadow.maxDepthBias;
-
+                                auto& shadow = g_systemConfig.shadow;
                                 ImGui::SeparatorText ("Shadow factor");
                                 ImGui::PushID        (0);
-                                ImGui::DragFloat     ("Min",      &minShadowFactor, meta.dragSpeed,
-                                                      0.0f,       1.0f,             meta.formatSpecifier,
+                                ImGui::DragFloat     ("Min",      &shadow.minShadowFactor,         meta.dragSpeed,
+                                                      0.0f,       1.0f,                            meta.formatSpecifier,
                                                       ImGuiSliderFlags_AlwaysClamp);
                                 ImGui::PopID();
 
                                 ImGui::SeparatorText ("Dpeth bias (Other)");
-                                ImGui::DragFloat     ("Constant", &constant,        meta.dragSpeed,
-                                                      0.0f,       FLT_MAX,          meta.formatSpecifier,
+                                ImGui::DragFloat     ("Constant", &shadow.depthBiasConstantFactor, meta.dragSpeed,
+                                                      0.0f,       FLT_MAX,                         meta.formatSpecifier,
                                                       ImGuiSliderFlags_AlwaysClamp);
-                                ImGui::DragFloat     ("Slope",    &slope,           meta.dragSpeed,
-                                                      0.0f,       FLT_MAX,          meta.formatSpecifier,
+                                ImGui::DragFloat     ("Slope",    &shadow.depthBiasSlopeFactor,    meta.dragSpeed,
+                                                      0.0f,       FLT_MAX,                         meta.formatSpecifier,
                                                       ImGuiSliderFlags_AlwaysClamp);
 
                                 ImGui::SeparatorText ("Dpeth bias (Point)");
                                 ImGui::PushID        (1);
-                                ImGui::DragFloat     ("Min",      &minDepthBias,    meta.dragSpeed,
-                                                      0.0f,       FLT_MAX,          meta.formatSpecifier,
+                                ImGui::DragFloat     ("Min",      &shadow.minDepthBias,            meta.dragSpeed,
+                                                      0.0f,       FLT_MAX,                         meta.formatSpecifier,
                                                       ImGuiSliderFlags_AlwaysClamp);
-                                ImGui::DragFloat     ("Max",      &maxDepthBias,    meta.dragSpeed,
-                                                      0.0f,       FLT_MAX,          meta.formatSpecifier,
+                                ImGui::DragFloat     ("Max",      &shadow.maxDepthBias,            meta.dragSpeed,
+                                                      0.0f,       FLT_MAX,                         meta.formatSpecifier,
                                                       ImGuiSliderFlags_AlwaysClamp);
                                 ImGui::PopID();
                                 break;
                             }
                             case 2:
                             {   /* Camera */
-                                auto& levelDamp         = g_systemConfig.camera.levelDamp;
-                                auto& fineSensitivity   = g_systemConfig.camera.fineSensitivity;
-                                auto& coarseSensitivity = g_systemConfig.camera.coarseSensitivity;
+                                auto& camera            = g_systemConfig.camera;
+                                auto& fineSensitivity   = camera.fineSensitivity;
+                                auto& coarseSensitivity = camera.coarseSensitivity;
 
                                 ImGui::SeparatorText ("General");
-                                ImGui::DragFloat     ("Level damp", &levelDamp,                   meta.dragSpeed,
+                                ImGui::DragFloat     ("Level damp", &camera.levelDamp,            meta.dragSpeed,
                                                       0.0f,         FLT_MAX,                      meta.formatSpecifier,
                                                       ImGuiSliderFlags_AlwaysClamp);
 

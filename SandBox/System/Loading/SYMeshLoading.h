@@ -30,9 +30,8 @@ namespace SandBox {
             }
 
             void loadOBJModel (MeshComponent* meshComponent) {
-                auto& texturePoolObj = m_meshLoadingInfo.resource.texturePoolObj;
-
-                std::unordered_map <Vertex, IndexType> uniqueVertices;
+                auto& resource = m_meshLoadingInfo.resource;
+                std::unordered_map <Vertex, IndexType> vertexToIndexMap;
                 tinyobj::ObjReaderConfig readerConfig;
                 tinyobj::ObjReader reader;
                 /* Config */
@@ -42,19 +41,19 @@ namespace SandBox {
                 if (!reader.ParseFromFile (meshComponent->m_modelFilePath, readerConfig)) {
                     if (!reader.Error().empty()) {
                         std::string msg = reader.Error().substr (0, reader.Error().size() - 1);
-                        LOG_ERROR (m_meshLoadingInfo.resource.logObj) << msg
-                                                                      << " "
-                                                                      << "[" << meshComponent->m_modelFilePath << "]"
-                                                                      << std::endl;
+                        LOG_ERROR (resource.logObj) << msg
+                                                    << " "
+                                                    << "[" << meshComponent->m_modelFilePath << "]"
+                                                    << std::endl;
                         throw std::runtime_error (msg);
                     }
                 }
                 if (!reader.Warning().empty()) {
                     std::string msg = reader.Warning().substr (0, reader.Warning().size() - 1);
-                    LOG_WARNING (m_meshLoadingInfo.resource.logObj)   << msg
-                                                                      << " "
-                                                                      << "[" << meshComponent->m_modelFilePath << "]"
-                                                                      << std::endl;
+                    LOG_WARNING (resource.logObj)   << msg
+                                                    << " "
+                                                    << "[" << meshComponent->m_modelFilePath << "]"
+                                                    << std::endl;
                 }
 
                 auto attribute = reader.GetAttrib();
@@ -63,13 +62,13 @@ namespace SandBox {
 
                 /* Populate texture pool */
                 for (auto const& material: materials) {
-                    if (!material.diffuse_texname.empty())  texturePoolObj->addTexture (
+                    if (!material.diffuse_texname.empty())  resource.texturePoolObj->addTexture (
                          material.diffuse_texname
                     );
-                    if (!material.specular_texname.empty()) texturePoolObj->addTexture (
+                    if (!material.specular_texname.empty()) resource.texturePoolObj->addTexture (
                          material.specular_texname
                     );
-                    if (!material.emissive_texname.empty()) texturePoolObj->addTexture (
+                    if (!material.emissive_texname.empty()) resource.texturePoolObj->addTexture (
                          material.emissive_texname
                     );
                 }
@@ -171,14 +170,14 @@ namespace SandBox {
                             if (materialIdx != -1) {
                                 auto material                      = materials[materialIdx];
                                 vertex.material.diffuseTextureIdx  = material.diffuse_texname  == "" ?
-                                      0:
-                                      texturePoolObj->getTextureIdx (material.diffuse_texname);
+                                    0:
+                                    resource.texturePoolObj->getTextureIdx (material.diffuse_texname);
                                 vertex.material.specularTextureIdx = material.specular_texname == "" ?
-                                      1:
-                                      texturePoolObj->getTextureIdx (material.specular_texname);
+                                    1:
+                                    resource.texturePoolObj->getTextureIdx (material.specular_texname);
                                 vertex.material.emissionTextureIdx = material.emissive_texname == "" ?
-                                      1:
-                                      texturePoolObj->getTextureIdx (material.emissive_texname);
+                                    1:
+                                    resource.texturePoolObj->getTextureIdx (material.emissive_texname);
                                 vertex.material.shininess          = transformToRange (
                                     material.shininess,
                                     {0,  900},
@@ -200,13 +199,13 @@ namespace SandBox {
                              * If we've seen the exact same vertex before, then we look up its index in the map container
                              * and store that index in indices array
                             */
-                            if (uniqueVertices.count (vertex) == 0) {
-                                uniqueVertices[vertex] = static_cast <IndexType> (
+                            if (vertexToIndexMap.count (vertex) == 0) {
+                                vertexToIndexMap[vertex] = static_cast <IndexType> (
                                     meshComponent->m_vertices.size()
                                 );
                                 meshComponent->m_vertices.push_back (vertex);
                             }
-                            meshComponent->m_indices.push_back (uniqueVertices[vertex]);
+                            meshComponent->m_indices.push_back (vertexToIndexMap[vertex]);
                         }
                         idxOffset += verticesPerFace;
                     }
@@ -229,20 +228,19 @@ namespace SandBox {
             void initMeshLoadingInfo (Scene::SNImpl* sceneObj,
                                       SBTexturePool* texturePoolObj) {
 
+                auto& resource          = m_meshLoadingInfo.resource;
                 if (sceneObj == nullptr || texturePoolObj == nullptr) {
-                    LOG_ERROR (m_meshLoadingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                  << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-                m_meshLoadingInfo.resource.sceneObj       = sceneObj;
-                m_meshLoadingInfo.resource.texturePoolObj = texturePoolObj;
+                resource.sceneObj       = sceneObj;
+                resource.texturePoolObj = texturePoolObj;
             }
 
             void update (void) {
-                auto& sceneObj = m_meshLoadingInfo.resource.sceneObj;
-
                 for (auto const& entity: m_entities) {
-                    auto meshComponent = sceneObj->getComponent <MeshComponent> (entity);
+                    auto meshComponent = m_meshLoadingInfo.resource.sceneObj->getComponent <MeshComponent> (entity);
                     /* Skip entities with manually populated mesh component */
                     if (!meshComponent->m_loadPending)
                         continue;

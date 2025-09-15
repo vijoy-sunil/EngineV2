@@ -52,13 +52,12 @@ namespace SandBox {
                                               Scene::SNImpl* sceneObj,
                                               Collection::CNImpl* collectionObj) {
 
+                auto& resource              = m_shadowCubeRenderingInfo.resource;
                 if (sceneObj == nullptr || collectionObj == nullptr) {
-                    LOG_ERROR (m_shadowCubeRenderingInfo.resource.logObj) << NULL_DEPOBJ_MSG
-                                                                          << std::endl;
+                    LOG_ERROR (resource.logObj) << NULL_DEPOBJ_MSG
+                                                << std::endl;
                     throw std::runtime_error (NULL_DEPOBJ_MSG);
                 }
-
-                auto& resource              = m_shadowCubeRenderingInfo.resource;
                 resource.sceneObj           = sceneObj;
                 resource.vertexBufferObj    = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer>        (
                     "S_DEFAULT_VERTEX"
@@ -106,7 +105,6 @@ namespace SandBox {
                          const void* activeLight) {
 
                 auto& resource            = m_shadowCubeRenderingInfo.resource;
-                auto& sceneObj            = resource.sceneObj;
                 uint32_t frameInFlightIdx = resource.rendererObj->getFrameInFlightIdx();
                 auto frameBufferObj       = resource.frameBufferObjs[activeLightIdx];
                 auto cmdBuffer            = resource.cmdBufferObj->getCmdBuffers()[frameInFlightIdx];
@@ -208,7 +206,7 @@ namespace SandBox {
                 );
                 /* Draw */
                 for (auto const& entity: m_entities) {
-                    auto renderComponent = sceneObj->getComponent <RenderComponent> (entity);
+                    auto renderComponent = resource.sceneObj->getComponent <RenderComponent> (entity);
 
                     Renderer::drawIndexed (
                         cmdBuffer,
