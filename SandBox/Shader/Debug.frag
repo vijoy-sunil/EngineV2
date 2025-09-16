@@ -10,11 +10,8 @@ layout (set = 0, binding = 0) uniform sampler2D debugSamplers[];
 const float NEAR_PLANE = 0.01;
 const float FAR_PLANE  = 100.0;
 
-float getLinearizedDepth (const float nearPlane,
-                          const float farPlane,
-                          const float depth) {
-
-    return (2.0 * nearPlane) / (farPlane + nearPlane - depth * (farPlane - nearPlane));
+float getLinearizedDepth (const float depth) {
+    return (2.0 * NEAR_PLANE) / (FAR_PLANE + NEAR_PLANE - depth * (FAR_PLANE - NEAR_PLANE));
 }
 
 void main (void) {
@@ -26,7 +23,7 @@ void main (void) {
         case 2:     /* Normalized data    */
         case 3:     break;
         default:    /* Non-linear depth   */
-                    data = vec3 (getLinearizedDepth (NEAR_PLANE, FAR_PLANE, data.r));
+                    data = vec3 (getLinearizedDepth (data.r));
                     break;
     }
     o_color = vec4 (data, 1.0);

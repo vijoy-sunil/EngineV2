@@ -24,9 +24,19 @@ struct LightInstanceSBO {
     mat4 projectionMatrix;
 };
 
+struct ShadowConfigUBO {
+    float minShadowFactor;
+    float minDepthBias;
+    float maxDepthBias;
+};
+
 layout (set = 0, binding = 0) readonly buffer LightInstanceSBOContainer {
     LightInstanceSBO instances[];
 } lightInstanceSBOContainer;
+
+layout (set = 0, binding = 1) uniform ShadowConfigUBOContainer {
+    ShadowConfigUBO config;
+} shadowConfigUBOContainer;
 
 layout (set = 1, binding = 0) uniform sampler2D   shadowSamplers[];
 layout (set = 1, binding = 1) uniform samplerCube shadowCubeSamplers[];
@@ -47,8 +57,6 @@ layout (offset = 144)
 const float REFLECTION_INTENSITY = 0.05;
 const float MIN_SHININESS        = 32.0;
 const float MAX_SHININESS        = 128.0;
-const float MIN_DEPTH_BIAS       = 0.01;
-const float MAX_DEPTH_BIAS       = 0.2;
 
 float computeShadowFactor (const uint samplerIdx,
                            const vec4 positionLS,
@@ -72,14 +80,14 @@ float computeShadowFactor (const uint samplerIdx,
     if (abs (positionNDC.x) > 1.0 ||
         abs (positionNDC.y) > 1.0 ||
         abs (positionNDC.z) > 1.0)
-        return shadowOutsideFrustum ? 0.0: 1.0;
+        return shadowOutsideFrustum ? shadowConfigUBOContainer.config.minShadowFactor: 1.0;
 
     /* Transform the NDC coordinates in [-1, 1] to [0, 1] range to sample from the shadow image, z is already in [0, 1] */
     vec2 sampleUV       = positionNDC.xy * 0.5 + 0.5;
     float sampledDepth  = texture (shadowSamplers[samplerIdx], sampleUV).r;
     float fragmentDepth = positionNDC.z;
 
-    return fragmentDepth > sampledDepth ? 0.0: 1.0;
+    return fragmentDepth > sampledDepth ? shadowConfigUBOContainer.config.minShadowFactor: 1.0;
     /* Shadow anti aliasing and percentage close filtering (PCF)
      * Because the shadow image has a fixed resolution, the depth usually spans more than one fragment per texel. As a
      * result, multiple fragments sample the same depth value and come to the same shadow conclusions, which produces
@@ -93,9 +101,7 @@ float computeShadowFactor (const LightInstanceSBO lightInstance,
                            const vec4 lightDirection,
                            const vec4 normal,
                            const vec4 position,
-                           const uint samplerIdx,
-                           const float minDepthBias,
-                           const float maxDepthBias) {
+                           const uint samplerIdx) {
 
     vec3 sampleDirection = position.xyz - lightInstance.position;
     float sampledDepth   = texture (shadowCubeSamplers[samplerIdx], sampleDirection).r * lightInstance.farPlane;
@@ -106,15 +112,15 @@ float computeShadowFactor (const LightInstanceSBO lightInstance,
      * bias based on the surface angle towards the light. This way, surfaces that are almost perpendicular to the light
      * source get a small bias, while others get a much larger bias
     */
-    float bias = max (maxDepthBias * (1.0 - dot (normal, lightDirection)), minDepthBias);
+    float bias = max (shadowConfigUBOContainer.config.maxDepthBias * (1.0 - dot (normal, lightDirection)),
+                      shadowConfigUBOContainer.config.minDepthBias);
 
-    return fragmentDepth > (sampledDepth + bias) ? 0.0: 1.0;
+    return fragmentDepth > (sampledDepth + bias) ? shadowConfigUBOContainer.config.minShadowFactor: 1.0;
 }
 
 vec3 computeColor (const vec4 normal,
                    const vec4 position,
-                   const vec3 specularColor,
-                   const float reflectionIntensity) {
+                   const vec3 specularColor) {
     /* We calculate a reflection vector around the object's normal vector based on the view direction, which is then used
      * as a direction vector to sample the cube map, returning a color value of the environment. The resulting effect is
      * that the object seems to reflect the sky box
@@ -141,7 +147,7 @@ vec3 computeColor (const vec4 normal,
     reflection.x        *= -1.0;
     vec3 reflectionColor = texture   (skyBoxSampler, reflection.rgb).rgb;
 
-    return reflectionIntensity * reflectionColor * specularColor;
+    return REFLECTION_INTENSITY * reflectionColor * specularColor;
 }
 
 vec3 computeColor (const LightInstanceSBO lightInstance,
@@ -277,8 +283,7 @@ void main (void) {
     /* Contribution                    [Sky box reflection] */
     fragmentColor                     += computeColor (normal,
                                                        position,
-                                                       specularColor,
-                                                       REFLECTION_INTENSITY);
+                                                       specularColor);
     /* Contribution                    [Sun lights] */
     for (uint i = 0; i < lightTypeOffsets.spotLightsOffset; i++) {
         LightInstanceSBO lightInstance = lightInstanceSBOContainer.instances[i];
@@ -328,9 +333,7 @@ void main (void) {
                                                               lightDirection,
                                                               normal,
                                                               position,
-                                                              i - lightTypeOffsets.pointLightsOffset,
-                                                              MIN_DEPTH_BIAS,
-                                                              MAX_DEPTH_BIAS);
+                                                              i - lightTypeOffsets.pointLightsOffset);
         fragmentColor                 += computeColor        (lightInstance,
                                                               lightDirection,
                                                               normal,
