@@ -125,10 +125,10 @@ namespace SandBox {
                 logObj->updateLogConfig (Log::LEVEL_TYPE_ERROR,   Log::SINK_TYPE_CONSOLE | Log::SINK_TYPE_FILE);
             }
 
-            void initEntityCollectionViewInfo (Scene::SNImpl* sceneObj,
-                                               const Scene::Entity selectedEntity,
+            void initEntityCollectionViewInfo (const Scene::Entity selectedEntity,
                                                const std::map <Scene::Entity, std::vector <Scene::Entity>>
-                                               parentEntityToChildrenMap) {
+                                               parentEntityToChildrenMap,
+                                               Scene::SNImpl* sceneObj) {
 
                 auto& meta                                    = m_entityCollectionViewInfo.meta;
                 auto& style                                   = m_entityCollectionViewInfo.style;
