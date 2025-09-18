@@ -164,9 +164,9 @@ namespace SandBox {
                                 );
                                 float windowContentWidth = ImGui::GetWindowContentRegionMax().x -
                                                            ImGui::GetWindowContentRegionMin().x;
-                                int width                = texturePool[meta.selectedTextureIdx].meta.width;
-                                int height               = texturePool[meta.selectedTextureIdx].meta.height;
-                                int channelsCount        = texturePool[meta.selectedTextureIdx].meta.channelsCount;
+                                int width                = texturePool[meta.selectedTextureIdx].width;
+                                int height               = texturePool[meta.selectedTextureIdx].height;
+                                int channelsCount        = texturePool[meta.selectedTextureIdx].channelsCount;
 
                                 ImGui::SeparatorText ("Info");
                                 ImGui::BeginDisabled (true);
