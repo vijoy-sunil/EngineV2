@@ -38,22 +38,27 @@ namespace SandBox {
         }
     };
 
+    /* Alignment rules
+     * - Scalars must be aligned by  N (= 4  bytes given 32 bit floats)
+     * - Vec3    must be aligned by 4N (= 16 bytes)
+     * - Mat4    must be aligned by 4N (= 16 bytes)
+    */
     /* UBO - Uniform buffer object */
     struct MeshInstanceUBO {
         glm::mat4 modelMatrix;
     };
 
-    /* PC - Push constant */
-    struct ActiveLightPC {
-        glm::vec3 position;                 /* Vec3 must be aligned by 4N   (= 16 bytes) */
-        float farPlane;                     /* Scalars must be aligned by N (= 4 bytes given 32 bit floats) */
-        glm::mat4 viewMatrix;               /* Mat4 must be aligned by 4N   (= 16 bytes) */
-        glm::mat4 projectionMatrix;
+    struct ShadowConfigUBO {
+        float minShadowFactor;
+        float minDepthBias;                 /* Only for point lights */
+        float maxDepthBias;                 /* Only for point lights */
     };
 
-    struct ActiveCameraPC {
+    /* PC - Push constant */
+    struct ActiveLightPC {
         glm::vec3 position;
-        alignas (16) glm::mat4 viewMatrix;
+        float farPlane;
+        glm::mat4 viewMatrix;
         glm::mat4 projectionMatrix;
     };
 
@@ -61,6 +66,12 @@ namespace SandBox {
         uint32_t spotLightsOffset;
         uint32_t pointLightsOffset;
         uint32_t lightsCount;
+    };
+
+    struct ActiveCameraPC {
+        glm::vec3 position;
+        alignas (16) glm::mat4 viewMatrix;
+        glm::mat4 projectionMatrix;
     };
 }   // namespace SandBox
 

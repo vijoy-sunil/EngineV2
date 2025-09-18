@@ -8,15 +8,10 @@ namespace SandBox {
     class SBTexturePool {
         private:
             struct ImageInfo {
-                struct Meta {
-                    int width;
-                    int height;
-                    int channelsCount;
-                } meta;
-
-                struct Resource {
-                    stbi_uc* data;
-                } resource;
+                int width;
+                int height;
+                int channelsCount;
+                stbi_uc* data;
             };
 
             struct TexturePoolInfo {
@@ -38,12 +33,12 @@ namespace SandBox {
                  * out row by row with 4 bytes per pixel in the case of STBI_rgb_alpha for a total of (width * height *
                  * 4) values
                 */
-                imageInfo.resource.data = stbi_load (imageFilePath,
-                                                     &imageInfo.meta.width,
-                                                     &imageInfo.meta.height,
-                                                     &imageInfo.meta.channelsCount,
-                                                     STBI_rgb_alpha);
-                if (!imageInfo.resource.data) {
+                imageInfo.data = stbi_load (imageFilePath,
+                                            &imageInfo.width,
+                                            &imageInfo.height,
+                                            &imageInfo.channelsCount,
+                                            STBI_rgb_alpha);
+                if (!imageInfo.data) {
                     LOG_ERROR (m_texturePoolInfo.resource.logObj) << "Failed to load image"
                                                                   << " "
                                                                   << "[" << imageFilePath << "]"
@@ -66,9 +61,10 @@ namespace SandBox {
             }
 
             void initTexturePoolInfo (void) {
-                m_texturePoolInfo.meta.pathToIdxMap      = {};
-                m_texturePoolInfo.meta.idxToImageInfoMap = {};
-                m_texturePoolInfo.meta.nextAvailableIdx  = 0;
+                auto& meta             = m_texturePoolInfo.meta;
+                meta.pathToIdxMap      = {};
+                meta.idxToImageInfoMap = {};
+                meta.nextAvailableIdx  = 0;
             }
 
             uint32_t getTextureIdx (const std::string imageFilePath) {
@@ -96,16 +92,16 @@ namespace SandBox {
             }
 
             void destroyImage (const uint32_t textureIdx) {
-                auto& meta = m_texturePoolInfo.meta;
-                if (meta.idxToImageInfoMap.find (textureIdx) == meta.idxToImageInfoMap.end()) {
+                auto& idxToImageInfoMap = m_texturePoolInfo.meta.idxToImageInfoMap;
+                if (idxToImageInfoMap.find (textureIdx) == idxToImageInfoMap.end()) {
                     LOG_ERROR (m_texturePoolInfo.resource.logObj) << "Image info does not exist"
                                                                   << " "
                                                                   << "[" << textureIdx << "]"
                                                                   << std::endl;
                     throw std::runtime_error ("Image info does not exist");
                 }
-                auto imageInfo = meta.idxToImageInfoMap[textureIdx];
-                stbi_image_free (imageInfo.resource.data);
+                auto imageInfo = idxToImageInfoMap[textureIdx];
+                stbi_image_free (imageInfo.data);
             }
 
             void generateReport (void) {
@@ -116,10 +112,10 @@ namespace SandBox {
                 for (auto const& [path, idx]: meta.pathToIdxMap) {
                     auto imageInfo = meta.idxToImageInfoMap[idx];
 
-                    LOG_LITE_INFO (logObj) << "\t" << ALIGN_AND_PAD_S << idx                          << " "
-                                                   << ALIGN_AND_PAD_S << imageInfo.meta.width         << " "
-                                                   << ALIGN_AND_PAD_S << imageInfo.meta.height        << " "
-                                                   << ALIGN_AND_PAD_S << imageInfo.meta.channelsCount << " "
+                    LOG_LITE_INFO (logObj) << "\t" << ALIGN_AND_PAD_S << idx                     << ", "
+                                                   << ALIGN_AND_PAD_S << imageInfo.width         << ", "
+                                                   << ALIGN_AND_PAD_S << imageInfo.height        << ", "
+                                                   << ALIGN_AND_PAD_S << imageInfo.channelsCount << ", "
                                                    << path            << std::endl;
                 }
                 LOG_LITE_INFO (logObj)     << "}"                     << std::endl;

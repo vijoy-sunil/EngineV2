@@ -5,11 +5,15 @@
 #include "../Backend/Renderer/VKWindow.h"
 #include "../Backend/Renderer/VKLogDevice.h"
 #include "../Backend/Renderer/VKRenderer.h"
-#include "SBTexturePool.h"
+#include "../Backend/Renderer/VKGui.h"
 #include "System/Batching/SYStdMeshInstanceBatching.h"
 #include "System/Batching/SYWireMeshInstanceBatching.h"
 #include "System/Batching/SYLightInstanceBatching.h"
 #include "System/Controller/SYCameraController.h"
+#include "System/Gui/SYSceneView.h"
+#include "System/Gui/SYEntityCollectionView.h"
+#include "System/Gui/SYComponentEditorView.h"
+#include "System/Gui/SYConfigView.h"
 #include "System/Rendering/SYShadowRendering.h"
 #include "System/Rendering/SYShadowCubeRendering.h"
 #include "System/Rendering/SYGDefaultRendering.h"
@@ -18,7 +22,10 @@
 #include "System/Rendering/SYSkyBoxRendering.h"
 #include "System/Rendering/SYFDefaultRendering.h"
 #include "System/Rendering/SYDebugRendering.h"
+#include "System/Rendering/SYGuiRendering.h"
+#include "SBTexturePool.h"
 #include "../Backend/Scene/SNType.h"
+#include "System/SYConfig.h"
 #include "SBComponentType.h"
 #include "SBRendererType.h"
 
@@ -33,8 +40,10 @@ namespace SandBox {
                 struct Meta {
                     uint32_t shadowImageWidth;
                     uint32_t shadowImageHeight;
+
                     Scene::Entity skyBoxEntity;
-                    std::map <Scene::Entity, std::vector <Scene::Entity>> entityFamilyInfoPool;
+                    Scene::Entity activeCameraEntity;
+                    std::map <Scene::Entity, std::vector <Scene::Entity>> parentEntityToChildrenMap;
                 } meta;
 
                 struct Resource {
@@ -45,13 +54,14 @@ namespace SandBox {
                 } resource;
             } m_sandBoxInfo;
 
-            void configScene         (void);
-            void configRendererCore  (void);
-            void configRendererSPass (void);    /* Shadow   (S) pass */
-            void configRendererGPass (void);    /* Geometry (G) pass */
-            void configRendererFPass (void);    /* Forward  (F) pass */
-            void configRendererOps   (void);
-            void destroyRenderer     (void);
+            void configScene           (void);
+            void configRendererCore    (void);
+            void configRendererSPass   (void);      /* Shadow   (S) pass */
+            void configRendererGPass   (void);      /* Geometry (G) pass */
+            void configRendererFPass   (void);      /* Forward  (F) pass */
+            void configRendererGuiPass (void);      /* Gui          pass */
+            void configRendererOps     (void);
+            void destroyRenderer       (void);
 
         public:
             SBImpl (void) {
@@ -66,11 +76,10 @@ namespace SandBox {
                 m_sandBoxInfo.resource.skyBoxTexturePoolObj = new SBTexturePool();
                 m_sandBoxInfo.resource.skyBoxTexturePoolObj->initTexturePoolInfo();
 
-                auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
-                auto& skyBoxTexturePoolObj = m_sandBoxInfo.resource.skyBoxTexturePoolObj;
                 /* Add default textures */
-                stdTexturePoolObj->addTexture ("Asset/Texture/[D]_Simple_#FF00FF.png");         /* Texture idx 0 */
-                stdTexturePoolObj->addTexture ("Asset/Texture/[S]_Simple_#000000.png");         /* Texture idx 1 */
+                m_sandBoxInfo.resource.stdTexturePoolObj->addTexture ("Asset/Texture/[D]_Simple_#FF00FF.png");  /* #0 */
+                m_sandBoxInfo.resource.stdTexturePoolObj->addTexture ("Asset/Texture/[S]_Simple_#000000.png");  /* #1 */
+                m_sandBoxInfo.resource.stdTexturePoolObj->addTexture ("Asset/Texture/[D]_Gui_No_Info.png");     /* #2 */
                 /* Add sky box textures. The textures that make up the sky box are laid out in the below pattern. If you
                  * fold the 6 sides into a cube you'd get the completely textured cube that simulates a large landscape
                  *                              +-----------+
@@ -87,106 +96,162 @@ namespace SandBox {
                  *                              |           |
                  *                              +-----------+
                 */
-                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PX.png");
-                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NX.png");
-                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PY.png");
-                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NY.png");
-                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PZ.png");
-                skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NZ.png");
+                m_sandBoxInfo.resource.skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PX.png");
+                m_sandBoxInfo.resource.skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NX.png");
+                m_sandBoxInfo.resource.skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PY.png");
+                m_sandBoxInfo.resource.skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NY.png");
+                m_sandBoxInfo.resource.skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_PZ.png");
+                m_sandBoxInfo.resource.skyBoxTexturePoolObj->addTexture ("Asset/Texture/[D]_Sky_Box_NZ.png");
             }
 
             void initSandBoxInfo (void) {
+                auto& meta             = m_sandBoxInfo.meta;
+                auto& resource         = m_sandBoxInfo.resource;
                 /* Note that, larger the resolution of the shadow image, the higher the quality of shadows. But of course
                  * this comes with an additional computing cost, so you need to balance quality and performance for your
                  * particular target
                 */
-                m_sandBoxInfo.meta.shadowImageWidth  = 512;
-                m_sandBoxInfo.meta.shadowImageHeight = 512;
+                meta.shadowImageWidth  = 1024;
+                meta.shadowImageHeight = 1024;
                 /* Configs */
                 configScene();
                 configRendererCore();
                 configRendererSPass();
                 configRendererGPass();
                 configRendererFPass();
+                configRendererGuiPass();
                 configRendererOps();
                 /* Reports */
-                m_sandBoxInfo.resource.sceneObj->generateReport();
-                m_sandBoxInfo.resource.collectionObj->generateReport();
-                m_sandBoxInfo.resource.stdTexturePoolObj->generateReport();
-                m_sandBoxInfo.resource.skyBoxTexturePoolObj->generateReport();
+                resource.sceneObj->generateReport();
+                resource.collectionObj->generateReport();
+                resource.stdTexturePoolObj->generateReport();
+                resource.skyBoxTexturePoolObj->generateReport();
             }
 
             void runSandBox (void) {
-                auto& shadowImageWidth           = m_sandBoxInfo.meta.shadowImageWidth;
-                auto& shadowImageHeight          = m_sandBoxInfo.meta.shadowImageHeight;
-                auto& skyBoxEntity               = m_sandBoxInfo.meta.skyBoxEntity;
-                auto& sceneObj                   = m_sandBoxInfo.resource.sceneObj;
-                auto& collectionObj              = m_sandBoxInfo.resource.collectionObj;
+                auto& meta                       = m_sandBoxInfo.meta;
+                auto& resource                   = m_sandBoxInfo.resource;
+                auto& shadow                     = g_systemConfig.shadow;
 
-                auto skyBoxTransformComponent    = sceneObj->getComponent <TransformComponent> (skyBoxEntity);
-                auto stdMeshInstanceBatchingObj  = sceneObj->getSystem    <SYStdMeshInstanceBatching>();
-                auto wireMeshInstanceBatchingObj = sceneObj->getSystem    <SYWireMeshInstanceBatching>();
-                auto lightInstanceBatchingObj    = sceneObj->getSystem    <SYLightInstanceBatching>();
-                auto cameraControllerObj         = sceneObj->getSystem    <SYCameraController>();
-                auto shadowRenderingObj          = sceneObj->getSystem    <SYShadowRendering>();
-                auto shadowCubeRenderingObj      = sceneObj->getSystem    <SYShadowCubeRendering>();
-                auto gDefaultRenderingObj        = sceneObj->getSystem    <SYGDefaultRendering>();
-                auto lightRenderingObj           = sceneObj->getSystem    <SYLightRendering>();
-                auto wireRenderingObj            = sceneObj->getSystem    <SYWireRendering>();
-                auto skyBoxRenderingObj          = sceneObj->getSystem    <SYSkyBoxRendering>();
-                auto fDefaultRenderingObj        = sceneObj->getSystem    <SYFDefaultRendering>();
-                auto debugRenderingObj           = sceneObj->getSystem    <SYDebugRendering>();
+                auto windowObj                   = resource.collectionObj->getCollectionTypeInstance
+                                                   <Renderer::VKWindow>    ("CORE");
+                auto logDeviceObj                = resource.collectionObj->getCollectionTypeInstance
+                                                   <Renderer::VKLogDevice> ("CORE");
+                auto rendererObj                 = resource.collectionObj->getCollectionTypeInstance
+                                                   <Renderer::VKRenderer>  ("DRAW_OPS");
+                auto guiObj                      = resource.collectionObj->getCollectionTypeInstance
+                                                   <Renderer::VKGui>       ("DRAW_OPS");
+
+                auto skyBoxTransformComponent    = resource.sceneObj->getComponent <TransformComponent> (meta.skyBoxEntity);
+                auto stdMeshInstanceBatchingObj  = resource.sceneObj->getSystem    <SYStdMeshInstanceBatching>();
+                auto wireMeshInstanceBatchingObj = resource.sceneObj->getSystem    <SYWireMeshInstanceBatching>();
+                auto lightInstanceBatchingObj    = resource.sceneObj->getSystem    <SYLightInstanceBatching>();
+                auto cameraControllerObj         = resource.sceneObj->getSystem    <SYCameraController>();
+                auto sceneViewObj                = resource.sceneObj->getSystem    <SYSceneView>();
+                auto entityCollectionViewObj     = resource.sceneObj->getSystem    <SYEntityCollectionView>();
+                auto componentEditorViewObj      = resource.sceneObj->getSystem    <SYComponentEditorView>();
+                auto configViewObj               = resource.sceneObj->getSystem    <SYConfigView>();
+                auto shadowRenderingObj          = resource.sceneObj->getSystem    <SYShadowRendering>();
+                auto shadowCubeRenderingObj      = resource.sceneObj->getSystem    <SYShadowCubeRendering>();
+                auto gDefaultRenderingObj        = resource.sceneObj->getSystem    <SYGDefaultRendering>();
+                auto lightRenderingObj           = resource.sceneObj->getSystem    <SYLightRendering>();
+                auto wireRenderingObj            = resource.sceneObj->getSystem    <SYWireRendering>();
+                auto skyBoxRenderingObj          = resource.sceneObj->getSystem    <SYSkyBoxRendering>();
+                auto fDefaultRenderingObj        = resource.sceneObj->getSystem    <SYFDefaultRendering>();
+                auto debugRenderingObj           = resource.sceneObj->getSystem    <SYDebugRendering>();
+                auto guiRenderingObj             = resource.sceneObj->getSystem    <SYGuiRendering>();
 
                 auto activeLights                = lightInstanceBatchingObj->getBatchedActiveLights();
                 auto lightTypeOffsets            = lightInstanceBatchingObj->getLightTypeOffsets();
                 uint32_t otherLightsCount        = lightTypeOffsets->pointLightsOffset;
                 uint32_t pointLightsCount        = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
                 float frameDelta                 = 0.0f;
-                /* Un-batched mesh instance */
-                MeshInstanceUBO skyBoxMeshInstance;
-                /* Note that, certain systems may need some collection type instances to be configured before it is
-                 * initialised. Hence why their init methods are called post-renderer-config
-                */
-                cameraControllerObj->initCameraControllerInfo       (sceneObj, collectionObj);
-                shadowRenderingObj->initShadowRenderingInfo         (
-                    static_cast <uint32_t> (activeLights.size()),   /* Custom frame buffers count */
-                    sceneObj,
-                    collectionObj
-                );
-                shadowCubeRenderingObj->initShadowCubeRenderingInfo (
-                    static_cast <uint32_t> (activeLights.size()),   /* Custom frame buffers count */
-                    sceneObj,
-                    collectionObj
-                );
-                gDefaultRenderingObj->initGDefaultRenderingInfo     (sceneObj, collectionObj);
-                lightRenderingObj->initLightRenderingInfo           (          collectionObj);
-                wireRenderingObj->initWireRenderingInfo             (sceneObj, collectionObj);
-                skyBoxRenderingObj->initSkyBoxRenderingInfo         (sceneObj, collectionObj);
-                fDefaultRenderingObj->initFDefaultRenderingInfo     (sceneObj, collectionObj);
-                debugRenderingObj->initDebugRenderingInfo           (          collectionObj);
-                /* Update depth bias factors */
-                shadowRenderingObj->updateDepthBiasConstantFactor   (4.0f);
-                shadowRenderingObj->updateDepthBiasSlopeFactor      (1.5f);
 
-                auto windowObj    = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    ("CORE");
-                auto logDeviceObj = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
-                auto rendererObj  = collectionObj->getCollectionTypeInstance <Renderer::VKRenderer>  ("DRAW_OPS");
+                /* Un-batched buffer data */
+                MeshInstanceUBO skyBoxMeshInstance;
+                ShadowConfigUBO shadowConfig;
+
+                /* Some systems need to be initialized post-renderer-config */
+                cameraControllerObj->initCameraControllerInfo         (
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                sceneViewObj->initSceneViewInfo                       (
+                    resource.collectionObj
+                );
+                entityCollectionViewObj->initEntityCollectionViewInfo (
+                    meta.activeCameraEntity,                                /* Default selected entity */
+                    meta.parentEntityToChildrenMap,
+                    resource.sceneObj
+                );
+                componentEditorViewObj->initComponentEditorViewInfo   (
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                configViewObj->initConfigViewInfo                     (
+                    resource.collectionObj,
+                    resource.stdTexturePoolObj
+                );
+                shadowRenderingObj->initShadowRenderingInfo           (
+                    static_cast <uint32_t> (activeLights.size()),           /* Custom frame buffers count */
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                shadowCubeRenderingObj->initShadowCubeRenderingInfo   (
+                    static_cast <uint32_t> (activeLights.size()),           /* Custom frame buffers count */
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                gDefaultRenderingObj->initGDefaultRenderingInfo       (
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                lightRenderingObj->initLightRenderingInfo             (
+                    resource.collectionObj
+                );
+                wireRenderingObj->initWireRenderingInfo               (
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                skyBoxRenderingObj->initSkyBoxRenderingInfo           (
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                fDefaultRenderingObj->initFDefaultRenderingInfo       (
+                    resource.sceneObj,
+                    resource.collectionObj
+                );
+                debugRenderingObj->initDebugRenderingInfo             (
+                    resource.collectionObj
+                );
+                guiRenderingObj->initGuiRenderingInfo                 (
+                    resource.collectionObj
+                );
 
                 while (!windowObj->isWindowClosed()) {
                     glfwPollEvents();
                     auto startOfFrameTime = PROFILE_CAPTURE;
 
-                    /* Handle window events */
-                    collectionObj->updateCollectionType <Renderer::VKWindow>();
-                    /* Controller updates */
-                    cameraControllerObj->update (frameDelta);
-                    /* Batching updates */
-                    stdMeshInstanceBatchingObj->update();
-                    wireMeshInstanceBatchingObj->update();
-                    lightInstanceBatchingObj->update (shadowImageWidth / static_cast <float> (shadowImageHeight));
-                    /* Un-batched updates */
-                    skyBoxMeshInstance.modelMatrix = skyBoxTransformComponent->createModelMatrix();
+                    {   /* Data update */
+                        /* Handle window events */
+                        resource.collectionObj->updateCollectionType <Renderer::VKWindow>();
 
+                        /* Controller updates */
+                        cameraControllerObj->update (frameDelta, meta.activeCameraEntity);
+
+                        /* Batched updates */
+                        stdMeshInstanceBatchingObj->update();
+                        wireMeshInstanceBatchingObj->update();
+                        lightInstanceBatchingObj->update (meta.shadowImageWidth /
+                                                          static_cast <float> (meta.shadowImageHeight));
+
+                        /* Un-batched updates */
+                        skyBoxMeshInstance.modelMatrix = skyBoxTransformComponent->createModelMatrix();
+                        shadowConfig.minShadowFactor   = shadow.minShadowFactor;
+                        shadowConfig.minDepthBias      = shadow.minDepthBias;
+                        shadowConfig.maxDepthBias      = shadow.maxDepthBias;
+                    }
+                    /* Frame update */
                     if (rendererObj->beginFrame()) {
                         {   /* S pass */
                             size_t activeLightIdx = 0;
@@ -199,6 +264,7 @@ namespace SandBox {
                                 );
                                 ++activeLightIdx;
                             }
+
                             for (uint32_t i = 0; i < pointLightsCount; i++) {
                             for (uint32_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++) {
                                 shadowCubeRenderingObj->update (
@@ -219,7 +285,8 @@ namespace SandBox {
                         {   /* F pass */
                             lightRenderingObj->update    (
                                 lightInstanceBatchingObj->getBatchedLightInstances().data(),
-                                lightTypeOffsets,        /* Stale data */
+                                &shadowConfig,
+                                lightTypeOffsets,
                                 cameraControllerObj->getActiveCamera()
                             );
                             wireRenderingObj->update     (
@@ -236,6 +303,23 @@ namespace SandBox {
                             );
                             debugRenderingObj->update();
                         }
+                        {   /* Gui pass */
+                            guiObj->beginFrame();
+                            {
+                                sceneViewObj->update (
+                                    frameDelta
+                                );
+                                entityCollectionViewObj->update();
+                                componentEditorViewObj->update (
+                                    entityCollectionViewObj->getSelectedEntity(),
+                                    meta.activeCameraEntity,
+                                    entityCollectionViewObj->getSelectedComponentType()
+                                );
+                                configViewObj->update();
+                            }
+                            guiObj->endFrame();
+                            guiRenderingObj->update();
+                        }
                         rendererObj->endFrame();
                     }
 
@@ -251,20 +335,22 @@ namespace SandBox {
             }
 
             void destroySandBox (void) {
+                auto& resource = m_sandBoxInfo.resource;
                 /* Configs */
                 destroyRenderer();
                 /* Reports */
-                m_sandBoxInfo.resource.sceneObj->generateReport();
-                m_sandBoxInfo.resource.collectionObj->generateReport();
-                m_sandBoxInfo.resource.stdTexturePoolObj->generateReport();
-                m_sandBoxInfo.resource.skyBoxTexturePoolObj->generateReport();
+                resource.sceneObj->generateReport();
+                resource.collectionObj->generateReport();
+                resource.stdTexturePoolObj->generateReport();
+                resource.skyBoxTexturePoolObj->generateReport();
             }
 
             ~SBImpl (void) {
-                delete m_sandBoxInfo.resource.sceneObj;
-                delete m_sandBoxInfo.resource.collectionObj;
-                delete m_sandBoxInfo.resource.stdTexturePoolObj;
-                delete m_sandBoxInfo.resource.skyBoxTexturePoolObj;
+                auto& resource = m_sandBoxInfo.resource;
+                delete resource.skyBoxTexturePoolObj;
+                delete resource.stdTexturePoolObj;
+                delete resource.collectionObj;
+                delete resource.sceneObj;
             }
     };
 }   // namespace SandBox
