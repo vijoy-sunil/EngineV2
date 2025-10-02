@@ -8,5 +8,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Grid_Micro_#BEBEBE.png
-map_Ks /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[S]_Grid_Micro.png
+map_Kd /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[D]_Ground_Plane.png
+map_Ks /Users/vijoys/Downloads/Projects/EngineV2/Asset/Texture/[S]_Ground_Plane.png
