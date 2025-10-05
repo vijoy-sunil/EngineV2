@@ -65,7 +65,7 @@ namespace Log {
                 } state;
 
                 struct Resource {
-                    std::fstream file;
+                    std::ofstream file;
                 } resource;
             } m_logInfo;
 

@@ -24,30 +24,52 @@ namespace SandBox {
 
     const char* getLightTypeString (const e_lightType lightType) {
         switch (lightType) {
-            case LIGHT_TYPE_SUN:                    return "LIGHT_TYPE_SUN";
-            case LIGHT_TYPE_SPOT:                   return "LIGHT_TYPE_SPOT";
-            case LIGHT_TYPE_POINT:                  return "LIGHT_TYPE_POINT";
-            default:                                return "UNDEFINED";
+            case LIGHT_TYPE_SUN:                                    return "LIGHT_TYPE_SUN";
+            case LIGHT_TYPE_SPOT:                                   return "LIGHT_TYPE_SPOT";
+            case LIGHT_TYPE_POINT:                                  return "LIGHT_TYPE_POINT";
+            default:                                                return "UNDEFINED";
         }
+    }
+
+    e_lightType getLightTypeEnum (const std::string lightType) {
+        if      (lightType == "LIGHT_TYPE_SUN")                     return LIGHT_TYPE_SUN;
+        else if (lightType == "LIGHT_TYPE_SPOT")                    return LIGHT_TYPE_SPOT;
+        else if (lightType == "LIGHT_TYPE_POINT")                   return LIGHT_TYPE_POINT;
+        else                                                        return LIGHT_TYPE_SUN;
     }
 
     const char* getProjectionTypeString (const e_projectionType projectionType) {
         switch (projectionType) {
-            case PROJECTION_TYPE_PERSPECTIVE:       return "PROJECTION_TYPE_PERSPECTIVE";
-            case PROJECTION_TYPE_ORTHOGRAPHIC:      return "PROJECTION_TYPE_ORTHOGRAPHIC";
-            default:                                return "UNDEFINED";
+            case PROJECTION_TYPE_PERSPECTIVE:                       return "PROJECTION_TYPE_PERSPECTIVE";
+            case PROJECTION_TYPE_ORTHOGRAPHIC:                      return "PROJECTION_TYPE_ORTHOGRAPHIC";
+            default:                                                return "UNDEFINED";
         }
+    }
+
+    e_projectionType getProjectionTypeEnum (const std::string projectionType) {
+        if      (projectionType == "PROJECTION_TYPE_PERSPECTIVE")   return PROJECTION_TYPE_PERSPECTIVE;
+        else if (projectionType == "PROJECTION_TYPE_ORTHOGRAPHIC")  return PROJECTION_TYPE_ORTHOGRAPHIC;
+        else                                                        return PROJECTION_TYPE_PERSPECTIVE;
     }
 
     const char* getTagTypeString (const e_tagType tagType) {
         switch (tagType) {
-            case TAG_TYPE_NONE:                     return "TAG_TYPE_NONE";
-            case TAG_TYPE_STD_NO_ALPHA:             return "TAG_TYPE_STD_NO_ALPHA";
-            case TAG_TYPE_STD_ALPHA:                return "TAG_TYPE_STD_ALPHA";
-            case TAG_TYPE_WIRE:                     return "TAG_TYPE_WIRE";
-            case TAG_TYPE_SKY_BOX:                  return "TAG_TYPE_SKY_BOX";
-            default:                                return "UNDEFINED";
+            case TAG_TYPE_NONE:                                     return "TAG_TYPE_NONE";
+            case TAG_TYPE_STD_NO_ALPHA:                             return "TAG_TYPE_STD_NO_ALPHA";
+            case TAG_TYPE_STD_ALPHA:                                return "TAG_TYPE_STD_ALPHA";
+            case TAG_TYPE_WIRE:                                     return "TAG_TYPE_WIRE";
+            case TAG_TYPE_SKY_BOX:                                  return "TAG_TYPE_SKY_BOX";
+            default:                                                return "UNDEFINED";
         }
+    }
+
+    e_tagType getTagTypeEnum (const std::string tagType) {
+        if      (tagType == "TAG_TYPE_NONE")                        return TAG_TYPE_NONE;
+        else if (tagType == "TAG_TYPE_STD_NO_ALPHA")                return TAG_TYPE_STD_NO_ALPHA;
+        else if (tagType == "TAG_TYPE_STD_ALPHA")                   return TAG_TYPE_STD_ALPHA;
+        else if (tagType == "TAG_TYPE_WIRE")                        return TAG_TYPE_WIRE;
+        else if (tagType == "TAG_TYPE_SKY_BOX")                     return TAG_TYPE_SKY_BOX;
+        else                                                        return TAG_TYPE_NONE;
     }
 
     /* Components */
