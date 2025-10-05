@@ -21,11 +21,12 @@
 #include "../../Backend/Renderer/VKCmdPool.h"
 #include "../../Backend/Renderer/VKCmdBuffer.h"
 #include "../../Backend/Renderer/VKRenderer.h"
-#include "../SBTexturePool.h"
+#include "../../Backend/Renderer/VKGui.h"
 #include "../System/Batching/SYMeshBatching.h"
 #include "../System/Batching/SYStdMeshInstanceBatching.h"
 #include "../System/Batching/SYWireMeshInstanceBatching.h"
 #include "../System/Batching/SYLightInstanceBatching.h"
+#include "../SBTexturePool.h"
 #include "../SBImpl.h"
 #include "../../Backend/Renderer/VKCmdList.h"
 #include "../../Backend/Renderer/VKHelper.h"
@@ -49,10 +50,11 @@ namespace SandBox {
      *  |   S               |   N/A             |   N/A             |   N/A             |                   |
      *  |   G               |   DEFAULT         |   VERTEX          |   STAGING         |                   |
      *  |   F               |   CUBE            |   INDEX           |   PER_FRAME       |                   |
-     *  |                   |   LIGHT           |   MESH_INSTANCE   |   OTHER           |                   |
+     *  |   GUI             |   LIGHT           |   MESH_INSTANCE   |   OTHER           |                   |
      *  |                   |   WIRE            |   LIGHT_INSTANCE  |   CUBE            |                   |
-     *  |                   |   SKY_BOX         |   NORMAL          |                   |                   |
-     *  |                   |   DEBUG           |   POSITION        |                   |                   |
+     *  |                   |   SKY_BOX         |   SHADOW_CONFIG   |                   |                   |
+     *  |                   |   DEBUG           |   NORMAL          |                   |                   |
+     *  |                   |                   |   POSITION        |                   |                   |
      *  |                   |                   |   COLOR           |                   |                   |
      *  |                   |                   |   DEPTH           |                   |                   |
      *  |                   |                   |   GBUFFER         |                   |                   |
@@ -83,6 +85,7 @@ namespace SandBox {
             collectionObj->registerCollectionType <Renderer::VKCmdPool>();
             collectionObj->registerCollectionType <Renderer::VKCmdBuffer>();
             collectionObj->registerCollectionType <Renderer::VKRenderer>();
+            collectionObj->registerCollectionType <Renderer::VKGui>();
         }
         {   /* Log              [CORE] */
             auto logObj = new Log::LGImpl();
@@ -113,7 +116,7 @@ namespace SandBox {
             auto logObj    = collectionObj->getCollectionTypeInstance <Log::LGImpl> ("CORE");
             auto windowObj = new Renderer::VKWindow (logObj);
             windowObj->initWindowInfo (
-                1200,
+                1500,
                 900,
                 "EngineV2"
             );
@@ -223,17 +226,16 @@ namespace SandBox {
     }
 
     void SBImpl::configRendererSPass (void) {
-        auto& shadowImageWidth  = m_sandBoxInfo.meta.shadowImageWidth;
-        auto& shadowImageHeight = m_sandBoxInfo.meta.shadowImageHeight;
-        auto& sceneObj          = m_sandBoxInfo.resource.sceneObj;
-        auto& collectionObj     = m_sandBoxInfo.resource.collectionObj;
+        auto& meta          = m_sandBoxInfo.meta;
+        auto& resource      = m_sandBoxInfo.resource;
+        auto& collectionObj = resource.collectionObj;
 
-        auto logObj             = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
-        auto phyDeviceObj       = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
-        auto logDeviceObj       = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
+        auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
+        auto phyDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
+        auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
 
         {   /* Buffer           [S_DEFAULT_VERTEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -253,7 +255,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [S_DEFAULT_INDEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -273,7 +275,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [S_DEFAULT_VERTEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -290,7 +292,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("S_DEFAULT_VERTEX", bufferObj);
         }
         {   /* Buffer           [S_DEFAULT_INDEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD_NO_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -307,12 +309,19 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("S_DEFAULT_INDEX", bufferObj);
         }
         {   /* Buffer           [S_DEFAULT_MESH_INSTANCE_?] */
-            auto batchingObj = sceneObj->getSystem <SYStdMeshInstanceBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYStdMeshInstanceBatching>();
             auto instances   = batchingObj->getBatchedMeshInstancesLite (TAG_TYPE_STD_NO_ALPHA);
             /* We should have multiple buffers, because multiple frames may be in flight at the same time and we don't
              * want to update the buffer in preparation of the next frame while a previous one is still reading from it.
              * Thus, we need to have as many buffers as we have frames in flight, and write to a buffer that is not
              * currently being read by the GPU
+             *
+             * Note that, regardless of how many frames in flight you have, you will almost always be rendering a single
+             * frame at a time on the gpu. Frames in flight is about being able to record more frames while the current
+             * one is executing on the gpu, not literally drawing that many frames at once. Thus gpu only resource like
+             * depth and color buffers do not need to be duplicated per frame in flight, it is only resource that the cpu
+             * touches (command buffers, sync objects, descriptor sets etc.) that you duplicate so that the gpu is using
+             * a different copy to avoid sync hazards
             */
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
@@ -334,7 +343,7 @@ namespace SandBox {
         }
 
         {   /* Image            [S_DEFAULT_DEPTH_?] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t otherLightsCount = lightTypeOffsets->pointLightsOffset;
 
@@ -351,8 +360,8 @@ namespace SandBox {
                     VK_IMAGE_TILING_OPTIMAL
                 );
                 imageObj->initImageInfo (
-                    shadowImageWidth,
-                    shadowImageHeight,
+                    meta.shadowImageWidth,
+                    meta.shadowImageHeight,
                     1,
                     0,
                     1,
@@ -377,7 +386,7 @@ namespace SandBox {
             }
         }
         {   /* Image            [F_LIGHT_DEPTH_CUBE_?] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
 
@@ -394,8 +403,8 @@ namespace SandBox {
                     VK_IMAGE_TILING_OPTIMAL
                 );
                 imageObj->initImageInfo (
-                    shadowImageWidth,
-                    shadowImageHeight,
+                    meta.shadowImageWidth,
+                    meta.shadowImageHeight,
                     1,
                     0,
                     6,
@@ -420,7 +429,7 @@ namespace SandBox {
             }
         }
         {   /* Image            [S_CUBE_DEPTH_?] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
 
@@ -504,7 +513,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKRenderPass> ("S", renderPassObj);
         }
         {   /* Frame buffer     [S_?] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t otherLightsCount = lightTypeOffsets->pointLightsOffset;
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
@@ -541,8 +550,8 @@ namespace SandBox {
                         /* Note that, we cannot use the helper method to get the image extent here, because the image
                          * object was created using the `image view only` constructor
                         */
-                        shadowImageWidth,
-                        shadowImageHeight,
+                        meta.shadowImageWidth,
+                        meta.shadowImageHeight,
                         imageObj->getImageLayersCount(),
                         {
                             *imageObj->getImageView()           /* Attachment idx 0 */
@@ -783,7 +792,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -797,7 +806,7 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -807,11 +816,11 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
                         descriptorImageInfos
                     );
                 }
@@ -1010,7 +1019,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -1024,7 +1033,7 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -1034,11 +1043,11 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
                         descriptorImageInfos
                     );
                 }
@@ -1048,18 +1057,17 @@ namespace SandBox {
     }
 
     void SBImpl::configRendererGPass (void) {
-        auto& sceneObj          = m_sandBoxInfo.resource.sceneObj;
-        auto& collectionObj     = m_sandBoxInfo.resource.collectionObj;
-        auto& stdTexturePoolObj = m_sandBoxInfo.resource.stdTexturePoolObj;
+        auto& resource      = m_sandBoxInfo.resource;
+        auto& collectionObj = resource.collectionObj;
 
-        auto logObj             = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
-        auto phyDeviceObj       = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
-        auto logDeviceObj       = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
-        auto swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
-        auto stdTexturePool     = stdTexturePoolObj->getTexturePool();
+        auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
+        auto phyDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
+        auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
+        auto swapChainObj   = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
+        auto stdTexturePool = resource.stdTexturePoolObj->getTexturePool();
 
         {   /* Buffer           [G_DEFAULT_MESH_INSTANCE_?] */
-            auto batchingObj = sceneObj->getSystem <SYStdMeshInstanceBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYStdMeshInstanceBatching>();
             auto instances   = batchingObj->getBatchedMeshInstances (TAG_TYPE_STD_NO_ALPHA);
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
@@ -1085,7 +1093,7 @@ namespace SandBox {
                 auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
                 bufferObj->initBufferInfo (
                     /* Note that, the image will be loaded with 4 channels due to the STBI_rgb_alpha flag */
-                    static_cast <VkDeviceSize> (info.meta.width * info.meta.height * 4),
+                    static_cast <VkDeviceSize> (info.width * info.height * 4),
                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                     {
@@ -1099,10 +1107,10 @@ namespace SandBox {
                     bufferObj
                 );
                 bufferObj->updateBuffer (
-                    info.resource.data,
+                    info.data,
                     true
                 );
-                stdTexturePoolObj->destroyImage (idx);
+                resource.stdTexturePoolObj->destroyImage (idx);
             }
         }
 
@@ -1270,13 +1278,13 @@ namespace SandBox {
                 */
                 uint32_t mipLevels = static_cast <uint32_t> (
                     std::floor (std::log2 (std::max (
-                        info.meta.width,
-                        info.meta.height
+                        info.width,
+                        info.height
                     )))
                 ) + 1;
                 imageObj->initImageInfo (
-                    static_cast <uint32_t> (info.meta.width),
-                    static_cast <uint32_t> (info.meta.height),
+                    static_cast <uint32_t> (info.width),
+                    static_cast <uint32_t> (info.height),
                     mipLevels,
                     0,
                     1,
@@ -1795,7 +1803,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -1809,7 +1817,7 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -1819,11 +1827,11 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
                         descriptorImageInfos
                     );
                 }
@@ -1842,7 +1850,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("G_DEFAULT_OTHER", descSetObj);
 
             auto descriptorBufferInfos =  std::vector <VkDescriptorBufferInfo> {};
-            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingToImageInfosMap;
+            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingNumberToImageInfosMap;
 
             {   /* Binding 0 */
                 for (auto const& [idx, info]: stdTexturePool) {
@@ -1853,10 +1861,10 @@ namespace SandBox {
                         "G_DEFAULT_TEXTURE"
                     );
                     /* Note that, we can push the info to the vector since the texture pool is ordered by its indices */
-                    bindingToImageInfosMap[0].push_back (
+                    bindingNumberToImageInfosMap[0].push_back (
                         descSetObj->createDescriptorImageInfo (
-                            *samplerObj->getSampler(),
                             *imageObj->getImageView(),
+                            *samplerObj->getSampler(),
                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                         )
                     );
@@ -1866,12 +1874,12 @@ namespace SandBox {
             {   /* Binding 0 */
                 descSetObj->addWriteDescriptorSet (
                     0,
-                    static_cast <uint32_t> (bindingToImageInfosMap[0].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[0].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[0]
+                    bindingNumberToImageInfosMap[0]
                 );
             }
             descSetObj->updateDescriptorSets();
@@ -1879,20 +1887,18 @@ namespace SandBox {
     }
 
     void SBImpl::configRendererFPass (void) {
-        auto& sceneObj             = m_sandBoxInfo.resource.sceneObj;
-        auto& collectionObj        = m_sandBoxInfo.resource.collectionObj;
-        auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
-        auto& skyBoxTexturePoolObj = m_sandBoxInfo.resource.skyBoxTexturePoolObj;
+        auto& resource         = m_sandBoxInfo.resource;
+        auto& collectionObj    = resource.collectionObj;
 
-        auto logObj                = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
-        auto phyDeviceObj          = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
-        auto logDeviceObj          = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
-        auto swapChainObj          = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
-        auto stdTexturePool        = stdTexturePoolObj->getTexturePool();
-        auto skyBoxTexturePool     = skyBoxTexturePoolObj->getTexturePool();
+        auto logObj            = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
+        auto phyDeviceObj      = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
+        auto logDeviceObj      = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
+        auto swapChainObj      = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
+        auto stdTexturePool    = resource.stdTexturePoolObj->getTexturePool();
+        auto skyBoxTexturePool = resource.skyBoxTexturePoolObj->getTexturePool();
 
         {   /* Buffer           [F_LIGHT_LIGHT_INSTANCE_?] */
-            auto batchingObj = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto instances   = batchingObj->getBatchedLightInstances();
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
@@ -1913,9 +1919,28 @@ namespace SandBox {
                 );
             }
         }
+        {   /* Buffer           [F_LIGHT_SHADOW_CONFIG_?] */
+            for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
+                auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
+                bufferObj->initBufferInfo (
+                    sizeof (ShadowConfigUBO),
+                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    {
+                        phyDeviceObj->getGraphicsQueueFamilyIdx()
+                    },
+                    false
+                );
+
+                collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> (
+                    "F_LIGHT_SHADOW_CONFIG_" + std::to_string (i),
+                    bufferObj
+                );
+            }
+        }
 
         {   /* Buffer           [F_WIRE_VERTEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_WIRE);
             auto positions   = std::vector <glm::vec3> {};
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
@@ -1940,7 +1965,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [F_WIRE_INDEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_WIRE);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -1960,7 +1985,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [F_WIRE_VERTEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_WIRE);
             auto positions   = std::vector <glm::vec3> {};
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
@@ -1982,7 +2007,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("F_WIRE_VERTEX", bufferObj);
         }
         {   /* Buffer           [F_WIRE_INDEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_WIRE);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -1999,7 +2024,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("F_WIRE_INDEX", bufferObj);
         }
         {   /* Buffer           [F_WIRE_MESH_INSTANCE_?] */
-            auto batchingObj = sceneObj->getSystem <SYWireMeshInstanceBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYWireMeshInstanceBatching>();
             auto instances   = batchingObj->getBatchedMeshInstances();
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
@@ -2022,7 +2047,7 @@ namespace SandBox {
         }
 
         {   /* Buffer           [F_SKY_BOX_VERTEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_SKY_BOX);
             auto positions   = std::vector <glm::vec3> {};
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
@@ -2047,7 +2072,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [F_SKY_BOX_INDEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_SKY_BOX);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -2067,7 +2092,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [F_SKY_BOX_VERTEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_SKY_BOX);
             auto positions   = std::vector <glm::vec3> {};
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
@@ -2089,7 +2114,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("F_SKY_BOX_VERTEX", bufferObj);
         }
         {   /* Buffer           [F_SKY_BOX_INDEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_SKY_BOX);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -2128,7 +2153,7 @@ namespace SandBox {
             for (auto const& [idx, info]: skyBoxTexturePool) {
                 auto bufferObj = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
                 bufferObj->initBufferInfo (
-                    static_cast <VkDeviceSize> (info.meta.width * info.meta.height * 4),
+                    static_cast <VkDeviceSize> (info.width * info.height * 4),
                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                     {
@@ -2142,15 +2167,15 @@ namespace SandBox {
                     bufferObj
                 );
                 bufferObj->updateBuffer (
-                    info.resource.data,
+                    info.data,
                     true
                 );
-                skyBoxTexturePoolObj->destroyImage (idx);
+                resource.skyBoxTexturePoolObj->destroyImage (idx);
             }
         }
 
         {   /* Buffer           [F_DEFAULT_VERTEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -2170,7 +2195,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [F_DEFAULT_INDEX_STAGING] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -2190,7 +2215,7 @@ namespace SandBox {
             );
         }
         {   /* Buffer           [F_DEFAULT_VERTEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto vertices    = batchingObj->getBatchedVertices (TAG_TYPE_STD_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -2207,7 +2232,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("F_DEFAULT_VERTEX", bufferObj);
         }
         {   /* Buffer           [F_DEFAULT_INDEX] */
-            auto batchingObj = sceneObj->getSystem <SYMeshBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYMeshBatching>();
             auto indices     = batchingObj->getBatchedIndices (TAG_TYPE_STD_ALPHA);
             auto bufferObj   = new Renderer::VKBuffer (logObj, phyDeviceObj, logDeviceObj);
             bufferObj->initBufferInfo (
@@ -2224,7 +2249,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKBuffer> ("F_DEFAULT_INDEX", bufferObj);
         }
         {   /* Buffer           [F_DEFAULT_MESH_INSTANCE_?] */
-            auto batchingObj = sceneObj->getSystem <SYStdMeshInstanceBatching>();
+            auto batchingObj = resource.sceneObj->getSystem <SYStdMeshInstanceBatching>();
             auto instances   = batchingObj->getBatchedMeshInstances (TAG_TYPE_STD_ALPHA);
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
@@ -2246,11 +2271,35 @@ namespace SandBox {
             }
         }
 
+        {   /* Image            [F_LIGHT_COLOR] */
+            auto imageObj = new Renderer::VKImage (logObj, phyDeviceObj, logDeviceObj);
+            imageObj->initImageInfo (
+                swapChainObj->getSwapChainExtent()->width,
+                swapChainObj->getSwapChainExtent()->height,
+                1,
+                0,
+                1,
+                0,
+                VK_IMAGE_LAYOUT_UNDEFINED,
+                VK_FORMAT_R8G8B8A8_SRGB,
+                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                VK_SAMPLE_COUNT_1_BIT,
+                VK_IMAGE_TILING_OPTIMAL,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                {
+                    phyDeviceObj->getGraphicsQueueFamilyIdx()
+                },
+                VK_IMAGE_ASPECT_COLOR_BIT,
+                VK_IMAGE_VIEW_TYPE_2D
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKImage> ("F_LIGHT_COLOR", imageObj);
+        }
         {   /* Image            [F_SKY_BOX_TEXTURE] */
             auto imageObj = new Renderer::VKImage (logObj, phyDeviceObj, logDeviceObj);
             imageObj->initImageInfo (
-                static_cast <uint32_t> (skyBoxTexturePool[0].meta.width),
-                static_cast <uint32_t> (skyBoxTexturePool[0].meta.height),
+                static_cast <uint32_t> (skyBoxTexturePool[0].width),
+                static_cast <uint32_t> (skyBoxTexturePool[0].height),
                 1,
                 0,
                 6,
@@ -2309,6 +2358,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKSampler> ("F_SKY_BOX_TEXTURE", samplerObj);
         }
 
+        auto colorImageObj     = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   ("F_LIGHT_COLOR");
         auto depthImageObj     = collectionObj->getCollectionTypeInstance <Renderer::VKImage>   ("G_DEFAULT_DEPTH");
         auto gBufferSamplerObj = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> ("F_LIGHT_GBUFFER");
         auto skyBoxSamplerObj  = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> ("F_SKY_BOX_TEXTURE");
@@ -2320,14 +2370,14 @@ namespace SandBox {
             /* Color attachment */
             renderPassObj->addAttachment (
                 0,
-                swapChainObj->getSwapChainFormat(),
-                VK_SAMPLE_COUNT_1_BIT,
+                colorImageObj->getImageFormat(),
+                colorImageObj->getImageSamplesCount(),
                 VK_ATTACHMENT_LOAD_OP_CLEAR,
                 VK_ATTACHMENT_STORE_OP_STORE,
                 VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                 VK_ATTACHMENT_STORE_OP_DONT_CARE,
                 VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             );
             /* Depth attachment */
             renderPassObj->addAttachment (
@@ -2380,19 +2430,13 @@ namespace SandBox {
                 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
                 VK_ACCESS_SHADER_READ_BIT
             );
-            /* Before the render pass, the layout of the image will be transitioned to the layout you specify, for
-             * example VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL. However, by default this happens at the beginning of
-             * the pipeline at which point we haven't acquired the image yet (we acquire it at a later stage based on
-             * our implementation, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT stage). That means that we need to
-             * change the behaviour of the render pass to only change the layout once we've come to that stage
-            */
             renderPassObj->addSubPassDependency (
                 0,
                 VK_SUBPASS_EXTERNAL,
                 0,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                VK_ACCESS_NONE,
+                VK_ACCESS_SHADER_READ_BIT,
                 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
             );
             renderPassObj->addSubPassDependency (
@@ -2407,33 +2451,24 @@ namespace SandBox {
 
             collectionObj->addCollectionTypeInstance <Renderer::VKRenderPass> ("F", renderPassObj);
         }
-        {   /* Frame buffer     [F_?] */
+        {   /* Frame buffer     [F] */
             auto renderPassObj = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass> ("F");
+            auto bufferObj     = new Renderer::VKFrameBuffer (logObj, logDeviceObj, renderPassObj);
+            bufferObj->initFrameBufferInfo (
+                swapChainObj->getSwapChainExtent()->width,
+                swapChainObj->getSwapChainExtent()->height,
+                1,
+                {
+                    *colorImageObj->getImageView(),             /* Attachment idx 0 */
+                    *depthImageObj->getImageView()              /* Attachment idx 1 */
+                }
+            );
 
-            for (uint32_t i = 0; i < swapChainObj->getSwapChainImagesCount(); i++) {
-                auto swapChainImageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
-                    "SWAP_CHAIN_" + std::to_string (i)
-                );
-                auto bufferObj         = new Renderer::VKFrameBuffer (logObj, logDeviceObj, renderPassObj);
-                bufferObj->initFrameBufferInfo (
-                    swapChainObj->getSwapChainExtent()->width,
-                    swapChainObj->getSwapChainExtent()->height,
-                    1,
-                    {
-                        *swapChainImageObj->getImageView(),     /* Attachment idx 0 */
-                        *depthImageObj->getImageView()          /* Attachment idx 1 */
-                    }
-                );
-
-                collectionObj->addCollectionTypeInstance <Renderer::VKFrameBuffer> (
-                    "F_" + std::to_string (i),
-                    bufferObj
-                );
-            }
+            collectionObj->addCollectionTypeInstance <Renderer::VKFrameBuffer> ("F", bufferObj);
         }
 
         {   /* Pipeline         [F_LIGHT] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t otherLightsCount = lightTypeOffsets->pointLightsOffset;
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
@@ -2562,6 +2597,7 @@ namespace SandBox {
             }
             {   /* Descriptor set layout */
                 perFrameBindingFlags   = {
+                    0,
                     0
                 };
                 perFrameLayoutBindings = {
@@ -2569,6 +2605,12 @@ namespace SandBox {
                         0,
                         1,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                        VK_SHADER_STAGE_FRAGMENT_BIT
+                    ),
+                    pipelineObj->createDescriptorSetLayoutBinding (
+                        1,
+                        1,
+                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                         VK_SHADER_STAGE_FRAGMENT_BIT
                     )
                 };
@@ -2662,7 +2704,7 @@ namespace SandBox {
             pipelineObj->destroyShaderModules();
         }
         {   /* Descriptor pool  [F_LIGHT] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t otherLightsCount = lightTypeOffsets->pointLightsOffset;
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
@@ -2675,6 +2717,10 @@ namespace SandBox {
             descPoolObj->addDescriptorPoolSize (
                 g_maxFramesInFlight,                            /* F_LIGHT_LIGHT_INSTANCE_? */
                 VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
+            );
+            descPoolObj->addDescriptorPoolSize (
+                g_maxFramesInFlight,                            /* F_LIGHT_SHADOW_CONFIG_?  */
+                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
             );
             descPoolObj->addDescriptorPoolSize (
                 otherLightsCount +                              /* S_DEFAULT_DEPTH_?        */
@@ -2703,7 +2749,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -2717,7 +2763,22 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
+                        descriptorBufferInfos
+                    );
+                }
+                {   /* Binding 1 */
+                    auto bufferObj             = collectionObj->getCollectionTypeInstance <Renderer::VKBuffer> (
+                        "F_LIGHT_SHADOW_CONFIG_" + std::to_string (i)
+                    );
+                    auto descriptorBufferInfos = std::vector <VkDescriptorBufferInfo> {
+                        descSetObj->createDescriptorBufferInfo (
+                            *bufferObj->getBuffer(),
+                            0,
+                            bufferObj->getBufferSize()
+                        )
+                    };
+                    bindingNumberToBufferInfosPoolMap[1].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -2727,11 +2788,22 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
+                        descriptorImageInfos
+                    );
+                }
+                {   /* Binding 1 */
+                    descSetObj->addWriteDescriptorSet (
+                        1,
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[1][i].size()),
+                        0,
+                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                        descSetObj->getDescriptorSets()[i],
+                        bindingNumberToBufferInfosPoolMap[1][i],
                         descriptorImageInfos
                     );
                 }
@@ -2739,7 +2811,7 @@ namespace SandBox {
             descSetObj->updateDescriptorSets();
         }
         {   /* Descriptor sets  [F_LIGHT_OTHER] */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t otherLightsCount = lightTypeOffsets->pointLightsOffset;
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;
@@ -2755,17 +2827,17 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("F_LIGHT_OTHER", descSetObj);
 
             auto descriptorBufferInfos =  std::vector <VkDescriptorBufferInfo> {};
-            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingToImageInfosMap;
+            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingNumberToImageInfosMap;
 
             {   /* Binding 0 */
                 for (uint32_t i = 0; i < otherLightsCount; i++) {
                     auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
                         "S_DEFAULT_DEPTH_" + std::to_string (i)
                     );
-                    bindingToImageInfosMap[0].push_back (
+                    bindingNumberToImageInfosMap[0].push_back (
                         descSetObj->createDescriptorImageInfo (
-                            *gBufferSamplerObj->getSampler(),
                             *imageObj->getImageView(),
+                            *gBufferSamplerObj->getSampler(),
                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                         )
                     );
@@ -2776,10 +2848,10 @@ namespace SandBox {
                     auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
                         "F_LIGHT_DEPTH_CUBE_" + std::to_string (i)
                     );
-                    bindingToImageInfosMap[1].push_back (
+                    bindingNumberToImageInfosMap[1].push_back (
                         descSetObj->createDescriptorImageInfo (
-                            *skyBoxSamplerObj->getSampler(),
                             *imageObj->getImageView(),
+                            *skyBoxSamplerObj->getSampler(),
                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                         )
                     );
@@ -2788,10 +2860,10 @@ namespace SandBox {
             {   /* Binding 2 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("G_DEFAULT_NORMAL");
 
-                bindingToImageInfosMap[2].push_back (
+                bindingNumberToImageInfosMap[2].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *gBufferSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *gBufferSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -2799,10 +2871,10 @@ namespace SandBox {
             {   /* Binding 3 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("G_DEFAULT_POSITION");
 
-                bindingToImageInfosMap[3].push_back (
+                bindingNumberToImageInfosMap[3].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *gBufferSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *gBufferSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -2810,10 +2882,10 @@ namespace SandBox {
             {   /* Binding 4 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("G_DEFAULT_COLOR_0");
 
-                bindingToImageInfosMap[4].push_back (
+                bindingNumberToImageInfosMap[4].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *gBufferSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *gBufferSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -2821,10 +2893,10 @@ namespace SandBox {
             {   /* Binding 5 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("G_DEFAULT_COLOR_1");
 
-                bindingToImageInfosMap[5].push_back (
+                bindingNumberToImageInfosMap[5].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *gBufferSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *gBufferSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -2832,10 +2904,10 @@ namespace SandBox {
             {   /* Binding 6 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("G_DEFAULT_COLOR_2");
 
-                bindingToImageInfosMap[6].push_back (
+                bindingNumberToImageInfosMap[6].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *gBufferSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *gBufferSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -2843,10 +2915,10 @@ namespace SandBox {
             {   /* Binding 7 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("F_SKY_BOX_TEXTURE");
 
-                bindingToImageInfosMap[7].push_back (
+                bindingNumberToImageInfosMap[7].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *skyBoxSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *skyBoxSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -2855,89 +2927,89 @@ namespace SandBox {
             {   /* Binding 0 */
                 descSetObj->addWriteDescriptorSet (
                     0,
-                    static_cast <uint32_t> (bindingToImageInfosMap[0].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[0].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[0]
+                    bindingNumberToImageInfosMap[0]
                 );
             }
             {   /* Binding 1 */
                 descSetObj->addWriteDescriptorSet (
                     1,
-                    static_cast <uint32_t> (bindingToImageInfosMap[1].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[1].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[1]
+                    bindingNumberToImageInfosMap[1]
                 );
             }
             {   /* Binding 2 */
                 descSetObj->addWriteDescriptorSet (
                     2,
-                    static_cast <uint32_t> (bindingToImageInfosMap[2].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[2].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[2]
+                    bindingNumberToImageInfosMap[2]
                 );
             }
             {   /* Binding 3 */
                 descSetObj->addWriteDescriptorSet (
                     3,
-                    static_cast <uint32_t> (bindingToImageInfosMap[3].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[3].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[3]
+                    bindingNumberToImageInfosMap[3]
                 );
             }
             {   /* Binding 4 */
                 descSetObj->addWriteDescriptorSet (
                     4,
-                    static_cast <uint32_t> (bindingToImageInfosMap[4].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[4].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[4]
+                    bindingNumberToImageInfosMap[4]
                 );
             }
             {   /* Binding 5 */
                 descSetObj->addWriteDescriptorSet (
                     5,
-                    static_cast <uint32_t> (bindingToImageInfosMap[5].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[5].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[5]
+                    bindingNumberToImageInfosMap[5]
                 );
             }
             {   /* Binding 6 */
                 descSetObj->addWriteDescriptorSet (
                     6,
-                    static_cast <uint32_t> (bindingToImageInfosMap[6].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[6].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[6]
+                    bindingNumberToImageInfosMap[6]
                 );
             }
             {   /* Binding 7 */
                 descSetObj->addWriteDescriptorSet (
                     7,
-                    static_cast <uint32_t> (bindingToImageInfosMap[7].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[7].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[7]
+                    bindingNumberToImageInfosMap[7]
                 );
             }
             descSetObj->updateDescriptorSets();
@@ -3142,7 +3214,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -3156,7 +3228,7 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -3166,11 +3238,11 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
                         descriptorImageInfos
                     );
                 }
@@ -3392,7 +3464,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -3406,7 +3478,7 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -3416,11 +3488,11 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
                         descriptorImageInfos
                     );
                 }
@@ -3439,15 +3511,15 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("F_SKY_BOX_OTHER", descSetObj);
 
             auto descriptorBufferInfos =  std::vector <VkDescriptorBufferInfo> {};
-            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingToImageInfosMap;
+            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingNumberToImageInfosMap;
 
             {   /* Binding 0 */
                 auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> ("F_SKY_BOX_TEXTURE");
 
-                bindingToImageInfosMap[0].push_back (
+                bindingNumberToImageInfosMap[0].push_back (
                     descSetObj->createDescriptorImageInfo (
-                        *skyBoxSamplerObj->getSampler(),
                         *imageObj->getImageView(),
+                        *skyBoxSamplerObj->getSampler(),
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                     )
                 );
@@ -3456,12 +3528,12 @@ namespace SandBox {
             {   /* Binding 0 */
                 descSetObj->addWriteDescriptorSet (
                     0,
-                    static_cast <uint32_t> (bindingToImageInfosMap[0].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[0].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[0]
+                    bindingNumberToImageInfosMap[0]
                 );
             }
             descSetObj->updateDescriptorSets();
@@ -3576,7 +3648,10 @@ namespace SandBox {
                 /* The most common way to use color blending is to implement alpha blending, where we want the new color
                  * to be blended with the old color based on its opacity
                  * finalColor.rgb = newAlpha * newColor + (1 - newAlpha) * oldColor
-                 * finalColor.a   = newAlpha.a
+                 * finalColor.a   = newAlpha
+                 *
+                 * Note that, finalColor.a is set to oldAlpha (1.0f) instead of newAlpha (as the above formula suggests)
+                 * in order to prevent gui window background from being visible due to non zero alpha
                 */
                 colorBlendAttachments = {
                     pipelineObj->createColorBlendAttachment (
@@ -3584,8 +3659,8 @@ namespace SandBox {
                         VK_BLEND_FACTOR_SRC_ALPHA,
                         VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
                         VK_BLEND_OP_ADD,
-                        VK_BLEND_FACTOR_ONE,
                         VK_BLEND_FACTOR_ZERO,
+                        VK_BLEND_FACTOR_ONE,
                         VK_BLEND_OP_ADD,
                         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                         VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
@@ -3698,7 +3773,7 @@ namespace SandBox {
 
             typedef std::vector        <std::vector <VkDescriptorBufferInfo>> descriptorBufferInfosPool;
             auto descriptorImageInfos = std::vector <VkDescriptorImageInfo> {};
-            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingToBufferInfosMap;
+            std::unordered_map <uint32_t, descriptorBufferInfosPool> bindingNumberToBufferInfosPoolMap;
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++) {
                 {   /* Binding 0 */
@@ -3712,7 +3787,7 @@ namespace SandBox {
                             bufferObj->getBufferSize()
                         )
                     };
-                    bindingToBufferInfosMap[0].push_back (
+                    bindingNumberToBufferInfosPoolMap[0].push_back (
                         descriptorBufferInfos
                     );
                 }
@@ -3722,11 +3797,11 @@ namespace SandBox {
                 {   /* Binding 0 */
                     descSetObj->addWriteDescriptorSet (
                         0,
-                        static_cast <uint32_t> (bindingToBufferInfosMap[0][i].size()),
+                        static_cast <uint32_t> (bindingNumberToBufferInfosPoolMap[0][i].size()),
                         0,
                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                         descSetObj->getDescriptorSets()[i],
-                        bindingToBufferInfosMap[0][i],
+                        bindingNumberToBufferInfosPoolMap[0][i],
                         descriptorImageInfos
                     );
                 }
@@ -3745,7 +3820,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("F_DEFAULT_OTHER", descSetObj);
 
             auto descriptorBufferInfos =  std::vector <VkDescriptorBufferInfo> {};
-            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingToImageInfosMap;
+            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingNumberToImageInfosMap;
 
             {   /* Binding 0 */
                 for (auto const& [idx, info]: stdTexturePool) {
@@ -3755,10 +3830,10 @@ namespace SandBox {
                     auto samplerObj = collectionObj->getCollectionTypeInstance <Renderer::VKSampler> (
                         "G_DEFAULT_TEXTURE"
                     );
-                    bindingToImageInfosMap[0].push_back (
+                    bindingNumberToImageInfosMap[0].push_back (
                         descSetObj->createDescriptorImageInfo (
-                            *samplerObj->getSampler(),
                             *imageObj->getImageView(),
+                            *samplerObj->getSampler(),
                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                         )
                     );
@@ -3768,12 +3843,12 @@ namespace SandBox {
             {   /* Binding 0 */
                 descSetObj->addWriteDescriptorSet (
                     0,
-                    static_cast <uint32_t> (bindingToImageInfosMap[0].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[0].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[0]
+                    bindingNumberToImageInfosMap[0]
                 );
             }
             descSetObj->updateDescriptorSets();
@@ -3949,7 +4024,7 @@ namespace SandBox {
             collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorSet> ("F_DEBUG_OTHER", descSetObj);
 
             auto descriptorBufferInfos =  std::vector <VkDescriptorBufferInfo> {};
-            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingToImageInfosMap;
+            std::unordered_map <uint32_t, std::vector <VkDescriptorImageInfo>> bindingNumberToImageInfosMap;
 
             auto instanceIds = std::vector <std::string> {
                 "G_DEFAULT_NORMAL",
@@ -3965,10 +4040,10 @@ namespace SandBox {
                 for (auto const& instanceId: instanceIds) {
                     auto imageObj = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (instanceId);
 
-                    bindingToImageInfosMap[0].push_back (
+                    bindingNumberToImageInfosMap[0].push_back (
                         descSetObj->createDescriptorImageInfo (
-                            *gBufferSamplerObj->getSampler(),
                             *imageObj->getImageView(),
+                            *gBufferSamplerObj->getSampler(),
                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
                         )
                     );
@@ -3978,30 +4053,148 @@ namespace SandBox {
             {   /* Binding 0 */
                 descSetObj->addWriteDescriptorSet (
                     0,
-                    static_cast <uint32_t> (bindingToImageInfosMap[0].size()),
+                    static_cast <uint32_t> (bindingNumberToImageInfosMap[0].size()),
                     0,
                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     descSetObj->getDescriptorSets()[0],
                     descriptorBufferInfos,
-                    bindingToImageInfosMap[0]
+                    bindingNumberToImageInfosMap[0]
                 );
             }
             descSetObj->updateDescriptorSets();
         }
     }
 
-    void SBImpl::configRendererOps (void) {
-        auto& collectionObj        = m_sandBoxInfo.resource.collectionObj;
-        auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
-        auto& skyBoxTexturePoolObj = m_sandBoxInfo.resource.skyBoxTexturePoolObj;
+    void SBImpl::configRendererGuiPass (void) {
+        auto& resource      = m_sandBoxInfo.resource;
+        auto& collectionObj = resource.collectionObj;
 
-        auto logObj                = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
-        auto windowObj             = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    ("CORE");
-        auto phyDeviceObj          = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
-        auto logDeviceObj          = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
-        auto swapChainObj          = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
-        auto stdTexturePool        = stdTexturePoolObj->getTexturePool();
-        auto skyBoxTexturePool     = skyBoxTexturePoolObj->getTexturePool();
+        auto logObj         = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
+        auto logDeviceObj   = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
+        auto swapChainObj   = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
+        auto stdTexturePool = resource.stdTexturePoolObj->getTexturePool();
+
+        {   /* Render pass      [GUI] */
+            auto renderPassObj = new Renderer::VKRenderPass (logObj, logDeviceObj);
+            renderPassObj->initRenderPassInfo();
+
+            /* Color attachment */
+            renderPassObj->addAttachment (
+                0,
+                swapChainObj->getSwapChainFormat(),
+                VK_SAMPLE_COUNT_1_BIT,
+                VK_ATTACHMENT_LOAD_OP_CLEAR,
+                VK_ATTACHMENT_STORE_OP_STORE,
+                VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                VK_IMAGE_LAYOUT_UNDEFINED,
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+            );
+            /* Sub pass */
+            auto inputAttachmentReferences   = std::vector <VkAttachmentReference> {};
+            auto colorAttachmentReferences   = std::vector {
+                renderPassObj->createAttachmentReference (
+                    0,
+                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+                )
+            };
+            auto resolveAttachmentReferences = std::vector <VkAttachmentReference> {};
+            renderPassObj->addSubPass (
+                inputAttachmentReferences,
+                colorAttachmentReferences,
+                nullptr,
+                resolveAttachmentReferences
+            );
+            /* Dependency */
+            renderPassObj->addSubPassDependency (
+                0,
+                VK_SUBPASS_EXTERNAL,
+                0,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                VK_ACCESS_SHADER_READ_BIT
+            );
+            /* Before the render pass, the layout of the image will be transitioned to the layout you specify, for
+             * example VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL. However, by default this happens at the beginning of
+             * the pipeline at which point we haven't acquired the image yet (we acquire it at a later stage based on
+             * our implementation, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT stage). That means that we need to
+             * change the behaviour of the render pass to only change the layout once we've come to that stage
+            */
+            renderPassObj->addSubPassDependency (
+                0,
+                VK_SUBPASS_EXTERNAL,
+                0,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                VK_ACCESS_NONE,
+                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKRenderPass> ("GUI", renderPassObj);
+        }
+        {   /* Frame buffer     [GUI_?] */
+            auto renderPassObj = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass> ("GUI");
+
+            for (uint32_t i = 0; i < swapChainObj->getSwapChainImagesCount(); i++) {
+                auto imageObj  = collectionObj->getCollectionTypeInstance <Renderer::VKImage> (
+                    "SWAP_CHAIN_" + std::to_string (i)
+                );
+                auto bufferObj = new Renderer::VKFrameBuffer (logObj, logDeviceObj, renderPassObj);
+                bufferObj->initFrameBufferInfo (
+                    swapChainObj->getSwapChainExtent()->width,
+                    swapChainObj->getSwapChainExtent()->height,
+                    1,
+                    {
+                        *imageObj->getImageView()               /* Attachment idx 0 */
+                    }
+                );
+
+                collectionObj->addCollectionTypeInstance <Renderer::VKFrameBuffer> (
+                    "GUI_" + std::to_string (i),
+                    bufferObj
+                );
+            }
+        }
+
+        {   /* Descriptor pool  [GUI_DEFAULT] */
+            auto descPoolObj = new Renderer::VKDescriptorPool (logObj, logDeviceObj);
+            /* Imgui requires a single combined image sampler descriptor and a descriptor set per font image. In addition
+             * to this, we need a descriptor set per texture for use in imgui. Note that, the pool should be created with
+             * VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT, and must contain a pool size large enough to hold the
+             * required number of descriptors
+            */
+            descPoolObj->initDescriptorPoolInfo (
+                VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+                1 +
+                1 +
+                1 +
+                static_cast <uint32_t> (stdTexturePool.size())
+            );
+            descPoolObj->addDescriptorPoolSize (
+                1 +                                                 /* Font                */
+                1 +                                                 /* F_LIGHT_COLOR       */
+                1 +                                                 /* G_DEFAULT_TEXTURE_2 */
+                static_cast <uint32_t> (stdTexturePool.size()),     /* G_DEFAULT_TEXTURE_? */
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKDescriptorPool> ("GUI_DEFAULT", descPoolObj);
+        }
+    }
+
+    void SBImpl::configRendererOps (void) {
+        auto& resource         = m_sandBoxInfo.resource;
+        auto& collectionObj    = resource.collectionObj;
+
+        auto logObj            = collectionObj->getCollectionTypeInstance <Log::LGImpl>           ("CORE");
+        auto instanceObj       = collectionObj->getCollectionTypeInstance <Renderer::VKInstance>  ("CORE");
+        auto windowObj         = collectionObj->getCollectionTypeInstance <Renderer::VKWindow>    ("CORE");
+        auto phyDeviceObj      = collectionObj->getCollectionTypeInstance <Renderer::VKPhyDevice> ("CORE");
+        auto logDeviceObj      = collectionObj->getCollectionTypeInstance <Renderer::VKLogDevice> ("CORE");
+        auto swapChainObj      = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
+        auto stdTexturePool    = resource.stdTexturePoolObj->getTexturePool();
+        auto skyBoxTexturePool = resource.skyBoxTexturePoolObj->getTexturePool();
 
         {   /* Fence            [COPY_OPS] */
             auto fenObj = new Renderer::VKFence (logObj, logDeviceObj);
@@ -4495,17 +4688,38 @@ namespace SandBox {
                 [](void) {}
             );
         }
+        {   /* Gui              [DRAW_OPS] */
+            auto renderPassObj = collectionObj->getCollectionTypeInstance <Renderer::VKRenderPass>     ("GUI");
+            auto descPoolObj   = collectionObj->getCollectionTypeInstance <Renderer::VKDescriptorPool> ("GUI_DEFAULT");
+            auto guiObj        = new Renderer::VKGui (
+                logObj,
+                instanceObj,
+                windowObj,
+                phyDeviceObj,
+                logDeviceObj,
+                swapChainObj,
+                renderPassObj,
+                descPoolObj
+            );
+            guiObj->initGuiInfo (
+                "Backend/imgui.ini",
+                "Asset/Font/DejaVuSans-ExtraLight.ttf",
+                "Asset/Font/fa-solid-900.ttf"
+            );
+
+            collectionObj->addCollectionTypeInstance <Renderer::VKGui> ("DRAW_OPS", guiObj);
+        }
     }
 
     void SBImpl::destroyRenderer (void) {
-        auto& sceneObj          = m_sandBoxInfo.resource.sceneObj;
-        auto& collectionObj     = m_sandBoxInfo.resource.collectionObj;
-        auto& stdTexturePoolObj = m_sandBoxInfo.resource.stdTexturePoolObj;
+        auto& resource      = m_sandBoxInfo.resource;
+        auto& collectionObj = resource.collectionObj;
 
-        auto swapChainObj       = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
-        auto stdTexturePool     = stdTexturePoolObj->getTexturePool();
+        auto swapChainObj   = collectionObj->getCollectionTypeInstance <Renderer::VKSwapChain> ("CORE");
+        auto stdTexturePool = resource.stdTexturePoolObj->getTexturePool();
 
         {   /* Ops */
+            collectionObj->removeCollectionTypeInstance <Renderer::VKGui>           ("DRAW_OPS");
             collectionObj->removeCollectionTypeInstance <Renderer::VKRenderer>      ("DRAW_OPS");
             collectionObj->removeCollectionTypeInstance <Renderer::VKCmdBuffer>     ("DRAW_OPS");
             collectionObj->removeCollectionTypeInstance <Renderer::VKCmdPool>       ("DRAW_OPS");
@@ -4523,63 +4737,74 @@ namespace SandBox {
                     "IN_FLIGHT_"     + std::to_string (i)
                 );
         }
-        {   /* F pass */
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_DEBUG_OTHER");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool>  ("F_DEBUG");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>        ("F_DEBUG");
-
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_DEFAULT_OTHER");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_DEFAULT_PER_FRAME");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool>  ("F_DEFAULT");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>        ("F_DEFAULT");
-
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_SKY_BOX_OTHER");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_SKY_BOX_PER_FRAME");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool>  ("F_SKY_BOX");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>        ("F_SKY_BOX");
-
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_WIRE_PER_FRAME");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool>  ("F_WIRE");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>        ("F_WIRE");
-
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_LIGHT_OTHER");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>   ("F_LIGHT_PER_FRAME");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool>  ("F_LIGHT");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>        ("F_LIGHT");
+        {   /* Gui pass */
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool>  ("GUI_DEFAULT");
 
             for (uint32_t i = 0; i < swapChainObj->getSwapChainImagesCount(); i++)
                 collectionObj->removeCollectionTypeInstance <Renderer::VKFrameBuffer> (
-                    "F_"                       + std::to_string (i)
+                    "GUI_" + std::to_string (i)
                 );
-            collectionObj->removeCollectionTypeInstance <Renderer::VKRenderPass>      ("F");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKRenderPass>      ("GUI");
+        }
+        {   /* F pass */
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_DEBUG_OTHER");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("F_DEBUG");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>       ("F_DEBUG");
 
-            collectionObj->removeCollectionTypeInstance <Renderer::VKSampler>         ("F_SKY_BOX_TEXTURE");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKSampler>         ("F_LIGHT_GBUFFER");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKImage>           ("F_SKY_BOX_TEXTURE");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_DEFAULT_OTHER");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_DEFAULT_PER_FRAME");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("F_DEFAULT");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>       ("F_DEFAULT");
+
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_SKY_BOX_OTHER");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_SKY_BOX_PER_FRAME");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("F_SKY_BOX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>       ("F_SKY_BOX");
+
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_WIRE_PER_FRAME");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("F_WIRE");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>       ("F_WIRE");
+
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_LIGHT_OTHER");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorSet>  ("F_LIGHT_PER_FRAME");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKDescriptorPool> ("F_LIGHT");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKPipeline>       ("F_LIGHT");
+
+            collectionObj->removeCollectionTypeInstance <Renderer::VKFrameBuffer>    ("F");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKRenderPass>     ("F");
+
+            collectionObj->removeCollectionTypeInstance <Renderer::VKSampler>        ("F_SKY_BOX_TEXTURE");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKSampler>        ("F_LIGHT_GBUFFER");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKImage>          ("F_SKY_BOX_TEXTURE");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKImage>          ("F_LIGHT_COLOR");
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
-                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>      (
+                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     (
                     "F_DEFAULT_MESH_INSTANCE_" + std::to_string (i)
                 );
-            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>          ("F_DEFAULT_INDEX");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>          ("F_DEFAULT_VERTEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>         ("F_DEFAULT_INDEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>         ("F_DEFAULT_VERTEX");
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
-                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>      (
+                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     (
                     "F_SKY_BOX_MESH_INSTANCE_" + std::to_string (i)
                 );
-            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>          ("F_SKY_BOX_INDEX");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>          ("F_SKY_BOX_VERTEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>         ("F_SKY_BOX_INDEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>         ("F_SKY_BOX_VERTEX");
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
-                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>      (
+                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     (
                     "F_WIRE_MESH_INSTANCE_"    + std::to_string (i)
                 );
-            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>          ("F_WIRE_INDEX");
-            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>          ("F_WIRE_VERTEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>         ("F_WIRE_INDEX");
+            collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>         ("F_WIRE_VERTEX");
 
             for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
-                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>      (
+                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     (
+                    "F_LIGHT_SHADOW_CONFIG_"   + std::to_string (i)
+                );
+            for (uint32_t i = 0; i < g_maxFramesInFlight; i++)
+                collectionObj->removeCollectionTypeInstance <Renderer::VKBuffer>     (
                     "F_LIGHT_LIGHT_INSTANCE_"  + std::to_string (i)
                 );
         }
@@ -4610,7 +4835,7 @@ namespace SandBox {
                 );
         }
         {   /* S pass */
-            auto batchingObj          = sceneObj->getSystem <SYLightInstanceBatching>();
+            auto batchingObj          = resource.sceneObj->getSystem <SYLightInstanceBatching>();
             auto lightTypeOffsets     = batchingObj->getLightTypeOffsets();
             uint32_t otherLightsCount = lightTypeOffsets->pointLightsOffset;
             uint32_t pointLightsCount = lightTypeOffsets->lightsCount - lightTypeOffsets->pointLightsOffset;

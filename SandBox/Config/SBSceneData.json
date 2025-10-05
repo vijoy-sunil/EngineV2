@@ -1,0 +1,3541 @@
+{
+    "entities":
+    [
+        {   /* DEBUG_CUBE_0 */
+            "meta":
+            {
+                "id":                       "DEBUG_CUBE_0",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Debug_Cube.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [36.0, 0.5, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           3
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* DEBUG_CUBE_1 */
+            "meta":
+            {
+                "id":                       "DEBUG_CUBE_1",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [36.0, 1.5, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* DEBUG_CUBE_2 */
+            "meta":
+            {
+                "id":                       "DEBUG_CUBE_2",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [36.0, 2.5, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* DEBUG_SPHERE_0 */
+            "meta":
+            {
+                "id":                       "DEBUG_SPHERE_0",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Debug_Sphere.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [26.0, 0.5, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           3
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* DEBUG_SPHERE_1 */
+            "meta":
+            {
+                "id":                       "DEBUG_SPHERE_1",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [26.0, 1.5, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* DEBUG_SPHERE_2 */
+            "meta":
+            {
+                "id":                       "DEBUG_SPHERE_2",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [26.0, 2.5, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* GROUND_PLANE */
+            "meta":
+            {
+                "id":                       "GROUND_PLANE",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Ground_Plane.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [0.0, 0.0, 0.0],
+                "rotation":                 [0.0, 0.0, 0.0],
+                "scale":                    [1.0, 1.0, 1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+
+        {   /* PLATFORM_0 */
+            "meta":
+            {
+                "id":                       "PLATFORM_0",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Platform.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [30.0, 0.0,  0.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [10.0, 2.0, 10.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           11
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* PLATFORM_1 */
+            "meta":
+            {
+                "id":                       "PLATFORM_1",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [10.2,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_2 */
+            "meta":
+            {
+                "id":                       "PLATFORM_2",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [12.2,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_3 */
+            "meta":
+            {
+                "id":                       "PLATFORM_3",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [14.2,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_4 */
+            "meta":
+            {
+                "id":                       "PLATFORM_4",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [16.2,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_5 */
+            "meta":
+            {
+                "id":                       "PLATFORM_5",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [18.2,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_6 */
+            "meta":
+            {
+                "id":                       "PLATFORM_6",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [11.2,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_7 */
+            "meta":
+            {
+                "id":                       "PLATFORM_7",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.2,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_8 */
+            "meta":
+            {
+                "id":                       "PLATFORM_8",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [15.2,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_9 */
+            "meta":
+            {
+                "id":                       "PLATFORM_9",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [17.2,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* PLATFORM_10 */
+            "meta":
+            {
+                "id":                       "PLATFORM_10",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.2,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* RAMP_0 */
+            "meta":
+            {
+                "id":                       "RAMP_0",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Ramp.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [-25.0,  0.0, 10.0],
+                "rotation":                 [  0.0,  0.0,  0.0],
+                "scale":                    [ 20.0, 10.0, 15.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           24
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* RAMP_1 */
+            "meta":
+            {
+                "id":                       "RAMP_1",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [30.0, 0.0, 15.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [10.0, 2.0, 15.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_2 */
+            "meta":
+            {
+                "id":                       "RAMP_2",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [10.0,     0.0, -5.0],
+                "rotation":                 [ 0.0, -1.5708,  0.0],
+                "scale":                    [10.0,     2.0, 15.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_3 */
+            "meta":
+            {
+                "id":                       "RAMP_3",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [30.0,     0.0, -25.0],
+                "rotation":                 [ 0.0, 3.14159,   0.0],
+                "scale":                    [10.0,     2.0,  15.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_4 */
+            "meta":
+            {
+                "id":                       "RAMP_4",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [10.0,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_5 */
+            "meta":
+            {
+                "id":                       "RAMP_5",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [10.6,    0.0, -15.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_6 */
+            "meta":
+            {
+                "id":                       "RAMP_6",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [12.0,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_7 */
+            "meta":
+            {
+                "id":                       "RAMP_7",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [12.6,    0.0, -15.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_8 */
+            "meta":
+            {
+                "id":                       "RAMP_8",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [14.0,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_9 */
+            "meta":
+            {
+                "id":                       "RAMP_9",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [14.6,    0.0, -15.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_10 */
+            "meta":
+            {
+                "id":                       "RAMP_10",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [16.0,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_11 */
+            "meta":
+            {
+                "id":                       "RAMP_11",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [16.6,    0.0, -15.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_12 */
+            "meta":
+            {
+                "id":                       "RAMP_12",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [18.0,     0.0, -15.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_13 */
+            "meta":
+            {
+                "id":                       "RAMP_13",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [18.6,    0.0, -15.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_14 */
+            "meta":
+            {
+                "id":                       "RAMP_14",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [11.0,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_15 */
+            "meta":
+            {
+                "id":                       "RAMP_15",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [11.6,    0.0, -17.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_16 */
+            "meta":
+            {
+                "id":                       "RAMP_16",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.0,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_17 */
+            "meta":
+            {
+                "id":                       "RAMP_17",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.6,    0.0, -17.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_18 */
+            "meta":
+            {
+                "id":                       "RAMP_18",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [15.0,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_19 */
+            "meta":
+            {
+                "id":                       "RAMP_19",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [15.6,    0.0, -17.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_20 */
+            "meta":
+            {
+                "id":                       "RAMP_20",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [17.0,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_21 */
+            "meta":
+            {
+                "id":                       "RAMP_21",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [17.6,    0.0, -17.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_22 */
+            "meta":
+            {
+                "id":                       "RAMP_22",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.0,     0.0, -17.0],
+                "rotation":                 [ 0.0, -1.5708,   0.0],
+                "scale":                    [ 2.0,     0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* RAMP_23 */
+            "meta":
+            {
+                "id":                       "RAMP_23",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.6,    0.0, -17.0],
+                "rotation":                 [ 0.0, 1.5708,   0.0],
+                "scale":                    [ 2.0,    0.2,   0.2]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* TERRAIN */
+            "meta":
+            {
+                "id":                       "TERRAIN",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Terrain.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [-25.0, 0.0, -10.0],
+                "rotation":                 [  0.0, 0.0,   0.0],
+                "scale":                    [  1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+
+        {   /* TRAFFIC_CONE_0 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_0",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Traffic_Cone.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.0, 0.0, 33.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           26
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* TRAFFIC_CONE_1 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_1",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.0, 0.0, 35.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_2 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_2",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.0, 0.0, 37.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_3 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_3",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [13.0, 0.0, 39.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_4 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_4",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [15.0, 0.0, 39.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_5 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_5",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [17.0, 0.0, 39.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_6 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_6",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.0, 0.0, 39.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_7 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_7",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.0, 0.0, 37.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_8 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_8",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.0, 0.0, 35.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_9 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_9",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.0, 0.0, 33.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_10 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_10",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [-34.8, 0.0, 10.2],
+                "rotation":                 [  0.0, 0.0,  0.0],
+                "scale":                    [  1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_11 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_11",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [-15.2, 0.0, 10.2],
+                "rotation":                 [  0.0, 0.0,  0.0],
+                "scale":                    [  1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_12 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_12",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [25.2, 0.0, 15.2],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_13 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_13",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [34.8, 0.0, 15.2],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_14 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_14",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [9.8, 0.0, -9.8],
+                "rotation":                 [0.0, 0.0,  0.0],
+                "scale":                    [1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_15 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_15",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [9.8, 0.0, -0.2],
+                "rotation":                 [0.0, 0.0,  0.0],
+                "scale":                    [1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_16 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_16",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [34.8, 0.0, -25.2],
+                "rotation":                 [ 0.0, 0.0,   0.0],
+                "scale":                    [ 1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_17 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_17",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [25.2, 0.0, -25.2],
+                "rotation":                 [ 0.0, 0.0,   0.0],
+                "scale":                    [ 1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_18 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_18",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [25.2, 2.0, -0.2],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_19 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_19",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [34.8, 2.0, -0.2],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_20 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_20",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [34.8, 2.0, -9.8],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_21 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_21",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [25.2, 2.0, -9.8],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_22 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_22",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [9.8, 0.0, -18.2],
+                "rotation":                 [0.0, 0.0,   0.0],
+                "scale":                    [1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_23 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_23",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [9.8, 0.0, -13.8],
+                "rotation":                 [0.0, 0.0,   0.0],
+                "scale":                    [1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_24 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_24",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.8, 0.0, -13.8],
+                "rotation":                 [ 0.0, 0.0,   0.0],
+                "scale":                    [ 1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TRAFFIC_CONE_25 */
+            "meta":
+            {
+                "id":                       "TRAFFIC_CONE_25",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [19.8, 0.0, -18.2],
+                "rotation":                 [ 0.0, 0.0,   0.0],
+                "scale":                    [ 1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* CHASSIS */
+            "meta":
+            {
+                "id":                       "CHASSIS",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Chassis.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [16.0, 0.3, 36.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+
+        {   /* TIRE_REAR_LEFT */
+            "meta":
+            {
+                "id":                       "TIRE_REAR_LEFT",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/Tire.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [15.4, 0.1,   37.0],
+                "rotation":                 [ 0.0, 0.0, 1.5708],
+                "scale":                    [ 1.0, 1.0,    1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           4
+            },
+            "stdNoAlphaTag":                true,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* TIRE_REAR_RIGHT */
+            "meta":
+            {
+                "id":                       "TIRE_REAR_RIGHT",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [16.6, 0.1,   37.0],
+                "rotation":                 [ 0.0, 0.0, 1.5708],
+                "scale":                    [ 1.0, 1.0,    1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TIRE_FRONT_RIGHT */
+            "meta":
+            {
+                "id":                       "TIRE_FRONT_RIGHT",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [16.6, 0.1,   35.0],
+                "rotation":                 [ 0.0, 0.0, 1.5708],
+                "scale":                    [ 1.0, 1.0,    1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* TIRE_FRONT_LEFT */
+            "meta":
+            {
+                "id":                       "TIRE_FRONT_LEFT",
+                "tagType":                  "TAG_TYPE_STD_NO_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [15.4, 0.1,   35.0],
+                "rotation":                 [ 0.0, 0.0, 1.5708],
+                "scale":                    [ 1.0, 1.0,    1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* WORLD_BORDER_0 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_0",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":
+            {
+                "modelFilePath":            "Asset/Model/World_Border.obj",
+                "mtlFileDirPath":           "Asset/Model/",
+                "vertices":                 null,
+                "indices":                  null
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [ -30.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           7
+            },
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  true,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* WORLD_BORDER_1 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_1",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [ -20.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* WORLD_BORDER_2 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_2",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [ -10.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* WORLD_BORDER_3 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_3",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [   0.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* WORLD_BORDER_4 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_4",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [  10.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* WORLD_BORDER_5 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_5",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [  20.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* WORLD_BORDER_6 */
+            "meta":
+            {
+                "id":                       "WORLD_BORDER_6",
+                "tagType":                  "TAG_TYPE_STD_ALPHA"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [  30.0, 1.0, -40.0],
+                "rotation":                 [1.5708, 0.0,   0.0],
+                "scale":                    [   1.0, 1.0,   1.0]
+            },
+            "textureIdxOffset":
+            {
+                "diffuseTextureIdxOffset":  0,
+                "specularTextureIdxOffset": 0,
+                "emissionTextureIdxOffset": 0
+            },
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+
+        {   /* SUN_LIGHT_0 */
+            "meta":
+            {
+                "id":                       "SUN_LIGHT_0",
+                "tagType":                  "TAG_TYPE_WIRE"
+            },
+            "mesh":
+            {
+                "modelFilePath":            null,
+                "mtlFileDirPath":           null,
+                "vertices":
+                [
+                                            [-1.0, -1.0,  0.0],
+                                            [ 1.0, -1.0,  0.0],
+                                            [ 1.0,  1.0,  0.0],
+                                            [-1.0,  1.0,  0.0],
+
+                                            [-0.9, -0.9,  0.0],
+                                            [-0.7, -0.9,  0.0],
+                                            [-0.7, -0.7,  0.0],
+                                            [-0.9, -0.7,  0.0],
+
+                                            [ 0.7, -0.9,  0.0],
+                                            [ 0.9, -0.9,  0.0],
+                                            [ 0.9, -0.7,  0.0],
+                                            [ 0.7, -0.7,  0.0],
+
+                                            [ 0.7,  0.7,  0.0],
+                                            [ 0.9,  0.7,  0.0],
+                                            [ 0.9,  0.9,  0.0],
+                                            [ 0.7,  0.9,  0.0],
+
+                                            [-0.9,  0.7,  0.0],
+                                            [-0.7,  0.7,  0.0],
+                                            [-0.7,  0.9,  0.0],
+                                            [-0.9,  0.9,  0.0],
+
+                                            [-0.8, -0.8,  0.0],
+                                            [-0.8, -0.8, -1.0],
+
+                                            [ 0.8, -0.8,  0.0],
+                                            [ 0.8, -0.8, -1.0],
+
+                                            [ 0.8,  0.8,  0.0],
+                                            [ 0.8,  0.8, -1.0],
+
+                                            [-0.8,  0.8,  0.0],
+                                            [-0.8,  0.8, -1.0]
+                ],
+                "indices":
+                [
+                                             0,  1,  1,  2,  2,  3,  3,  0,
+                                             4,  5,  5,  6,  6,  7,  7,  4,
+                                             8,  9,  9, 10, 10, 11, 11,  8,
+                                            12, 13, 13, 14, 14, 15, 15, 12,
+                                            16, 17, 17, 18, 18, 19, 19, 16,
+                                            20, 21,
+                                            22, 23,
+                                            24, 25,
+                                            26, 27
+
+                ]
+            },
+            "light":
+            {
+                "lightType":                "LIGHT_TYPE_SUN",
+                "ambient":                  [0.05, 0.05, 0.05],
+                "diffuse":                  [ 0.4,  0.4,  0.4],
+                "specular":                 [ 0.5,  0.5,  0.5],
+                "constant":                 1.0,
+                "linear":                   0.0,
+                "quadratic":                0.0,
+                "innerRadius":              3.14159,
+                "outerRadius":              3.14159,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [      0.0,     7.0, -40.0],
+                "rotation":                 [-0.785398, 3.14159,   0.0],
+                "scale":                    [      1.0,     1.0,   1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        [1.0, 0.0, 0.0, 1.0],
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      true,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* SPOT_LIGHT_0 */
+            "meta":
+            {
+                "id":                       "SPOT_LIGHT_0",
+                "tagType":                  "TAG_TYPE_WIRE"
+            },
+            "mesh":
+            {
+                "modelFilePath":            null,
+                "mtlFileDirPath":           null,
+                "vertices":
+                [
+                                            [     -1.0,       0.0, -1.0],
+                                            [ -0.92388, -0.382683, -1.0],
+                                            [-0.707107, -0.707107, -1.0],
+                                            [-0.382683,  -0.92388, -1.0],
+
+                                            [      0.0,      -1.0, -1.0],
+                                            [ 0.382683,  -0.92388, -1.0],
+                                            [ 0.707107, -0.707107, -1.0],
+                                            [  0.92388, -0.382683, -1.0],
+
+                                            [      1.0,       0.0, -1.0],
+                                            [  0.92388,  0.382683, -1.0],
+                                            [ 0.707107,  0.707107, -1.0],
+                                            [ 0.382683,   0.92388, -1.0],
+
+                                            [      0.0,       1.0, -1.0],
+                                            [-0.382683,   0.92388, -1.0],
+                                            [-0.707107,  0.707107, -1.0],
+                                            [ -0.92388,  0.382683, -1.0],
+
+                                            [     -0.9,      -0.1, -1.0],
+                                            [     -0.7,      -0.1, -1.0],
+                                            [     -0.7,       0.1, -1.0],
+                                            [     -0.9,       0.1, -1.0],
+
+                                            [     -0.1,      -0.9, -1.0],
+                                            [      0.1,      -0.9, -1.0],
+                                            [      0.1,      -0.7, -1.0],
+                                            [     -0.1,      -0.7, -1.0],
+
+                                            [      0.7,      -0.1, -1.0],
+                                            [      0.9,      -0.1, -1.0],
+                                            [      0.9,       0.1, -1.0],
+                                            [      0.7,       0.1, -1.0],
+
+                                            [     -0.1,       0.7, -1.0],
+                                            [      0.1,       0.7, -1.0],
+                                            [      0.1,       0.9, -1.0],
+                                            [     -0.1,       0.9, -1.0],
+
+                                            [      0.0,       0.0,  0.0]
+                ],
+                "indices":
+                [
+                                             0,  1,  1,  2,  2,  3,  3,  4,
+                                             4,  5,  5,  6,  6,  7,  7,  8,
+                                             8,  9,  9, 10, 10, 11, 11, 12,
+                                            12, 13, 13, 14, 14, 15, 15,  0,
+                                            16, 17, 17, 18, 18, 19, 19, 16,
+                                            20, 21, 21, 22, 22, 23, 23, 20,
+                                            24, 25, 25, 26, 26, 27, 27, 24,
+                                            28, 29, 29, 30, 30, 31, 31, 28,
+                                            32,  0,
+                                            32,  4,
+                                            32,  8,
+                                            32, 12
+                ]
+            },
+            "light":
+            {
+                "lightType":                "LIGHT_TYPE_SPOT",
+                "ambient":                  [0.0, 0.0, 0.0],
+                "diffuse":                  [1.0, 1.0, 1.0],
+                "specular":                 [1.0, 1.0, 1.0],
+                "constant":                 1.0,
+                "linear":                   0.045,
+                "quadratic":                0.0075,
+                "innerRadius":              0.349066,
+                "outerRadius":              0.523599,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [   36.0, 7.0, 36.0],
+                "rotation":                 [-1.5708, 0.0,  0.0],
+                "scale":                    [    1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        [1.0, 0.0, 0.0, 1.0],
+            "render":
+            {
+                "instancesCount":           3
+            },
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      true,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* SPOT_LIGHT_1 */
+            "meta":
+            {
+                "id":                       "SPOT_LIGHT_1",
+                "tagType":                  "TAG_TYPE_WIRE"
+            },
+            "mesh":                         null,
+            "light":
+            {
+                "lightType":                "LIGHT_TYPE_SPOT",
+                "ambient":                  [0.0, 0.0, 0.0],
+                "diffuse":                  [1.0, 1.0, 1.0],
+                "specular":                 [1.0, 1.0, 1.0],
+                "constant":                 1.0,
+                "linear":                   0.045,
+                "quadratic":                0.0075,
+                "innerRadius":              0.349066,
+                "outerRadius":              0.523599,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [   26.0, 7.0, 36.0],
+                "rotation":                 [-1.5708, 0.0,  0.0],
+                "scale":                    [    1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        [1.0, 0.0, 0.0, 1.0],
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* SPOT_LIGHT_2 */
+            "meta":
+            {
+                "id":                       "SPOT_LIGHT_2",
+                "tagType":                  "TAG_TYPE_WIRE"
+            },
+            "mesh":                         null,
+            "light":
+            {
+                "lightType":                "LIGHT_TYPE_SPOT",
+                "ambient":                  [0.0, 0.0, 0.0],
+                "diffuse":                  [1.0, 1.0, 1.0],
+                "specular":                 [1.0, 1.0, 1.0],
+                "constant":                 1.0,
+                "linear":                   0.045,
+                "quadratic":                0.0075,
+                "innerRadius":              0.349066,
+                "outerRadius":              0.523599,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [   16.0, 7.0, 36.0],
+                "rotation":                 [-1.5708, 0.0,  0.0],
+                "scale":                    [    1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        [1.0, 0.0, 0.0, 1.0],
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             false
+            }
+        },
+        {   /* POINT_LIGHT_0 */
+            "meta":
+            {
+                "id":                       "POINT_LIGHT_0",
+                "tagType":                  "TAG_TYPE_WIRE"
+            },
+            "mesh":
+            {
+                "modelFilePath":            null,
+                "mtlFileDirPath":           null,
+                "vertices":
+                [
+                                            [-1.0, -1.0,  1.0],
+                                            [ 1.0, -1.0,  1.0],
+                                            [ 1.0,  1.0,  1.0],
+                                            [-1.0,  1.0,  1.0],
+
+                                            [ 1.0, -1.0, -1.0],
+                                            [-1.0, -1.0, -1.0],
+                                            [-1.0,  1.0, -1.0],
+                                            [ 1.0,  1.0, -1.0],
+
+                                            [-0.9, -0.9,  1.0],
+                                            [-0.7, -0.9,  1.0],
+                                            [-0.7, -0.7,  1.0],
+                                            [-0.9, -0.7,  1.0],
+
+                                            [ 0.7,  0.7,  1.0],
+                                            [ 0.9,  0.7,  1.0],
+                                            [ 0.9,  0.9,  1.0],
+                                            [ 0.7,  0.9,  1.0],
+
+                                            [ 1.0, -0.9,  0.9],
+                                            [ 1.0, -0.9,  0.7],
+                                            [ 1.0, -0.7,  0.7],
+                                            [ 1.0, -0.7,  0.9],
+
+                                            [ 1.0,  0.7, -0.7],
+                                            [ 1.0,  0.7, -0.9],
+                                            [ 1.0,  0.9, -0.9],
+                                            [ 1.0,  0.9, -0.7],
+
+                                            [ 0.9, -0.9, -1.0],
+                                            [ 0.7, -0.9, -1.0],
+                                            [ 0.7, -0.7, -1.0],
+                                            [ 0.9, -0.7, -1.0],
+
+                                            [-0.7,  0.7, -1.0],
+                                            [-0.9,  0.7, -1.0],
+                                            [-0.9,  0.9, -1.0],
+                                            [-0.7,  0.9, -1.0],
+
+                                            [-1.0, -0.9, -0.9],
+                                            [-1.0, -0.9, -0.7],
+                                            [-1.0, -0.7, -0.7],
+                                            [-1.0, -0.7, -0.9],
+
+                                            [-1.0,  0.7,  0.7],
+                                            [-1.0,  0.7,  0.9],
+                                            [-1.0,  0.9,  0.9],
+                                            [-1.0,  0.9,  0.7],
+
+                                            [-0.9,  1.0,  0.9],
+                                            [-0.7,  1.0,  0.9],
+                                            [-0.7,  1.0,  0.7],
+                                            [-0.9,  1.0,  0.7],
+
+                                            [ 0.7,  1.0, -0.7],
+                                            [ 0.9,  1.0, -0.7],
+                                            [ 0.9,  1.0, -0.9],
+                                            [ 0.7,  1.0, -0.9],
+
+                                            [-0.9, -1.0, -0.9],
+                                            [-0.7, -1.0, -0.9],
+                                            [-0.7, -1.0, -0.7],
+                                            [-0.9, -1.0, -0.7],
+
+                                            [ 0.7, -1.0,  0.7],
+                                            [ 0.9, -1.0,  0.7],
+                                            [ 0.9, -1.0,  0.9],
+                                            [ 0.7, -1.0,  0.9]
+                ],
+                "indices":
+                [
+                                             0,  1,  1,  2,  2,  3,  3,  0,
+                                             4,  5,  5,  6,  6,  7,  7,  4,
+                                             8,  9,  9, 10, 10, 11, 11,  8,
+                                            12, 13, 13, 14, 14, 15, 15, 12,
+                                            16, 17, 17, 18, 18, 19, 19, 16,
+                                            20, 21, 21, 22, 22, 23, 23, 20,
+                                            24, 25, 25, 26, 26, 27, 27, 24,
+                                            28, 29, 29, 30, 30, 31, 31, 28,
+                                            32, 33, 33, 34, 34, 35, 35, 32,
+                                            36, 37, 37, 38, 38, 39, 39, 36,
+                                            40, 41, 41, 42, 42, 43, 43, 40,
+                                            44, 45, 45, 46, 46, 47, 47, 44,
+                                            48, 49, 49, 50, 50, 51, 51, 48,
+                                            52, 53, 53, 54, 54, 55, 55, 52,
+                                             1,  4,
+                                             7,  2,
+                                             5,  0,
+                                             3,  6
+                ]
+            },
+            "light":
+            {
+                "lightType":                "LIGHT_TYPE_POINT",
+                "ambient":                  [0.05, 0.05, 0.05],
+                "diffuse":                  [ 0.8,  0.8,  0.8],
+                "specular":                 [ 1.0,  1.0,  1.0],
+                "constant":                 1.0,
+                "linear":                   0.045,
+                "quadratic":                0.0075,
+                "innerRadius":              3.14159,
+                "outerRadius":              3.14159,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [0.0, 7.0, 0.0],
+                "rotation":                 [0.0, 0.0, 0.0],
+                "scale":                    [1.0, 1.0, 1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        [1.0, 0.0, 0.0, 1.0],
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      true,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+
+        {   /* SCENE_CAMERA_0 */
+            "meta":
+            {
+                "id":                       "SCENE_CAMERA_0",
+                "tagType":                  "TAG_TYPE_WIRE"
+            },
+            "mesh":
+            {
+                "modelFilePath":            null,
+                "mtlFileDirPath":           null,
+                "vertices":
+                [
+                                            [ -1.0,    -1.0, -1.0],
+                                            [  1.0,    -1.0, -1.0],
+                                            [  1.0,     1.0, -1.0],
+                                            [ -1.0,     1.0, -1.0],
+
+                                            [-0.25,     1.1, -1.0],
+                                            [ 0.25,     1.1, -1.0],
+                                            [  0.0, 1.53302, -1.0],
+
+                                            [  0.0,     0.0,  0.0]
+                ],
+                "indices":
+                [
+                                            0, 1, 1, 2, 2, 3, 3, 0,
+                                            4, 5, 5, 6, 6, 4,
+                                            7, 0,
+                                            7, 1,
+                                            7, 2,
+                                            7, 3
+                ]
+            },
+            "light":                        null,
+            "camera":
+            {
+                "projectionType":           "PROJECTION_TYPE_PERSPECTIVE",
+                "fov":                      1.0472,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "transform":
+            {
+                "position":                 [16.0, 1.0, 39.0],
+                "rotation":                 [ 0.0, 0.0,  0.0],
+                "scale":                    [ 1.0, 1.0,  1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        [0.0, 0.0, 1.0, 1.0],
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      true,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        },
+        {   /* DEBUG_CAMERA */
+            "meta":
+            {
+                "id":                       "DEBUG_CAMERA",
+                "tagType":                  "TAG_TYPE_NONE"
+            },
+            "mesh":                         null,
+            "light":                        null,
+            "camera":
+            {
+                "projectionType":           "PROJECTION_TYPE_PERSPECTIVE",
+                "fov":                      1.0472,
+                "nearPlane":                0.01,
+                "farPlane":                 100.0
+            },
+            "transform":
+            {
+                "position":                 [      0.0, 5.0, 5.0],
+                "rotation":                 [-0.785398, 0.0, 0.0],
+                "scale":                    [      1.0, 1.0, 1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        null,
+            "render":                       null,
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    null,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             false,
+                "activeCameraEntity":       true,
+                "parentEntity":             true
+            }
+        },
+
+        {   /* SKY_BOX */
+            "meta":
+            {
+                "id":                       "SKY_BOX",
+                "tagType":                  "TAG_TYPE_SKY_BOX"
+            },
+            "mesh":
+            {
+                "modelFilePath":            null,
+                "mtlFileDirPath":           null,
+                "vertices":
+                [
+                                            [-0.5, -0.5,  0.5],
+                                            [ 0.5, -0.5,  0.5],
+                                            [ 0.5,  0.5,  0.5],
+                                            [-0.5,  0.5,  0.5],
+
+                                            [ 0.5, -0.5, -0.5],
+                                            [-0.5, -0.5, -0.5],
+                                            [-0.5,  0.5, -0.5],
+                                            [ 0.5,  0.5, -0.5]
+                ],
+                "indices":
+                [
+                                            0, 1, 2, 0, 2, 3,
+                                            1, 4, 7, 1, 7, 2,
+                                            4, 5, 6, 4, 6, 7,
+                                            5, 0, 3, 5, 3, 6,
+                                            3, 2, 7, 3, 7, 6,
+                                            5, 4, 1, 5, 1, 0
+                ]
+            },
+            "light":                        null,
+            "camera":                       null,
+            "transform":
+            {
+                "position":                 [0.0, 0.0, 0.0],
+                "rotation":                 [0.0, 0.0, 0.0],
+                "scale":                    [1.0, 1.0, 1.0]
+            },
+            "textureIdxOffset":             null,
+            "color":                        null,
+            "render":
+            {
+                "instancesCount":           1
+            },
+            "stdNoAlphaTag":                null,
+            "stdAlphaTag":                  null,
+            "wireTag":                      null,
+            "skyBoxTag":                    true,
+
+            "parseHelper":
+            {
+                "skyBoxEntity":             true,
+                "activeCameraEntity":       false,
+                "parentEntity":             true
+            }
+        }
+    ]
+}

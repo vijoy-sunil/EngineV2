@@ -1,3 +1,4 @@
+#include <json/single_include/nlohmann/json.hpp>
 #include "../../Backend/Common.h"
 #include "../../Backend/Scene/SNImpl.h"
 #include "../System/Loading/SYMeshLoading.h"
@@ -6,6 +7,10 @@
 #include "../System/Batching/SYWireMeshInstanceBatching.h"
 #include "../System/Batching/SYLightInstanceBatching.h"
 #include "../System/Controller/SYCameraController.h"
+#include "../System/Gui/SYSceneView.h"
+#include "../System/Gui/SYEntityCollectionView.h"
+#include "../System/Gui/SYComponentEditorView.h"
+#include "../System/Gui/SYConfigView.h"
 #include "../System/Rendering/SYShadowRendering.h"
 #include "../System/Rendering/SYShadowCubeRendering.h"
 #include "../System/Rendering/SYGDefaultRendering.h"
@@ -14,23 +19,25 @@
 #include "../System/Rendering/SYSkyBoxRendering.h"
 #include "../System/Rendering/SYFDefaultRendering.h"
 #include "../System/Rendering/SYDebugRendering.h"
+#include "../System/Rendering/SYGuiRendering.h"
 #include "../SBImpl.h"
 #include "../../Backend/Scene/SNType.h"
 #include "../SBComponentType.h"
-
-/* Short hand macros */
-#define R_45        glm::radians ( 45.0f)
-#define R_90        glm::radians ( 90.0f)
-#define R_180       glm::radians (180.0f)
+#include "../SBRendererType.h"
 
 namespace SandBox {
     void SBImpl::configScene (void) {
-        auto& shadowImageWidth     = m_sandBoxInfo.meta.shadowImageWidth;
-        auto& shadowImageHeight    = m_sandBoxInfo.meta.shadowImageHeight;
-        auto& skyBoxEntity         = m_sandBoxInfo.meta.skyBoxEntity;
-        auto& entityFamilyInfoPool = m_sandBoxInfo.meta.entityFamilyInfoPool;
-        auto& sceneObj             = m_sandBoxInfo.resource.sceneObj;
-        auto& stdTexturePoolObj    = m_sandBoxInfo.resource.stdTexturePoolObj;
+        auto& meta     = m_sandBoxInfo.meta;
+        auto& resource = m_sandBoxInfo.resource;
+        auto& sceneObj = resource.sceneObj;
+
+        /* Read and parse scene data file */
+        std::ifstream file ("SandBox/Config/SBSceneData.json");
+        if (!file.is_open())
+            throw std::runtime_error ("Failed to open scene data file");
+
+        auto sceneData = nlohmann::json::parse (file, nullptr, true, true);
+        file.close();
 
         {   /* Register components */
             sceneObj->registerComponent <MetaComponent>();
@@ -53,6 +60,10 @@ namespace SandBox {
             auto wireMeshInstanceBatchingObj = sceneObj->registerSystem <SYWireMeshInstanceBatching>();
             auto lightInstanceBatchingObj    = sceneObj->registerSystem <SYLightInstanceBatching>();
             auto cameraControllerObj         = sceneObj->registerSystem <SYCameraController>();
+            auto sceneViewObj                = sceneObj->registerSystem <SYSceneView>();
+            auto entityCollectionViewObj     = sceneObj->registerSystem <SYEntityCollectionView>();
+            auto componentEditorViewObj      = sceneObj->registerSystem <SYComponentEditorView>();
+            auto configViewObj               = sceneObj->registerSystem <SYConfigView>();
             auto shadowRenderingObj          = sceneObj->registerSystem <SYShadowRendering>();
             auto shadowCubeRenderingObj      = sceneObj->registerSystem <SYShadowCubeRendering>();
             auto gDefaultRenderingObj        = sceneObj->registerSystem <SYGDefaultRendering>();
@@ -61,9 +72,93 @@ namespace SandBox {
             auto skyBoxRenderingObj          = sceneObj->registerSystem <SYSkyBoxRendering>();
             auto fDefaultRenderingObj        = sceneObj->registerSystem <SYFDefaultRendering>();
             auto debugRenderingObj           = sceneObj->registerSystem <SYDebugRendering>();
-            /* Set system signature */
+            auto guiRenderingObj             = sceneObj->registerSystem <SYGuiRendering>();
+
+            /* Set system signature
+             *                          +---+---+---+---+---+---+---+---+---+---+---+---+
+             *                          | M | M | L | C | T | T | C | R | S | S | W | S |
+             *                          | E | E | I | A | R | E | O | E | T | T | I | K |
+             *                          | T | S | G | M | A | X | L | N | D | D | R | Y |
+             *                          | A | H | H | E | N | T | O | D |   |   | E |   |
+             *                          |   |   | T | R | S | U | R | E | N | A |   | B |
+             *                          |   |   |   | A | F | R |   | R | O | L | T | O |
+             *                          |   |   |   |   | O | E |   |   |   | P | A | X |
+             *                          |   |   |   |   | R |   |   |   | A | H | G |   |
+             *                          |   |   |   |   | M | I |   |   | L | A |   | T |
+             *                          |   |   |   |   |   | D |   |   | P |   |   | A |
+             *                          |   |   |   |   |   | X |   |   | H | T |   | G |
+             *                          |   |   |   |   |   |   |   |   | A | A |   |   |
+             *                          |   |   |   |   |   | O |   |   |   | G |   |   |
+             *                          |   |   |   |   |   | F |   |   | T |   |   |   |
+             *                          |   |   |   |   |   | F |   |   | A |   |   |   |
+             *                          |   |   |   |   |   | S |   |   | G |   |   |   |
+             *                          |   |   |   |   |   | E |   |   |   |   |   |   |
+             *                          |   |   |   |   |   | T |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  |                       Pre-renderer-config systems                     |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Mesh                  |   |[o]|   |   |   |   |   |   |   |   |   |   |
+             *  | loading               |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Mesh                  |[o]|[o]|   |   |   |   |   |[o]|   |   |   |   |
+             *  | batching              |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Std mesh instance     |[o]|   |   |   |[o]|[o]|   |   |   |   |   |   |
+             *  | batching              |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Wire mesh instance    |   |   |   |   |[o]|   |[o]|   |   |   |   |   |
+             *  | batching              |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Light instance        |   |   |[o]|   |[o]|   |   |   |   |   |   |   |
+             *  | batching              |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  |                       Post-renderer-config systems                    |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Camera                |   |   |   |[o]|[o]|   |   |   |   |   |   |   |
+             *  | controller            |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Scene                 |                                               |
+             *  | view                  |                       ~                       |
+             *  +-----------------------+-----------------------------------------------+
+             *  | Entity collection     |                                               |
+             *  | view                  |                       ~                       |
+             *  +-----------------------+-----------------------------------------------+
+             *  | Component editor      |                                               |
+             *  | view                  |                       ~                       |
+             *  +-----------------------+-----------------------------------------------+
+             *  | Config                |                                               |
+             *  | view                  |                       ~                       |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Shadow                |   |   |   |   |   |   |   |[o]|[o]|   |   |   |
+             *  | rendering             |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Shadow cube           |   |   |   |   |   |   |   |[o]|[o]|   |   |   |
+             *  | rendering             |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | G default             |   |   |   |   |   |   |   |[o]|[o]|   |   |   |
+             *  | rendering             |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Light                 |                                               |
+             *  | rendering             |                       ~                       |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Wire                  |   |   |   |   |   |   |   |[o]|   |   |[o]|   |
+             *  | rendering             |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Sky box               |   |   |   |   |   |   |   |[o]|   |   |   |[o]|
+             *  | rendering             |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | F default             |   |   |   |   |   |   |   |[o]|   |[o]|   |   |
+             *  | rendering             |   |   |   |   |   |   |   |   |   |   |   |   |
+             *  +-----------------------+---+---+---+---+---+---+---+---+---+---+---+---+
+             *  | Debug                 |                                               |
+             *  | rendering             |                       ~                       |
+             *  +-----------------------+-----------------------------------------------+
+             *  | Gui                   |                                               |
+             *  | rendering             |                       ~                       |
+             *  +-----------------------+-----------------------------------------------+
+            */
             {   /* Mesh loading system */
-                meshLoadingObj->initMeshLoadingInfo (sceneObj, stdTexturePoolObj);
+                meshLoadingObj->initMeshLoadingInfo (sceneObj, resource.stdTexturePoolObj);
 
                 Scene::Signature systemSignature;
                 systemSignature.set (sceneObj->getComponentType <MeshComponent>());
@@ -117,6 +212,18 @@ namespace SandBox {
                 systemSignature.set (sceneObj->getComponentType <TransformComponent>());
 
                 sceneObj->setSystemSignature <SYCameraController> (systemSignature);
+            }
+            {   /* Scene view system */
+                static_cast <void> (sceneViewObj);
+            }
+            {   /* Entity collection view system */
+                static_cast <void> (entityCollectionViewObj);
+            }
+            {   /* Component editor view system */
+                static_cast <void> (componentEditorViewObj);
+            }
+            {   /* Config view system */
+                static_cast <void> (configViewObj);
             }
             {   /* Shadow rendering system */
                 static_cast <void> (shadowRenderingObj);
@@ -178,756 +285,185 @@ namespace SandBox {
             {   /* Debug rendering system */
                 static_cast <void> (debugRenderingObj);
             }
-        }
-
-        /* Entity ordering
-         *  +-------+-------+-------+-------+-------+-------+-------+-------+
-         *  |  A,0  |  A,1  |  A,2  |  A,3  |  B,0  |  C,0  |  C,1  |  C,2  | ...
-         *  +-------+-------+-------+-------+-------+-------+-------+-------+
-         *      |       |               |       |       |       |       |
-         *      v       +---------------+       v       v       +-------+
-         *    Parent        Children          Parent  Parent     Children
-        */
-        {   /* Entity   [DEBUG_CUBE_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{34.0f, 0.5f, 34.0f}, {0.0f, 0.0f, 0.0f}},     /* Parent transform */
-                {{36.0f, 0.5f, 34.0f}, {0.0f, R_90, 0.0f}},     /* Yaw              */
-                {{38.0f, 0.5f, 34.0f}, {R_90, 0.0f, 0.0f}},     /* Pitch            */
-                {{38.0f, 0.5f, 36.0f}, {0.0f, 0.0f, R_90}},     /* Roll             */
-                {{36.0f, 0.5f, 36.0f}, {R_90, R_90, 0.0f}},     /* Yaw->Pitch       */
-                {{34.0f, 0.5f, 36.0f}, {0.0f, R_90, R_90}},     /* Yaw->Roll        */
-                {{34.0f, 0.5f, 38.0f}, {R_90, 0.0f, R_90}},     /* Pitch->Roll      */
-                {{36.0f, 0.5f, 38.0f}, {R_90, R_90, R_90}}      /* Yaw->Pitch->Roll */
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "DEBUG_CUBE_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent());
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
+            {   /* Gui rendering system */
+                static_cast <void> (guiRenderingObj);
             }
         }
-        {   /* Entity   [DEBUG_SPHERE_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{26.0f, 0.5f, 36.0f}, {0.0f, 0.0f, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
 
-                sceneObj->addComponent (entity, MetaComponent (
-                    "DEBUG_SPHERE_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/Debug_Sphere.obj",
-                        "Asset/Model/"
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-        {   /* Entity   [SKY_BOX] */
+        /* Add entities and components */
+        Scene::Entity parentEntity;
+        for (auto const& entityData: sceneData["entities"]) {
             auto entity = sceneObj->addEntity();
-            sceneObj->addComponent (entity, MetaComponent (
-                "SKY_BOX",
-                TAG_TYPE_SKY_BOX
-            ));
-            sceneObj->addComponent (entity, MeshComponent (
-                {
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f,  0.5f}}, {0, 0, 0, 0}},          /* Vertex 0 */
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f,  0.5f}}, {0, 0, 0, 0}},          /* Vertex 1 */
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f,  0.5f}}, {0, 0, 0, 0}},          /* Vertex 2 */
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f,  0.5f}}, {0, 0, 0, 0}},          /* Vertex 3 */
 
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f, -0.5f}}, {0, 0, 0, 0}},          /* Vertex 4 */
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f, -0.5f}}, {0, 0, 0, 0}},          /* Vertex 5 */
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f, -0.5f}}, {0, 0, 0, 0}},          /* Vertex 6 */
-                    {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f, -0.5f}}, {0, 0, 0, 0}}           /* Vertex 7 */
-                },
-                {
-                    0, 1, 2, 0, 2, 3,
-                    1, 5, 6, 1, 6, 2,
-                    5, 4, 7, 5, 7, 6,
-                    4, 0, 3, 4, 3, 7,
-                    4, 5, 1, 4, 1, 0,
-                    3, 2, 6, 3, 6, 7
-                }
-            ));
-            sceneObj->addComponent (entity, TransformComponent());
-            sceneObj->addComponent (entity, RenderComponent());
-            sceneObj->addComponent (entity, SkyBoxTagComponent());
-            /* Save sky box entity */
-            skyBoxEntity = entity;
-            /* No children */
-            entityFamilyInfoPool[entity] = {};
-        }
-        {   /* Entity   [GROUND_PLANE] */
-            auto entity = sceneObj->addEntity();
-            sceneObj->addComponent (entity, MetaComponent (
-                "GROUND_PLANE",
-                TAG_TYPE_STD_NO_ALPHA
-            ));
-            sceneObj->addComponent (entity, MeshComponent (
-                "Asset/Model/Ground_Plane.obj",
-                "Asset/Model/"
-            ));
-            sceneObj->addComponent (entity, TransformComponent());
-            sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-            sceneObj->addComponent (entity, RenderComponent());
-            sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-            /* No children */
-            entityFamilyInfoPool[entity] = {};
-        }
-        {   /* Entity   [CHASSIS] */
-            auto entity = sceneObj->addEntity();
-            sceneObj->addComponent (entity, MetaComponent (
-                "CHASSIS",
-                TAG_TYPE_STD_NO_ALPHA
-            ));
-            sceneObj->addComponent (entity, MeshComponent (
-                "Asset/Model/Chassis.obj",
-                "Asset/Model/"
-            ));
-            sceneObj->addComponent (entity, TransformComponent (
-                {16.0f, 0.3f, 36.0f},
-                { 0.0f, 0.0f,  0.0f}
-            ));
-            sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-            sceneObj->addComponent (entity, RenderComponent());
-            sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-            /* No children */
-            entityFamilyInfoPool[entity] = {};
-        }
-        {   /* Entity   [TIRE_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{15.4f, 0.1f, 37.0f}, {0.0f, 0.0f, R_90}},
-                {{16.6f, 0.1f, 37.0f}, {0.0f, 0.0f, R_90}},
-                {{16.6f, 0.1f, 35.0f}, {0.0f, 0.0f, R_90}},
-                {{15.4f, 0.1f, 35.0f}, {0.0f, 0.0f, R_90}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "TIRE_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/Tire.obj",
-                        "Asset/Model/"
+            {   /* Meta component */
+                if (!entityData["meta"].is_null())
+                    sceneObj->addComponent (entity, MetaComponent (
+                        entityData["meta"]["id"],
+                        getTagTypeEnum (entityData["meta"]["tagType"])
                     ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
             }
-        }
-        {   /* Entity   [LOW_RAMP_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{-20.0f, 0.0f,  20.0f}, {0.0f,  0.0f, 0.0f}},
-                {{-20.0f, 0.0f, -10.0f}, {0.0f, R_180, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
+            {   /* Mesh component */
+                if (!entityData["mesh"].is_null()) {
 
-                sceneObj->addComponent (entity, MetaComponent (
-                    "LOW_RAMP_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
+                    if (!entityData["mesh"]["modelFilePath"].is_null() &&
+                        !entityData["mesh"]["mtlFileDirPath"].is_null())
+                        sceneObj->addComponent (entity, MeshComponent (
+                            entityData["mesh"]["modelFilePath"],
+                            entityData["mesh"]["mtlFileDirPath"]
+                        ));
 
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
+                    else if (!entityData["mesh"]["vertices"].is_null() &&
+                             !entityData["mesh"]["indices"].is_null()) {
 
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/Low_Ramp.obj",
-                        "Asset/Model/"
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
+                        auto vertices = std::vector <Vertex>    {};
+                        auto indices  = std::vector <IndexType> {};
+                        for (auto const& vertexData: entityData["mesh"]["vertices"]) {
+                            Vertex vertex;
+
+                            vertex.meta.uv                     = {0.0f, 0.0f};
+                            vertex.meta.normal                 = {0.0f, 0.0f, 0.0f};
+                            vertex.meta.position               = {vertexData[0], vertexData[1], vertexData[2]};
+
+                            vertex.material.diffuseTextureIdx  = 0;
+                            vertex.material.specularTextureIdx = 0;
+                            vertex.material.emissionTextureIdx = 0;
+                            vertex.material.shininess          = 0;
+
+                            vertices.push_back (vertex);
+                        }
+                        for (auto const& indexData: entityData["mesh"]["indices"])
+                            indices.push_back (indexData);
+
+                        sceneObj->addComponent (entity, MeshComponent (
+                            vertices,
+                            indices
+                        ));
+                    }
                 }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
             }
-        }
-        {   /* Entity   [MED_RAMP_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{-10.0f, 0.0f, -20.0f}, {0.0f, -R_90, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "MED_RAMP_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/Med_Ramp.obj",
-                        "Asset/Model/"
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-        {   /* Entity   [HIGH_RAMP_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{-10.0f, 0.0f, -30.0f}, {0.0f, -R_90, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "HIGH_RAMP_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/High_Ramp.obj",
-                        "Asset/Model/"
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-        {   /* Entity   [SPEED_BUMP_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{20.0f, 0.0f, 20.0f}, {0.0f, -R_45, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "SPEED_BUMP_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/Speed_Bump.obj",
-                        "Asset/Model/"
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-        {   /* Entity   [TRAFFIC_CONE_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{ -23.0f, 0.0f,   20.0f}, {0.0f, 0.0f, 0.0f}},
-                {{ -17.0f, 0.0f,   20.0f}, {0.0f, 0.0f, 0.0f}},
-                {{ -17.0f, 0.0f,  -10.0f}, {0.0f, 0.0f, 0.0f}},
-                {{ -23.0f, 0.0f,  -10.0f}, {0.0f, 0.0f, 0.0f}},
-
-                {{ -10.0f, 0.0f,  -23.0f}, {0.0f, 0.0f, 0.0f}},
-                {{ -10.0f, 0.0f,  -17.0f}, {0.0f, 0.0f, 0.0f}},
-
-                {{ -10.0f, 0.0f,  -33.0f}, {0.0f, 0.0f, 0.0f}},
-                {{ -10.0f, 0.0f,  -27.0f}, {0.0f, 0.0f, 0.0f}},
-
-                {{17.879f, 0.0f, 17.879f}, {0.0f, 0.0f, 0.0f}},
-                {{22.121f, 0.0f, 22.121f}, {0.0f, 0.0f, 0.0f}},
-                {{30.429f, 0.0f, 13.813f}, {0.0f, 0.0f, 0.0f}},
-                {{26.187f, 0.0f,  9.570f}, {0.0f, 0.0f, 0.0f}},
-
-                {{  13.0f, 0.0f,   33.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  13.0f, 0.0f,   35.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  13.0f, 0.0f,   37.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  13.0f, 0.0f,   39.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  15.0f, 0.0f,   39.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  17.0f, 0.0f,   39.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  19.0f, 0.0f,   39.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  19.0f, 0.0f,   37.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  19.0f, 0.0f,   35.0f}, {0.0f, 0.0f, 0.0f}},
-                {{  19.0f, 0.0f,   33.0f}, {0.0f, 0.0f, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "TRAFFIC_CONE_" + std::to_string (i),
-                    TAG_TYPE_STD_NO_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/Traffic_Cone.obj",
-                        "Asset/Model/"
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-
-        {   /* Entity   [SUN_LIGHT_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{0.0f, 7.0f, -7.0f}, {-R_45, R_180, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "SUN_LIGHT_" + std::to_string (i),
-                    TAG_TYPE_WIRE
-                ));
-                sceneObj->addComponent (entity, LightComponent());
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second,
-                    {0.5f, 0.5f, 0.5f}
-                ));
-                sceneObj->addComponent (entity, ColorComponent (
-                    {1.0f, 0.0f, 0.0f, 1.0f}
-                ));
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
+            {   /* Light component */
+                if (!entityData["light"].is_null())
+                    sceneObj->addComponent (entity, LightComponent (
+                        getLightTypeEnum (entityData["light"]["lightType"]),
                         {
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 0  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 1  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 2  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 3  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 4  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 5  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 6  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 7  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f, -0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 8  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f, -0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 9  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f,  0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 10 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f,  0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 11 */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 12 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 13 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 14 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 15 */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.0f,  0.0f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 16 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.0f,  0.0f, -3.0f}}, {0, 0, 0, 0}}       /* Vertex 17 */
+                            entityData["light"]["ambient"][0],
+                            entityData["light"]["ambient"][1],
+                            entityData["light"]["ambient"][2]
                         },
                         {
-                             0,  1,  1,  2,  2,  3,  3,  0,
-                             4,  5,  5,  6,  6,  7,  7,  4,
-                             8,  9,  9, 10, 10, 11, 11,  8,
-                            12, 13, 13, 14, 14, 15, 15, 12,
-                            16, 17
-                        }
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, WireTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-        {   /* Entity   [SPOT_LIGHT_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{36.0f, 7.0f, 36.0f}, {-R_90, 0.0f, 0.0f}},
-                {{26.0f, 7.0f, 36.0f}, {-R_90, 0.0f, 0.0f}},
-                {{16.0f, 7.0f, 36.0f}, {-R_90, 0.0f, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "SPOT_LIGHT_" + std::to_string (i),
-                    TAG_TYPE_WIRE
-                ));
-                sceneObj->addComponent (entity, LightComponent (
-                    LIGHT_TYPE_SPOT,
-                    {0.0f, 0.0f, 0.0f},
-                    {1.0f, 1.0f, 1.0f},
-                    {1.0f, 1.0f, 1.0f},
-                    1.0f,
-                    0.045f,
-                    0.0075f,
-                    glm::radians (20.0f),
-                    glm::radians (30.0f),
-                    0.01f,
-                    100.0f
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second,
-                    {0.5f, 0.5f, 0.5f}
-                ));
-                sceneObj->addComponent (entity, ColorComponent (
-                    {1.0f, 0.0f, 0.0f, 1.0f}
-                ));
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        {
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f, -0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 0  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f, -0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 1  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f,  0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 2  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f,  0.1f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 3  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 4  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 5  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 6  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 7  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.6f, -0.6f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 8  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.6f, -0.6f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 9  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.6f,  0.6f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 10 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.6f,  0.6f, -1.0f}}, {0, 0, 0, 0}},      /* Vertex 11 */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.0f,  0.0f,  0.0f}}, {0, 0, 0, 0}},      /* Vertex 12 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.0f,  0.0f, -3.0f}}, {0, 0, 0, 0}}       /* Vertex 13 */
+                            entityData["light"]["diffuse"][0],
+                            entityData["light"]["diffuse"][1],
+                            entityData["light"]["diffuse"][2]
                         },
                         {
-                             0,  1, 1,  2,  2,  3,  3, 0,
-                             4,  5, 5,  6,  6,  7,  7, 4,
-                             8,  9, 9, 10, 10, 11, 11, 8,
-                             1,  5,
-                             6,  2,
-                             4,  0,
-                             3,  7,
-                            12, 13
-                        }
+                            entityData["light"]["specular"][0],
+                            entityData["light"]["specular"][1],
+                            entityData["light"]["specular"][2]
+                        },
+                        entityData["light"]["constant"],
+                        entityData["light"]["linear"],
+                        entityData["light"]["quadratic"],
+                        entityData["light"]["innerRadius"],
+                        entityData["light"]["outerRadius"],
+                        entityData["light"]["nearPlane"],
+                        entityData["light"]["farPlane"]
                     ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, WireTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
             }
-        }
-        {   /* Entity   [POINT_LIGHT_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <glm::vec3> {
-                {0.0f, 7.0f, 0.0f}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "POINT_LIGHT_" + std::to_string (i),
-                    TAG_TYPE_WIRE
-                ));
-                sceneObj->addComponent (entity, LightComponent (
-                    LIGHT_TYPE_POINT,
-                    {0.05f, 0.05f, 0.05f},
-                    {0.80f, 0.80f, 0.80f},
-                    {1.00f, 1.00f, 1.00f},
-                    1.0f,
-                    0.045f,
-                    0.0075f,
-                    R_180,
-                    R_180,
-                    0.01f,
-                    100.0f
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i],
-                    {0.0f, 0.0f, 0.0f},
-                    {0.5f, 0.5f, 0.5f}
-                ));
-                sceneObj->addComponent (entity, ColorComponent (
-                    {1.0f, 0.0f, 0.0f, 1.0f}
-                ));
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
+            {   /* Camera component */
+                if (!entityData["camera"].is_null())
+                    sceneObj->addComponent (entity, CameraComponent (
+                        getProjectionTypeEnum (entityData["camera"]["projectionType"]),
+                        entityData["camera"]["fov"],
+                        entityData["camera"]["nearPlane"],
+                        entityData["camera"]["farPlane"]
+                    ));
+            }
+            {   /* Transform component */
+                if (!entityData["transform"].is_null())
+                    sceneObj->addComponent (entity, TransformComponent (
                         {
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f,  0.5f}}, {0, 0, 0, 0}},      /* Vertex 0  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f,  0.5f}}, {0, 0, 0, 0}},      /* Vertex 1  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f,  0.5f}}, {0, 0, 0, 0}},      /* Vertex 2  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f,  0.5f}}, {0, 0, 0, 0}},      /* Vertex 3  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f, -0.1f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 4  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f, -0.1f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 5  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f,  0.1f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 6  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f,  0.1f,  0.1f}}, {0, 0, 0, 0}},      /* Vertex 7  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f, -0.1f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 8  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f, -0.1f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 9  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.1f,  0.1f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 10 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.1f,  0.1f, -0.1f}}, {0, 0, 0, 0}},      /* Vertex 11 */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f, -0.5f, -0.5f}}, {0, 0, 0, 0}},      /* Vertex 12 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f, -0.5f, -0.5f}}, {0, 0, 0, 0}},      /* Vertex 13 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.5f,  0.5f, -0.5f}}, {0, 0, 0, 0}},      /* Vertex 14 */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.5f,  0.5f, -0.5f}}, {0, 0, 0, 0}}       /* Vertex 15 */
+                            entityData["transform"]["position"][0],
+                            entityData["transform"]["position"][1],
+                            entityData["transform"]["position"][2]
                         },
                         {
-                             0,  1,  1,  2,  2,  3,  3,  0,
-                             4,  5,  5,  6,  6,  7,  7,  4,
-                             8,  9,  9, 10, 10, 11, 11,  8,
-                            12, 13, 13, 14, 14, 15, 15, 12,
-                             1, 13,
-                            14,  2,
-                             5,  9,
-                            10,  6,
-                            12,  0,
-                             3, 15,
-                             8,  4,
-                             7, 11
-                        }
-                    ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, WireTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
-            }
-        }
-
-        {   /* Entity   [DEBUG_CAMERA] */
-            auto entity = sceneObj->addEntity();
-            sceneObj->addComponent (entity, MetaComponent (
-                "DEBUG_CAMERA",
-                TAG_TYPE_NONE
-            ));
-            sceneObj->addComponent (entity, CameraComponent());
-            sceneObj->addComponent (entity, TransformComponent (
-                { 0.0f, 5.0f, 5.0f},
-                {-R_45, 0.0f, 0.0f}
-            ));
-            /* No children */
-            entityFamilyInfoPool[entity] = {};
-        }
-        {   /* Entity   [SCENE_CAMERA_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{36.0f, 6.0f, 36.0f}, {-R_90, 0.0f, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "SCENE_CAMERA_" + std::to_string (i),
-                    TAG_TYPE_WIRE
-                ));
-                sceneObj->addComponent (entity, CameraComponent (
-                    PROJECTION_TYPE_PERSPECTIVE,
-                    false,
-                    glm::radians (60.0f),
-                    0.01f,
-                    100.0f
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second,
-                    {0.5f, 0.5f, 0.5f}
-                ));
-                sceneObj->addComponent (entity, ColorComponent (
-                    {0.0f, 0.0f, 1.0f, 1.0f}
-                ));
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        {
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { -0.1f,  -0.1f,  0.0f}}, {0, 0, 0, 0}},    /* Vertex 0  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {  0.1f,  -0.1f,  0.0f}}, {0, 0, 0, 0}},    /* Vertex 1  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {  0.1f,   0.1f,  0.0f}}, {0, 0, 0, 0}},    /* Vertex 2  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { -0.1f,   0.1f,  0.0f}}, {0, 0, 0, 0}},    /* Vertex 3  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { -0.5f,  -0.5f, -1.0f}}, {0, 0, 0, 0}},    /* Vertex 4  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {  0.5f,  -0.5f, -1.0f}}, {0, 0, 0, 0}},    /* Vertex 5  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {  0.5f,   0.5f, -1.0f}}, {0, 0, 0, 0}},    /* Vertex 6  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { -0.5f,   0.5f, -1.0f}}, {0, 0, 0, 0}},    /* Vertex 7  */
-
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {-0.25f, 0.600f, -1.0f}}, {0, 0, 0, 0}},    /* Vertex 8  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.25f, 0.600f, -1.0f}}, {0, 0, 0, 0}},    /* Vertex 9  */
-                            {{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, { 0.00f, 1.033f, -1.0f}}, {0, 0, 0, 0}}     /* Vertex 10 */
+                            entityData["transform"]["rotation"][0],
+                            entityData["transform"]["rotation"][1],
+                            entityData["transform"]["rotation"][2]
                         },
                         {
-                            0, 1, 1,  2,  2, 3, 3, 0,
-                            4, 5, 5,  6,  6, 7, 7, 4,
-                            8, 9, 9, 10, 10, 8,
-                            1, 5,
-                            6, 2,
-                            4, 0,
-                            3, 7
+                            entityData["transform"]["scale"][0],
+                            entityData["transform"]["scale"][1],
+                            entityData["transform"]["scale"][2]
                         }
                     ));
-                    sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
-                    ));
-                    sceneObj->addComponent (entity, WireTagComponent());
-                }
-                else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
             }
-        }
-
-        {   /* Entity   [WORLD_BORDER_?] */
-            Scene::Entity parentEntity;
-            auto instanceTransforms = std::vector <std::pair <glm::vec3, glm::vec3>> {
-                {{-30.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}},
-                {{-20.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}},
-                {{-10.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}},
-                {{  0.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}},
-                {{ 10.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}},
-                {{ 20.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}},
-                {{ 30.0f, 1.0f, -40.0f}, {R_90, 0.0f, 0.0f}}
-            };
-            for (size_t i = 0; i < instanceTransforms.size(); i++) {
-                auto entity = sceneObj->addEntity();
-
-                sceneObj->addComponent (entity, MetaComponent (
-                    "WORLD_BORDER_" + std::to_string (i),
-                    TAG_TYPE_STD_ALPHA
-                ));
-                sceneObj->addComponent (entity, TransformComponent (
-                    instanceTransforms[i].first,
-                    instanceTransforms[i].second
-                ));
-                sceneObj->addComponent (entity, TextureIdxOffsetComponent());
-
-                if (i == 0) {   /* Parent entity */
-                    parentEntity = entity;
-                    entityFamilyInfoPool[parentEntity] = {};
-
-                    sceneObj->addComponent (entity, MeshComponent (
-                        "Asset/Model/World_Border.obj",
-                        "Asset/Model/"
+            {   /* Texture idx offset component */
+                if (!entityData["textureIdxOffset"].is_null())
+                    sceneObj->addComponent (entity, TextureIdxOffsetComponent (
+                        entityData["textureIdxOffset"]["diffuseTextureIdxOffset"],
+                        entityData["textureIdxOffset"]["specularTextureIdxOffset"],
+                        entityData["textureIdxOffset"]["emissionTextureIdxOffset"]
                     ));
+            }
+            {   /* Color component */
+                if (!entityData["color"].is_null())
+                    sceneObj->addComponent (entity, ColorComponent (
+                        {
+                            entityData["color"][0],
+                            entityData["color"][1],
+                            entityData["color"][2],
+                            entityData["color"][3]
+                        }
+                    ));
+            }
+            {   /* Render component */
+                if (!entityData["render"].is_null())
                     sceneObj->addComponent (entity, RenderComponent (
-                        static_cast <uint32_t> (instanceTransforms.size())
+                        entityData["render"]["instancesCount"]
                     ));
+            }
+            {   /* Std no alpha tag component */
+                if (!entityData["stdNoAlphaTag"].is_null() && entityData["stdNoAlphaTag"])
+                    sceneObj->addComponent (entity, StdNoAlphaTagComponent());
+            }
+            {   /* Std alpha tag component */
+                if (!entityData["stdAlphaTag"].is_null() && entityData["stdAlphaTag"])
                     sceneObj->addComponent (entity, StdAlphaTagComponent());
+            }
+            {   /* Wire tag component */
+                if (!entityData["wireTag"].is_null() && entityData["wireTag"])
+                    sceneObj->addComponent (entity, WireTagComponent());
+            }
+            {   /* Sky box tag component */
+                if (!entityData["skyBoxTag"].is_null() && entityData["skyBoxTag"])
+                    sceneObj->addComponent (entity, SkyBoxTagComponent());
+            }
+
+            /* Parse helper */
+            if (!entityData["parseHelper"].is_null()) {
+                /* Save sky box entity */
+                if (entityData["parseHelper"]["skyBoxEntity"])
+                    meta.skyBoxEntity = entity;
+
+                /* Save active camera entity */
+                if (entityData["parseHelper"]["activeCameraEntity"])
+                    meta.activeCameraEntity = entity;
+
+                /* Save entity parent-children relation (ordererd as shown below)
+                 *  +-------+-------+-------+-------+-------+-------+-------+-------+       +-------+
+                 *  |  A,0  |  A,1  |  A,2  |  A,3  |  B,0  |  C,0  |  C,1  |  C,2  | ..... |  C,n  |
+                 *  +-------+-------+-------+-------+-------+-------+-------+-------+       +-------+
+                 *      |       |               |       |       |       |                       |
+                 *      v       +---------------+       v       v       +-----------------------+
+                 *    Parent        Children          Parent  Parent            Children
+                */
+                if (entityData["parseHelper"]["parentEntity"]) {
+                    parentEntity = entity;
+                    meta.parentEntityToChildrenMap[parentEntity] = {};
                 }
                 else
-                    entityFamilyInfoPool[parentEntity].push_back (entity);
+                    meta.parentEntityToChildrenMap[parentEntity].push_back (entity);
             }
         }
 
@@ -954,7 +490,7 @@ namespace SandBox {
                 wireMeshInstanceBatchingObj->generateReport();
             }
             {   /* Light instance batching system */
-                lightInstanceBatchingObj->update (shadowImageWidth / static_cast <float> (shadowImageHeight));
+                lightInstanceBatchingObj->update (meta.shadowImageWidth / static_cast <float> (meta.shadowImageHeight));
                 lightInstanceBatchingObj->generateReport();
             }
         }
