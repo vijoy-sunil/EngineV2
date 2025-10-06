@@ -4,8 +4,17 @@
 <pre>
     |<----------------------:glfw3
     |<----------------------:vk_enum_string_helper
+    |<----------------------:IconsFontAwesome6
+    |<----------------------:imgui
+    |<----------------------:imgui_stdlib
+    |<----------------------:imgui_impl_glfw
+    |<----------------------:imgui_impl_vulkan
+    |<----------------------:implot
+    |<----------------------:implot_internal
     |<----------------------:glm
     |<----------------------:hash
+    |<----------------------:euler_angles
+    |<----------------------:type_ptr
     |<----------------------:matrix_transform
     |<----------------------:quaternion
     |<----------------------:set
@@ -25,7 +34,9 @@
     |<----------------------:limits
     |<----------------------:algorithm
     |<----------------------:chrono
+    |<----------------------:cstdio
     |<----------------------:cstdint
+    |<----------------------:cfloat
     |<----------------------:iomanip
     |<----------------------:iterator
     |<----------------------:stdexcept
@@ -197,6 +208,18 @@
     |VKRenderer
 
     |<----------------------:Common
+    |<----------------------|CNTypeInstanceBase [PUB]
+    |<----------------------:LGImpl
+    |<----------------------:VKInstance
+    |<----------------------:VKWindow
+    |<----------------------:VKPhyDevice
+    |<----------------------:VKLogDevice
+    |<----------------------:VKSwapChain
+    |<----------------------:VKRenderPass
+    |<----------------------:VKDescriptorPool
+    |VKGui
+
+    |<----------------------:Common
     |
     \VKCmdList
     \VKHelper
@@ -242,10 +265,75 @@
     |<----------------------:LGImpl
     |<----------------------:VKWindow
     |<----------------------:VKSwapChain
-    |<----------------------:SYEnum
+    |<----------------------:VKGui
+    |<----------------------:SNType
+    |<----------------------:SYControllerHelper
+    |<----------------------:SYConfig
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
     |SYCameraController
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKImage
+    |<----------------------:VKSampler
+    |<----------------------:VKGui
+    |SYSceneView
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:LGImpl
+    |<----------------------:SNType
+    |<----------------------:SYGuiHelper
+    |<----------------------:SBComponentType
+    |SYEntityCollectionView
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKImage
+    |<----------------------:VKSampler
+    |<----------------------:VKGui
+    |<----------------------:SNType
+    |<----------------------:SYGuiHelper
+    |<----------------------:SBComponentType
+    |SYComponentEditorView
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKImage
+    |<----------------------:VKSampler
+    |<----------------------:VKGui
+    |<----------------------:SBTexturePool
+    |<----------------------:SYGuiHelper
+    |<----------------------:SYConfig
+    |SYConfigView
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:SNImpl
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKBuffer
+    |<----------------------:VKImage
+    |<----------------------:VKRenderPass
+    |<----------------------:VKFrameBuffer
+    |<----------------------:VKPipeline
+    |<----------------------:VKDescriptorSet
+    |<----------------------:VKCmdBuffer
+    |<----------------------:VKRenderer
+    |<----------------------:VKCmdList
+    |<----------------------:SYConfig
+    |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
+    |SYShadowRendering
 
     |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
@@ -263,9 +351,7 @@
     |<----------------------:VKCmdList
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
-    |
-    \SYShadowRendering
-    \SYShadowCubeRendering
+    |SYShadowCubeRendering
 
     |<----------------------:Common
     |<----------------------|SNSystemBase [PUB]
@@ -329,15 +415,27 @@
     |<----------------------:VKRenderer
     |<----------------------:VKCmdList
     |SYDebugRendering
+
+    |<----------------------:Common
+    |<----------------------|SNSystemBase [PUB]
+    |<----------------------:CNImpl
+    |<----------------------:LGImpl
+    |<----------------------:VKSwapChain
+    |<----------------------:VKRenderPass
+    |<----------------------:VKFrameBuffer
+    |<----------------------:VKCmdBuffer
+    |<----------------------:VKRenderer
+    |<----------------------:VKCmdList
+    |SYGuiRendering
+
+    |<----------------------:Common
+    |<----------------------:SNType
+    |SYGuiHelper
 </pre>
 
-## SandBox/
+## SandBox/Config/
 <pre>
-    |<----------------------:stb_image
-    |<----------------------:Common
-    |<----------------------:LGImpl
-    |SBTexturePool
-
+    |<----------------------:json
     |<----------------------:Common
     |<----------------------:SNImpl
     |<----------------------:SYMeshLoading
@@ -346,6 +444,10 @@
     |<----------------------:SYWireMeshInstanceBatching
     |<----------------------:SYLightInstanceBatching
     |<----------------------:SYCameraController
+    |<----------------------:SYSceneView
+    |<----------------------:SYEntityCollectionView
+    |<----------------------:SYComponentEditorView
+    |<----------------------:SYConfigView
     |<----------------------:SYShadowRendering
     |<----------------------:SYShadowCubeRendering
     |<----------------------:SYGDefaultRendering
@@ -354,9 +456,11 @@
     |<----------------------:SYSkyBoxRendering
     |<----------------------:SYFDefaultRendering
     |<----------------------:SYDebugRendering
+    |<----------------------:SYGuiRendering
     |<----------------------:SBImpl
     |<----------------------:SNType
     |<----------------------:SBComponentType
+    |<----------------------:SBRendererType
     |SBScene
 
     |<----------------------:Common
@@ -382,17 +486,26 @@
     |<----------------------:VKCmdPool
     |<----------------------:VKCmdBuffer
     |<----------------------:VKRenderer
-    |<----------------------:SBTexturePool
+    |<----------------------:VKGui
     |<----------------------:SYMeshBatching
     |<----------------------:SYStdMeshInstanceBatching
     |<----------------------:SYWireMeshInstanceBatching
     |<----------------------:SYLightInstanceBatching
+    |<----------------------:SBTexturePool
     |<----------------------:SBImpl
     |<----------------------:VKCmdList
     |<----------------------:VKHelper
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
     |SBRenderer
+</pre>
+
+## SandBox/
+<pre>
+    |<----------------------:stb_image
+    |<----------------------:Common
+    |<----------------------:LGImpl
+    |SBTexturePool
 
     |<----------------------:Common
     |<----------------------:SNImpl
@@ -400,11 +513,15 @@
     |<----------------------:VKWindow
     |<----------------------:VKLogDevice
     |<----------------------:VKRenderer
-    |<----------------------:SBTexturePool
+    |<----------------------:VKGui
     |<----------------------:SYStdMeshInstanceBatching
     |<----------------------:SYWireMeshInstanceBatching
     |<----------------------:SYLightInstanceBatching
     |<----------------------:SYCameraController
+    |<----------------------:SYSceneView
+    |<----------------------:SYEntityCollectionView
+    |<----------------------:SYComponentEditorView
+    |<----------------------:SYConfigView
     |<----------------------:SYShadowRendering
     |<----------------------:SYShadowCubeRendering
     |<----------------------:SYGDefaultRendering
@@ -413,7 +530,10 @@
     |<----------------------:SYSkyBoxRendering
     |<----------------------:SYFDefaultRendering
     |<----------------------:SYDebugRendering
+    |<----------------------:SYGuiRendering
+    |<----------------------:SBTexturePool
     |<----------------------:SNType
+    |<----------------------:SYConfig
     |<----------------------:SBComponentType
     |<----------------------:SBRendererType
     |SBImpl

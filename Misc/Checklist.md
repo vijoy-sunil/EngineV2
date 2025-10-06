@@ -8,7 +8,7 @@
 - [x] Make sure every header file is necessary (search `::`)
 - [x] include <> paths before “” paths
 - [x] include order match inheritance order
-- [ ] Global ordering
+- [x] Global ordering
 ```
 {
     Common
@@ -54,9 +54,9 @@
 - [x] enums should be named as `XXX_TYPE_YYY`, `XXX_STATE_YYY` etc.
 - [x] enum vars should be named in full as `xxxType`, `xxxState` etc.
 - [x] private member vars indicated by `m_`
-- [ ] struct with methods (exculding operator overloads) must have member vars indicated by `m_`
-- [ ] maps should be named as `?To?Map`
-- [ ] min and max vars should be named as `min?`, `max?` (don't suffix with `sCount`)
+- [x] struct with methods (exculding operator overloads) must have member vars indicated by `m_`
+- [x] maps should be named as `?To?Map`
+- [x] min and max vars should be named as `min?`, `max?` (don't suffix with `sCount`)
 - [x] Ternary operator should be formatted as `A ? B: C`
 - [x] function bindings will be called `?Binding`
 - [x] Check if `nullptr` before running a binding
@@ -68,7 +68,7 @@
 - [x] Check if `uint32_t`, `int32_t` etc. can be replaced with `using ?Type` (search `int`)
 - [x] `using` alias begins with upper case
 - [x] Paths as arguments should be named `?FilePath` or `?DirPath` (imageFilePath, modelFilePath etc.)
-- [ ] When to use short hand `auto&`
+- [x] When to use short hand `auto&`
 ```
 {
     In constructor, only `logObj` may be shorhanded
@@ -80,7 +80,7 @@
 - [x] All classes have private info struct to organize private vars
 - [x] struct names begin with upper case
 - [x] struct members should be named short (configs instead of logConfigs in LogInfo); self explanatory
-- [ ] Struct info ordering
+- [x] Struct info ordering
 ```
 {
     meta
@@ -90,7 +90,7 @@
     resource
 }
 ```
-- [ ] Resource struct members will be
+- [x] Resource struct members will be
 ```
 {
     dependency objs
@@ -229,25 +229,25 @@
 
 # MISC
 
-- [ ] `\) [a-z]`                                no use of C-style casting
-- [ ] `\) &`                                    no use of C-style casting
-- [ ] `\b\d+\.\d+(?!f)\b`                       float values end with `f`
-- [ ] `static`                                  is it necessary?
-- [ ] `const char*`                             use `const char*` for string literals
-- [ ] `std::string`                             use only if you require `std::string` features like concat, size etc.
-- [ ] `.size()`                                 make sure it is casted from `size_t` to required types
-- [ ] `size_t`                                  only used for size of an object and in fns that accept `size_t`
-- [ ] `#endif  //`                              all `endif`s should have comment
-- [ ] `Vector`, ` vector`                       shouldn't be suffixed unless its forward/up/right/reflection/unit/normal
-- [ ] `++`, `--`                                prefer prefix over postfix unless in `for` loop
-- [ ] `::`                                      avoid namespace resolution in the same namespace
-- [ ] `vec4`                                    host shouldn't be handling `vec4`
-- [ ] `[ ]`                                     to do list
-- [ ] `ImGui`, `imGui`, `ImPlot`, `imPlot`      do not use as names for objects
-- [ ] `binding`, `bindingIdx`, `bindingNumber`  do not mix them up
-- [ ] `{`, `[`, `(`                             verify use of these in log files
-- [ ] `= {};`                                   prefer using this over `{};` for structs
-- [ ] `delete`                                  order of `delete` in destructor must be inverse of `new`
+- [x] `\) [a-z]`                                no use of C-style casting
+- [x] `\) &`                                    no use of C-style casting
+- [x] `\b\d+\.\d+(?!f)\b`                       float values end with `f`
+- [x] `static`                                  is it necessary?
+- [x] `const char*`                             use `const char*` for string literals
+- [x] `std::string`                             use only if you require `std::string` features like concat, size etc.
+- [x] `.size()`                                 make sure it is casted from `size_t` to required types
+- [x] `size_t`                                  only used for size of an object and in fns that accept `size_t`
+- [x] `#endif  //`                              all `endif`s should have comment
+- [x] `Vector`, ` vector`                       shouldn't be suffixed unless its forward/up/right/reflection/unit/normal
+- [x] `++`, `--`                                prefer prefix over postfix unless in `for` loop
+- [x] `::`                                      avoid namespace resolution in the same namespace
+- [x] `vec4`                                    host shouldn't be handling `vec4`
+- [x] `[ ]`                                     to do list
+- [x] `ImGui`, `imGui`, `ImPlot`, `imPlot`      do not use as names for objects
+- [x] `binding`, `bindingIdx`, `bindingNumber`  do not mix them up
+- [x] `{`, `[`, `(`                             verify use of these in log files
+- [x] `= {};`                                   prefer using this over `{};` for structs
+- [x] `delete`                                  order of `delete` in destructor must be inverse of `new`
 - [x] `PushStyleVar` then `PushStyleColor`      uniform ordering in all files
 - [x] `_None` flag                              instead of leaving it blank
 - [x] `Flags_` via class vars                   only if using more than one flag, otherwise plug them directly
